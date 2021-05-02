@@ -23,8 +23,8 @@ const columns = [
 
 function ProductDetails(){
   
-  const [products, setProducts] = useState([{ id: 1, sfmid: 'Hello', style: 'World' },
-  { id: 2, sfmid: 'XGrid', style: 'is Awesome' }]);
+  const [products, setProducts] = useState([{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
+  { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
   
   useEffect(() => {
     fetch('http://127.0.0.1:8000/api/products/', {
