@@ -9,10 +9,12 @@ import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import { Store, SettingsApplications, Receipt, ViewCarousel, HomeWork, ShoppingCart, PlaylistAddCheck} from '@material-ui/icons';
+import {Link} from 'react-router-dom'
 
 export const mainListItems = (
   <div>
-    <ListItem button>
+    <ListItem button component={Link} to='/dashboard'>
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
@@ -20,51 +22,51 @@ export const mainListItems = (
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <PlaylistAddCheck />
       </ListItemIcon>
       <ListItemText primary="Orders" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <PeopleIcon />
+        <Store />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Stores" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <HomeWork />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Inventory" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <LayersIcon />
+        <ShoppingCart />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Purchases" />
+    </ListItem>
+    <ListItem button component={Link} to='/products'>
+      <ListItemIcon>
+        <ViewCarousel />
+      </ListItemIcon>
+      <ListItemText primary="Products" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <Receipt />
+      </ListItemIcon>
+      <ListItemText primary="Invoice" />
     </ListItem>
   </div>
 );
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <ListSubheader inset>Advanced</ListSubheader>    
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <SettingsApplications />
       </ListItemIcon>
-      <ListItemText primary="Current month" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
+      <ListItemText primary="Django Admin" />
     </ListItem>
   </div>
 );

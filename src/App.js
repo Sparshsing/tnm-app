@@ -1,6 +1,6 @@
 import './App.css';
 import ProductDetails from './components/productDetails';
-import Dashboard from './components/Dashboard';
+import TheLayout from './components/TheLayout';
 import {BrowserRouter} from 'react-router-dom';
 
 
@@ -10,7 +10,7 @@ function App() {
       {/* <header className="App-header">
         TNM Clothing
   </header> */}
-      <Dashboard />
+      <TheLayout />
     </div>
   );
 }

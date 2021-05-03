@@ -1,6 +1,6 @@
 import '../App.css';
 import React, {useState, useEffect} from 'react'
-import { DataGrid, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
 
 const rows = [
   { id: 1, sfmid: 'Hello', style: 'World' },
@@ -46,7 +46,9 @@ function ProductDetails(){
   return(
     <div style={{ height: 400, width: '100%', display: 'flex', justifyContent: 'center'}}>
       <div style={{  width: '80%', minWidth:'600px'}}>
-        <DataGrid rows={products} columns={columns} />
+        <DataGrid rows={products} columns={columns} components={{
+          Toolbar: GridToolbar,
+        }}/>
       </div>
       {/*<ul>
         { products.map( (product) => { 
