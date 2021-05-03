@@ -61,8 +61,8 @@ export const mainListItems = (
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Advanced</ListSubheader>    
-    <ListItem button>
+    <ListSubheader inset>Advanced</ListSubheader>
+    <ListItem button component="a" href="http://localhost:8000/admin">
       <ListItemIcon>
         <SettingsApplications />
       </ListItemIcon>
