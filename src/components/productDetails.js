@@ -27,7 +27,7 @@ function ProductDetails(){
   { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
   
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/products/', {
+    fetch('http://18.116.39.52:8000//api/products/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
