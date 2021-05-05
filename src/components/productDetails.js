@@ -27,7 +27,7 @@ function ProductDetails(){
   { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
   
   useEffect(() => {
-    fetch('http://18.116.39.52:8000/api/products/', {
+    fetch('https://sfm-dropshipping.herokuapp.com/admin/products/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
