@@ -59,9 +59,8 @@ export default function SignIn() {
   const [token, setToken] = useCookies(['mr-token']);
 
   useEffect( () => {    
-    console.log("stupid");
     console.log(token);
-    if(token['mr-token']) window.location.href = "/products";
+    if(token['mr-token']) window.location.href = "/#/products";
   }, [token]);
 
   const signinClicked = (e) => {
@@ -71,7 +70,7 @@ export default function SignIn() {
     .catch(error => {console.error(error);setErrormsg("invalid username or password")});
   }
 
-  return (
+  return (    
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>

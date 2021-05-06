@@ -2,6 +2,7 @@ import '../App.css';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
 import API from '../api-service'
+import { useCookies} from 'react-cookie'
 
 const rows = [
   { id: 1, sfmid: 'Hello', style: 'World' },
@@ -27,8 +28,10 @@ function ProductDetails(){
   const [products, setProducts] = useState([{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
   { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
   
+  const [token] = useCookies(['mr-token']);
+
   useEffect(() => {
-    API.getProducts()    
+    API.getProducts(token['mr-token'])
     .then(data => {
       data.forEach((item, i) => item.id = i+1);
       console.log(data); 
@@ -37,6 +40,11 @@ function ProductDetails(){
     .catch(e => console.log(e));
   }, []
   );
+
+  useEffect( () => {    
+    console.log(token);
+    if(!token['mr-token']) window.location.href = "/#/signin";
+  }, [token]);
 
   return(
     <div style={{ height: 400, width: '100%', display: 'flex', justifyContent: 'center'}}>
