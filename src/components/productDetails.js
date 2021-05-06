@@ -1,6 +1,7 @@
 import '../App.css';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import API from '../api-service'
 
 const rows = [
   { id: 1, sfmid: 'Hello', style: 'World' },
@@ -27,13 +28,7 @@ function ProductDetails(){
   { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
   
   useEffect(() => {
-    fetch('https://sfm-dropshipping.herokuapp.com/api/products/', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(resp => resp.json())
+    API.getProducts()    
     .then(data => {
       data.forEach((item, i) => item.id = i+1);
       console.log(data); 

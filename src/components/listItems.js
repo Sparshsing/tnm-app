@@ -11,6 +11,7 @@ import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { Store, SettingsApplications, Receipt, ViewCarousel, HomeWork, ShoppingCart, PlaylistAddCheck} from '@material-ui/icons';
 import {Link} from 'react-router-dom'
+import {APIROOT} from '../api-service'
 
 export const mainListItems = (
   <div>
@@ -62,7 +63,7 @@ export const mainListItems = (
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Advanced</ListSubheader>
-    <ListItem button component="a" href="https://sfm-dropshipping.herokuapp.com/admin">
+    <ListItem button component="a" href={APIROOT+"/admin"}>
       <ListItemIcon>
         <SettingsApplications />
       </ListItemIcon>

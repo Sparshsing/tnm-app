@@ -7,6 +7,7 @@ function TheContent(){
 
   return (    
         <Switch>
+        <Route exact path='/' component={Dashboard} />
         <Route exact path='/dashboard' component={Dashboard} />
         <Route exact path='/Products' component={ProductDetails} />
           

@@ -14,15 +14,15 @@ import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Link from '@material-ui/core/Link';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+import Button from '@material-ui/core/Button';
 import { mainListItems, secondaryListItems } from './listItems';
 /* import Chart from './Chart';
  */import Deposits from './Deposits';
 import Orders from './Orders';
 import {Route, BrowserRouter} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import TheContent from './TheContent'
 
 function Copyright() {
@@ -145,13 +145,11 @@ export default function TheLayout() {
             <MenuIcon />
           </IconButton>
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            Dashboard
+            SFM Dropshipping
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          <Button color="secondary" variant="contained" component={Link} to="/signin">
+            Sign In
+          </Button>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -173,7 +171,7 @@ export default function TheLayout() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>        
+        <Container maxWidth="lg" className={classes.container}>
           <TheContent />
         </Container>
       </main>
