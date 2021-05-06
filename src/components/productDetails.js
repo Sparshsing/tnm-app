@@ -42,10 +42,12 @@ function ProductDetails(){
   );
 
   useEffect( () => {    
-    console.log(token);
-    if(!token['mr-token']) window.location.href = "/#/signin";
+    console.log(token);    
   }, [token]);
 
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
+  else
   return(
     <div style={{ height: 400, width: '100%', display: 'flex', justifyContent: 'center'}}>
       <div style={{  width: '80%', minWidth:'600px'}}>

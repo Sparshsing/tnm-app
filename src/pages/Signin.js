@@ -15,6 +15,7 @@ import Container from '@material-ui/core/Container';
 import API from '../api-service'
 import { FormLabel } from '@material-ui/core';
 import { useCookies} from 'react-cookie';
+import { Redirect } from "react-router-dom";
 
 function Copyright() {
   return (
@@ -57,10 +58,8 @@ export default function SignIn() {
   const [errormsg, setErrormsg] = useState('');
 
   const [token, setToken] = useCookies(['mr-token']);
-
   useEffect( () => {    
-    console.log(token);
-    if(token['mr-token']) window.location.href = "/#/products";
+    console.log(token);    
   }, [token]);
 
   const signinClicked = (e) => {
@@ -70,7 +69,10 @@ export default function SignIn() {
     .catch(error => {console.error(error);setErrormsg("invalid username or password")});
   }
 
-  return (    
+  if(token['mr-token'])
+    return (<Redirect to='/products'></Redirect>);
+  else
+  return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
