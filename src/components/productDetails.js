@@ -4,12 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-
-const rows = [
-  { id: 1, sfmid: 'Hello', style: 'World' },
-  { id: 2, sfmid: 'XGrid', style: 'is Awesome' },
-  { id: 3, sfmid: 'Material-UI', style: 'is Amazing' },
-];
+import { Divider } from '@material-ui/core';
 
 const columns = [
   { field: 'sfmId', headerName: 'SFM ID', width: 150},
@@ -22,8 +17,6 @@ const columns = [
   { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, editable: true}
 ];
 
-
-
 function ProductDetails(){
   
   const [products, setProducts] = useState([{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
@@ -34,11 +27,12 @@ function ProductDetails(){
   useEffect(() => {
     API.getProducts(token['mr-token'])
     .then(data => {
-      data.forEach((item, i) => item.id = i+1);
       console.log(data); 
+      data.forEach((item, i) => item.id = i+1);
+      
       return setProducts(data);
     })
-    .catch(e => console.log(e));
+    .catch(e => {console.log("api error"); console.error(e)});
   }, []
   );
 
@@ -50,9 +44,11 @@ function ProductDetails(){
     return (<Redirect to='/signin'></Redirect>);
   else
   return(
-    <div style={{ height: 400, width: '100%', display: 'flex', justifyContent: 'center'}}>
-      <div style={{  width: '80%', minWidth:'600px'}}>
-        <DataGrid rows={products} columns={columns} components={{
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
+      <h3>Products</h3>
+      <Divider style={{  width: '100%', marginBottom: '15px' }}/>
+      <div style={{  width: '100%', minWidth:'600px'}}>
+        <DataGrid rows={products} columns={columns} autoHeight={true} components={{
           Toolbar: GridToolbar,
         }}/>
       </div>
