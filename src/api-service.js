@@ -1,5 +1,5 @@
-//export const APIROOT = 'https://sfm-dropshipping.herokuapp.com';
-export const APIROOT = 'http://127.0.0.1:8000';
+export const APIROOT = 'https://sfm-dropshipping.herokuapp.com';
+//export const APIROOT = 'http://127.0.0.1:8000';
 
 export default class API{
   static getProducts(token){
