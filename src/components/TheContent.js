@@ -2,6 +2,7 @@ import {Switch, Route} from 'react-router-dom'
 import React from 'react'
 import ProductDetails from './productDetails';
 import StoreDetails from './StoreDetails';
+import PurchaseList from './PurchaseList';
 import Dashboard from './Dashboard'
 
 function TheContent(){
@@ -10,8 +11,9 @@ function TheContent(){
         <Switch>
         <Route exact path='/' component={Dashboard} />
         <Route exact path='/dashboard' component={Dashboard} />
-        <Route exact path='/Products' component={ProductDetails} />
-        <Route exact path='/Stores' component={StoreDetails} />
+        <Route exact path='/products' component={ProductDetails} />
+        <Route exact path='/stores' component={StoreDetails} />
+        <Route exact path='/purchases' component={PurchaseList} />
           
           {/* <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
           <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />

@@ -22,6 +22,16 @@ export default class API{
     }).then(resp => resp.json())
   }
 
+  static getPurchasesList(token){
+    return fetch(APIROOT + '/api/purchases/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(resp => resp.json())
+  }
+
   static signinUser(credentials){
     return fetch(APIROOT + '/auth/', {
       method: 'POST',
