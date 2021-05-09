@@ -32,6 +32,26 @@ export default class API{
     }).then(resp => resp.json())
   }
 
+  static getInventoryList(token){
+    return fetch(APIROOT + '/api/inventory/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(resp => resp.json())
+  }
+
+  static getOrderList(token){
+    return fetch(APIROOT + '/api/orders/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(resp => resp.json())
+  }
+
   static signinUser(credentials){
     return fetch(APIROOT + '/auth/', {
       method: 'POST',
