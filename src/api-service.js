@@ -32,6 +32,38 @@ export default class API{
     }).then(resp => resp.json())
   }
 
+  static getPurchase(token, id){
+    return fetch(APIROOT + '/api/purchases/' + id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static addPurchase(token, data){
+    return fetch(APIROOT + '/api/purchases/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
+  static updatePurchase(token, id, data){
+    return fetch(APIROOT + '/api/purchases/' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
   static getInventoryList(token){
     return fetch(APIROOT + '/api/inventory/', {
       method: 'GET',
@@ -50,7 +82,7 @@ export default class API{
         'Authorization': `Token ${token}`
       }
     }).then(resp => resp.json())
-  }
+  }  
 
   static signinUser(credentials){
     return fetch(APIROOT + '/auth/', {
