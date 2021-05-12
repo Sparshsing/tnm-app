@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PurchaseForm(props){
+export default function ProductForm(props){
 
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
@@ -31,7 +31,7 @@ export default function PurchaseForm(props){
     console.log("sending data");
     console.log(dataObject);      
     if(props.mode=='update')
-      API.updatePurchase(token['mr-token'], props.id, dataObject)
+      API.updateProduct(token['mr-token'], props.id, dataObject)
       .then(resp => {
         if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
         if(resp.status==200) { setSaved(true); }
@@ -40,7 +40,7 @@ export default function PurchaseForm(props){
       .then(data => {if(badData) setErrormsg(data)})
       .catch(error => {console.log("api error"); console.error(error)});
     else
-      API.addPurchase(token['mr-token'], dataObject)
+      API.addProduct(token['mr-token'], dataObject)
       .then(resp => {
         console.log("saving",resp.status);
         if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
@@ -56,7 +56,7 @@ export default function PurchaseForm(props){
   }
   
   if(saved)
-    return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Purchases</Button></div>);
+    return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Products</Button></div>);
   else
   return(
     <div>
@@ -65,20 +65,8 @@ export default function PurchaseForm(props){
         <Button onClick={handleGoBack}>Go back</Button>
       </div>
     <form className={classes.form} onSubmit={handleSubmit} >
-      { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data</FormLabel>}
+      { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
       
-      <TextField
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        id="status"
-        label="Status"
-        name="status"
-        helperText = {errormsg['status'] ? errormsg['status'][0]:''}
-        error = {errormsg['status'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['status']:''}
-      />
       <TextField
         variant="outlined"
         margin="normal"
@@ -122,54 +110,43 @@ export default function PurchaseForm(props){
         variant="outlined"
         margin="normal"        
         fullWidth
-        id="company"
-        label="Company"
-        name="company"
-        helperText = {errormsg['company'] ? errormsg['company'][0]:''}
-        error = {errormsg['company'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['company']:''}
+        id="sku"
+        label="SKU"
+        name="sku"
+        disabled = {props.mode=='update' ? true:false}
+        helperText = {errormsg['sku'] ? errormsg['sku'][0]:''}
+        error = {errormsg['sku'] ? true: false}
+        defaultValue = {props.mode=='update' ? props.data['sku']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
-        id="warehouse"
-        label="Warehouse"
-        name="warehouse"
-        helperText = {errormsg['warehouse'] ? errormsg['warehouse'][0]:''}
-        error = {errormsg['warehouse'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['warehouse']:''}
-      />
-      <TextField
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        id="ordered"
-        label="Ordered"
-        name="ordered"
+        id="cost"
+        label="Cost"
+        name="cost"
         type="number"
-        helperText = {errormsg['ordered'] ? errormsg['ordered'][0]:''}
-        error = {errormsg['ordered'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['ordered']:''}
+        inputProps={{step:0.01}}
+        helperText = {errormsg['cost'] ? errormsg['cost'][0]:''}
+        error = {errormsg['cost'] ? true: false}
+        defaultValue = {props.mode=='update' ? props.data['cost']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
-        id="orderDate"
-        label="order Date"
-        name="orderDate"
-        type="date"
-        helperText = {errormsg['orderDate'] ? errormsg['orderDate'][0]:''}
-        error = {errormsg['orderDate'] ? true: false}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        defaultValue = {props.mode=='update' ? props.data['orderDate']:''}
+        id="price"
+        label="Price"
+        name="price"
+        type="number"
+        inputProps={{step:0.01}}
+        helperText = {errormsg['price'] ? errormsg['price'][0]:''}
+        error = {errormsg['price'] ? true: false}
+        defaultValue = {props.mode=='update' ? props.data['price']:''}
       />
+      
       <Button
         type="submit"
         fullWidth

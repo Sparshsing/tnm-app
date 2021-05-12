@@ -60,10 +60,10 @@ function PurchaseList(){
         console.log(data);
         // not needed as purchases object already contains field called id
         // data.forEach((item, i) => item.id = i+1);
-        
-        return setPurchases(data);
+        setMySelectedRows([]);
+        setPurchases(data);
       })
-      .catch(e => {console.log("api error"); console.error(e)});
+      .catch(e => {console.log("api error"); console.error(e);});
     }
   }, [token, mode]
   );

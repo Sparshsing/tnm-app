@@ -2,7 +2,7 @@ export const APIROOT = 'https://sfm-dropshipping.herokuapp.com';
 //export const APIROOT = 'http://127.0.0.1:8000';
 
 export default class API{
-  static getProducts(token){
+  static getProductList(token){
     return fetch(APIROOT + '/api/products/', {
       method: 'GET',
       headers: {
@@ -10,6 +10,38 @@ export default class API{
         'Authorization': `Token ${token}`
       }
     }).then(resp => resp.json())
+  }
+
+  static getProduct(token, id){
+    return fetch(APIROOT + '/api/products/' + id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static addProduct(token, data){
+    return fetch(APIROOT + '/api/products/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
+  static updateProduct(token, id, data){
+    return fetch(APIROOT + '/api/products/' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
   }
 
   static getStoreDetails(token){
