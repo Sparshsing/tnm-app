@@ -44,7 +44,7 @@ export default class API{
     })
   }
 
-  static getStoreDetails(token){
+  static getStoreList(token){
     return fetch(APIROOT + '/api/stores/', {
       method: 'GET',
       headers: {
@@ -114,7 +114,39 @@ export default class API{
         'Authorization': `Token ${token}`
       }
     }).then(resp => resp.json())
-  }  
+  }
+
+  static getOrder(token, id){
+    return fetch(APIROOT + '/api/orders/' + id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static addOrder(token, data){
+    return fetch(APIROOT + '/api/orders/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
+  static updateOrder(token, id, data){
+    return fetch(APIROOT + '/api/orders/' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
 
   static signinUser(credentials){
     return fetch(APIROOT + '/auth/', {

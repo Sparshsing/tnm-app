@@ -4,7 +4,8 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider } from '@material-ui/core';
+import { Divider, Button } from '@material-ui/core';
+import OrderForm from './OrderForm';
 
 const columns = [
   { field: 'storeName', headerName: 'Store Name', width: 150 },
@@ -36,21 +37,31 @@ const columns = [
 
 function OrderList(){
   
-  const [orders, setOrders] = useState([{ id: 1, style: 'dummy1', size: 'dummy ' },
-  { id: 2, style: 'dummy2', size: 'dummy ' }]);
+  // { id: 1, style: 'dummy1', size: 'dummy ' },
+  // { id: 2, style: 'dummy2', size: 'dummy ' }
+  const [orders, setOrders] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [mode, setMode] = useState('none');
+  const [mySelectedRows, setMySelectedRows] = useState([]);
+
+  const handleAddClick = (e) => {setMode('add')}
+
+  const handleSelection = (items) => {
+    console.log(items);    
+    setMySelectedRows(items.selectionModel);    
+  }
 
   useEffect(() => {
     API.getOrderList(token['mr-token'])
     .then(data => {
       console.log(data); 
-      data.forEach((item, i) => item.id = item.sfmId);
+      data.forEach((item, i) => item.id = item.orderId);
       
       return setOrders(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
-  }, []
+  }, [mode, token]
   );
 
   useEffect( () => {    
@@ -64,11 +75,18 @@ function OrderList(){
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Orders</h3>
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
-      <div style={{  width: '100%', minWidth:'600px'}}>        
-        <DataGrid rows={orders} columns={columns} autoHeight={true} components={{
-          Toolbar: GridToolbar,
-        }} />
-      </div>
+      { mode=='none' ?
+        <div>
+          <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+          <div style={{  width: '100%', minWidth:'600px'}}>        
+            <DataGrid rows={orders} columns={columns} checkboxSelection autoHeight={true} components={{
+              Toolbar: GridToolbar,
+            }} onSelectionModelChange={handleSelection} />
+          </div>
+        </div>
+        :
+        <OrderForm mode={mode} setMode={setMode}></OrderForm>
+      }
     </div>      
   );
 }

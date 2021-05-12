@@ -25,7 +25,7 @@ function StoreDetails(){
   const [token] = useCookies(['mr-token']);
 
   useEffect(() => {
-    API.getStoreDetails(token['mr-token'])
+    API.getStoreList(token['mr-token'])
     .then(data => {
       console.log(data); 
       data.forEach((item, i) => item.id = i+1);

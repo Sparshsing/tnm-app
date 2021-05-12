@@ -18,9 +18,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Button from '@material-ui/core/Button';
 import { mainListItems, secondaryListItems } from './listItems';
-/* import Chart from './Chart';
- */import Deposits from './Deposits';
-import Orders from './Orders';
+// import Chart from './Chart';
+// import Deposits from './Deposits';
+
 import {Route, BrowserRouter} from 'react-router-dom';
 import {Link} from 'react-router-dom';
 import TheContent from './TheContent'
@@ -104,11 +104,14 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     height: '100vh',
     overflow: 'auto',
+    padding: '5px',
   },
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
-  },
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    },
   paper: {
     padding: theme.spacing(2),
     display: 'flex',
@@ -172,7 +175,7 @@ export default function TheLayout() {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
+        <Container maxWidth={false} className={classes.container}>
           <TheContent />
         </Container>
       </main>
