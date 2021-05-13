@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button } from '@material-ui/core';
+import { Divider, Button, TextField } from '@material-ui/core';
 import OrderForm from './OrderForm';
 
 const columns = [
@@ -45,6 +45,41 @@ function OrderList(){
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
 
+  const [selectedFile, setSelectedFile] = useState();
+	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [message, setMessage] = useState('');
+
+	const fileChangeHandler = (event) => {
+		setSelectedFile(event.target.files[0]);
+    console.log("file is: ", event.target.files[0])
+		setIsFilePicked(true);
+	};
+
+	const handleUpload = (e) => {
+    const formData = new FormData();
+
+		formData.append('ordersFile', selectedFile);
+
+		API.uploadOrdersFile(token['mr-token'], formData)
+			.then((response) => response.json())
+			.then((result) => {
+        if(result['errors']){
+          console.log('Success but with following errors: ');
+          console.log(result['errors']);
+          if(result['errors'].length=0)
+            setMessage('Successfully imported all records');
+          else
+            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+        }
+				else setMessage('Failed import due to unknown reason');
+        setMode('none');
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+        setMessage('Failed import due to unknown reasons');
+			});
+	};
+
   const handleAddClick = (e) => {setMode('add')}
 
   const handleSelection = (items) => {
@@ -74,10 +109,12 @@ function OrderList(){
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Orders</h3>
+      {message=='' ? '' : <div>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
           <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
           <div style={{  width: '100%', minWidth:'600px'}}>        
             <DataGrid rows={orders} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,

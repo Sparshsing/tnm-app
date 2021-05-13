@@ -148,6 +148,19 @@ export default class API{
     })
   }
 
+  static uploadOrdersFile(token, data){
+    return fetch(APIROOT + '/api/orders/import_file/',
+			{
+				method: 'POST',
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          'Authorization': `Token ${token}`
+        },
+				body: data,
+			}
+		)
+  }
+
   static signinUser(credentials){
     return fetch(APIROOT + '/auth/', {
       method: 'POST',
