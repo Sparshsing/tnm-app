@@ -47,6 +47,8 @@ function OrderList(){
 
   const [selectedFile, setSelectedFile] = useState();
 	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [selectedShippingFile, setSelectedShippingFile] = useState();
+  const [isShippingFilePicked, setIsShippingFilePicked] = useState(false);
   const [message, setMessage] = useState('');
 
 	const fileChangeHandler = (event) => {
@@ -55,23 +57,58 @@ function OrderList(){
 		setIsFilePicked(true);
 	};
 
+  const shippingFileChangeHandler = (event) => {
+		setSelectedShippingFile(event.target.files[0]);
+    console.log("file is: ", event.target.files[0])
+		setIsShippingFilePicked(true);
+	};
+
 	const handleUpload = (e) => {
+    e.preventDefault();
     const formData = new FormData();
+    if(isFilePicked && selectedFile.name.search(/order/i) == -1){
+      setMessage('Please make sure you have selected orders file. File name should contain the word order');
+      return;
+    }
 
-		formData.append('ordersFile', selectedFile);
+    if(isShippingFilePicked && selectedShippingFile.name.search(/ship/i) == -1){
+      setMessage('Please make sure you have selected shipping file. File name should contain the word ship');
+      return;
+    }
 
-		API.uploadOrdersFile(token['mr-token'], formData)
-			.then((response) => response.json())
+    let res
+
+    if(isFilePicked){
+      formData.append('ordersFile', selectedFile);
+		  res = API.uploadOrdersFile(token['mr-token'], formData)
+    }
+
+    else if(isShippingFilePicked){
+      formData.append('shippingFile', selectedShippingFile);
+		  res = API.uploadShippingFile(token['mr-token'], formData)
+    }
+
+    else{
+      setMessage('Please select a file');
+      return;
+    }
+		
+			res.then((response) => response.json())
 			.then((result) => {
-        if(result['errors']){
-          console.log('Success but with following errors: ');
-          console.log(result['errors']);
-          if(result['errors'].length=0)
+        if(result['errors']){          
+          if(result['errors'].length==0){
             setMessage('Successfully imported all records');
-          else
+            console.log('Successfully imported all records');
+          }
+          else{
             setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            console.log('Following rows were not imported: ');
+            console.log(result['errors']);
+          }
         }
 				else setMessage('Failed import due to unknown reason');
+        setIsFilePicked('fasle');
+        fetchlist();
         setMode('none');
 			})
 			.catch((error) => {
@@ -88,6 +125,12 @@ function OrderList(){
   }
 
   useEffect(() => {
+    if(mode=='none')
+      fetchlist()
+  }, [mode, token]
+  );
+
+  function fetchlist(){
     API.getOrderList(token['mr-token'])
     .then(data => {
       console.log(data); 
@@ -96,8 +139,7 @@ function OrderList(){
       return setOrders(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
-  }, [mode, token]
-  );
+  }
 
   useEffect( () => {    
     console.log(token);    
@@ -109,14 +151,15 @@ function OrderList(){
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Orders</h3>
-      {message=='' ? '' : <div>{message}</div>}
+      {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
           <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
-          <div style={{  width: '100%', minWidth:'600px'}}>        
-            <DataGrid rows={orders} columns={columns} checkboxSelection autoHeight={true} components={{
+          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
+          <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
+          <div style={{  width: '100%', height: '450px', minWidth:'600px'}}>        
+            <DataGrid rows={orders} columns={columns} checkboxSelection  components={{
               Toolbar: GridToolbar,
             }} onSelectionModelChange={handleSelection} />
           </div>

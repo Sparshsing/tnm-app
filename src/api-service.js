@@ -149,7 +149,46 @@ export default class API{
   }
 
   static uploadOrdersFile(token, data){
-    return fetch(APIROOT + '/api/orders/import_file/',
+    return fetch(APIROOT + '/api/orders/import_ordersfile/',
+			{
+				method: 'POST',
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          'Authorization': `Token ${token}`
+        },
+				body: data,
+			}
+		)
+  }
+
+  static uploadShippingFile(token, data){
+    return fetch(APIROOT + '/api/orders/import_shippingfile/',
+			{
+				method: 'POST',
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          'Authorization': `Token ${token}`
+        },
+				body: data,
+			}
+		)
+  }
+
+  static uploadPurchasesFile(token, data){
+    return fetch(APIROOT + '/api/purchases/import_file/',
+			{
+				method: 'POST',
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          'Authorization': `Token ${token}`
+        },
+				body: data,
+			}
+		)
+  }
+
+  static uploadProductsFile(token, data){
+    return fetch(APIROOT + '/api/products/import_file/',
 			{
 				method: 'POST',
         headers: {

@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
-import { Divider, Button } from '@material-ui/core';
+import { Divider, Button, TextField } from '@material-ui/core';
 import ProductForm from './ProductForm';
 
 const columns = [
@@ -29,7 +29,61 @@ function ProductDetails(){
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [recordDetails, setRecordDetails] = useState({});
 
+  const [selectedFile, setSelectedFile] = useState();
+	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const fileChangeHandler = (event) => {
+		setSelectedFile(event.target.files[0]);
+    console.log("file is: ", event.target.files[0])
+		setIsFilePicked(true);
+	};
+
+  const handleUpload = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+		formData.append('productsFile', selectedFile);
+
+    if(isFilePicked && selectedFile.name.search(/product/i) == -1){
+      setMessage('Please make sure you have selected products file. File name should contain the word product');
+      return;
+    }
+
+		API.uploadProductsFile(token['mr-token'], formData)
+			.then((response) => response.json())
+			.then((result) => {
+        if(result['errors']){          
+          if(result['errors'].length==0){
+            setMessage('Successfully imported all records');
+            console.log('Successfully imported all records');
+          }
+          else{
+            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            console.log('Following rows were not imported: ');
+            console.log(result['errors']);
+          }
+        }
+				else setMessage('Failed import due to unknown reason');
+        console.log('setting mode');
+        setIsFilePicked(false);
+        fetchlist();
+        setMode('none');
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+        setMessage('Failed import due to unknown reasons');
+			});
+	};
+
   useEffect(() => {
+    if(mode=='none')
+      fetchlist();
+  }, [token, mode]
+  );
+
+  function fetchlist(){
     API.getProductList(token['mr-token'])
     .then(data => {
       console.log(data); 
@@ -38,8 +92,7 @@ function ProductDetails(){
       setProducts(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
-  }, [token, mode]
-  );
+  }
 
   const updatebtnClicked = (e) => {
     console.log("update clicked");
@@ -71,11 +124,13 @@ function ProductDetails(){
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Products</h3>
+      {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
           <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
           <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
+          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
           <div style={{  width: '100%', minWidth:'600px'}}>
             <DataGrid rows={products} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,
