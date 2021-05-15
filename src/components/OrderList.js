@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField } from '@material-ui/core';
+import { Divider, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText } from '@material-ui/core';
 import OrderForm from './OrderForm';
 
 const columns = [
@@ -43,6 +43,7 @@ function OrderList(){
   
   const [token] = useCookies(['mr-token']);
   const [mode, setMode] = useState('none');
+  const [open, setOpen] = useState(false);
   const [mySelectedRows, setMySelectedRows] = useState([]);
 
   const [selectedFile, setSelectedFile] = useState();
@@ -118,6 +119,22 @@ function OrderList(){
 	};
 
   const handleAddClick = (e) => {setMode('add')}
+  const handleDeleteClick = (e) => {setOpen(true)}
+  const handleClose = (e) => {setOpen(false)}
+  const handleDeleteConfirm = (e) => {
+    console.log('u confirmed delete');
+      mySelectedRows.forEach( rowId => {
+        API.deleteOrder(token['mr-token'], rowId)
+        .then( resp => {
+          if(resp.status==200 || resp.status==204)
+            console.log(`deleted order with id ${rowId}`);
+          else
+            console.log(`Failed to delete order with id ${rowId}`);
+        })
+        .catch(e => console.error(`could not delete order id ${rowId}`, e))
+      });
+      setOpen(false);
+  }
 
   const handleSelection = (items) => {
     console.log(items);    
@@ -156,6 +173,24 @@ function OrderList(){
       { mode=='none' ?
         <div>
           <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+          { mySelectedRows.length>0 && 
+            <div>
+            <Button variant="outlined" color="primary" onClick={handleDeleteClick}>Delete</Button>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+              
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">Cancel</Button>
+                <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+              </DialogActions>
+            </Dialog>
+            </div>
+          }
           <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
           <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
           <div style={{  width: '100%', height: '450px', minWidth:'600px'}}>        
@@ -167,7 +202,7 @@ function OrderList(){
         :
         <OrderForm mode={mode} setMode={setMode}></OrderForm>
       }
-    </div>      
+    </div>
   );
 }
 

@@ -137,6 +137,16 @@ export default class API{
     })
   }
 
+  static deleteOrder(token, id){
+    return fetch(APIROOT + '/api/orders/' + id + '/', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+    })
+  }
+
   static updateOrder(token, id, data){
     return fetch(APIROOT + '/api/orders/' + id + '/', {
       method: 'PUT',

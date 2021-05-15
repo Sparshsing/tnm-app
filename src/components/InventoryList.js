@@ -30,6 +30,7 @@ function InventoryList(){
   const [token] = useCookies(['mr-token']);
 
   useEffect(() => {
+    console.log({...productInventory[0]});
     API.getInventoryList(token['mr-token'])
     .then(data => {
       console.log(data); 
