@@ -9,7 +9,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import LayersIcon from '@material-ui/icons/Layers';
 import AssignmentIcon from '@material-ui/icons/Assignment';
-import { Store, SettingsApplications, Receipt, ViewCarousel, HomeWork, ShoppingCart, PlaylistAddCheck} from '@material-ui/icons';
+import { Store, SettingsApplications, Receipt, ViewCarousel, HomeWork, ShoppingCart, PlaylistAddCheck, ImportantDevices} from '@material-ui/icons';
 import {Link} from 'react-router-dom'
 import {APIROOT} from '../api-service'
 
@@ -26,6 +26,12 @@ export const mainListItems = (
         <PlaylistAddCheck />
       </ListItemIcon>
       <ListItemText primary="Orders" />
+    </ListItem>
+    <ListItem button button component={Link} to='/printing'>
+      <ListItemIcon>
+        <ImportantDevices />
+      </ListItemIcon>
+      <ListItemText primary="Printing" />
     </ListItem>
     <ListItem button component={Link} to='/stores'>
       <ListItemIcon>

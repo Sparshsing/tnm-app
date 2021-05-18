@@ -87,8 +87,7 @@ function ProductDetails(){
     API.getProductList(token['mr-token'])
     .then(data => {
       console.log(data); 
-      data.forEach((item, i) => item.id = item.sfmId);
-      setMySelectedRows([]);
+      // data.forEach((item, i) => item.id = item.sfmId);
       setProducts(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
@@ -96,8 +95,10 @@ function ProductDetails(){
 
   const updatebtnClicked = (e) => {
     console.log("update clicked");
-    if(mySelectedRows.length==1)    
-      API.getProduct(token['mr-token'], mySelectedRows[0])
+    if(mySelectedRows.length==1){
+      const selectedRowId = mySelectedRows[0]
+      setMySelectedRows([])
+      API.getProduct(token['mr-token'], selectedRowId)
         .then(resp => resp.json())
         .then(data => {
         console.log("filling formdata");
@@ -105,6 +106,7 @@ function ProductDetails(){
         setMode('update');
         })
         .catch(e =>{console.log("api error");console.error(e)});
+      }
   };
 
   const handleAddClick = (e) => {setMode('add')}

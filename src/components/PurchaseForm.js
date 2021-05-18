@@ -1,8 +1,10 @@
 import API from '../api-service'
-import React, {useState} from 'react';
-import {Button, TextField, FormLabel, Typography} from '@material-ui/core';
+import React, {useState, useEffect} from 'react';
+import {Button, TextField, FormLabel, Typography, MenuItem, Dialog, DialogTitle, DialogActions} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie'
+import { setGridPageSizeStateUpdate } from '@material-ui/data-grid';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 const useStyles = makeStyles((theme) => ({    
   form: {
@@ -19,17 +21,57 @@ export default function PurchaseForm(props){
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
   const [errormsg, setErrormsg] = useState({});
-  const [saved, setSaved, getSaved] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [submittedData, setSubmittedData] = useState([]);
+  const [availableStyles, setAvailableStyles] = useState([]);
+  const [availableSizes, setAvailableSizes] = useState([]);
+  const [availableColors, setAvailableColors] = useState([]);
+  const [availableProducts, setAvailableProducts] = useState([]);
   let badData = false;
   console.log("opened form");
+  console.log(availableStyles);
+  console.log(availableProducts);
+
+  useEffect(() => {
+    API.getProductList(token['mr-token'])
+    .then(data => {
+      const styles = data.map( d => d.style);
+      setAvailableStyles([...new Set(styles)]);
+      const sizes = data.map( d => d.size)
+      setAvailableSizes([...new Set(sizes)]);
+      const colors = data.map( d => d.color);
+      setAvailableColors([...new Set(colors)]);      
+      setAvailableProducts(data.map( d => d.sfmId));
+    })
+    .catch(e => {console.log("api error"); console.error(e)});    
+  }, []
+  );
+
+  const handleClose = (e) => {setOpen(false)}
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);    
     let dataObject = {};    
+    console.log(formData);
     formData.forEach((value, key) => dataObject[key] = value);
     console.log("sending data");
-    console.log(dataObject);      
+    const sfmId = dataObject['style'] + '-' + dataObject['size'] + '-' + dataObject['color']
+    setSubmittedData(dataObject);
+    if(!availableProducts.find(x => x==sfmId)){
+      setOpen(true);
+      return;
+    }
+    saveData(dataObject);    
+  };
+
+  const handleConfirm = (e) => {
+    saveData(submittedData);
+  }
+
+  const saveData = (dataObject) => {
+    console.log(dataObject);
     if(props.mode=='update')
       API.updatePurchase(token['mr-token'], props.id, dataObject)
       .then(resp => {
@@ -49,7 +91,7 @@ export default function PurchaseForm(props){
       })
       .then(data => {if(badData) setErrormsg(data)})
       .catch(error => {console.log("api error"); console.error(error)});      
-  };
+  }  
 
   const handleGoBack = (e) => {
     props.setMode('none');
@@ -64,13 +106,27 @@ export default function PurchaseForm(props){
         <Typography>{props.mode=='update' ? 'Update':'Add'}</Typography>
         <Button onClick={handleGoBack}>Go back</Button>
       </div>
-    <form className={classes.form} onSubmit={handleSubmit} >
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">"The Product does not Exist. New Product will be created. Continue?"</DialogTitle>
+        
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">Cancel</Button>
+          <Button onClick={handleConfirm} color="primary" autoFocus>Confirm</Button>
+        </DialogActions>
+      </Dialog>
+      <form className={classes.form} onSubmit={handleSubmit} >
       { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data</FormLabel>}
       
       <TextField
         variant="outlined"
         margin="normal"
         required
+        select
         fullWidth
         id="status"
         label="Status"
@@ -78,12 +134,21 @@ export default function PurchaseForm(props){
         helperText = {errormsg['status'] ? errormsg['status'][0]:''}
         error = {errormsg['status'] ? true: false}
         defaultValue = {props.mode=='update' ? props.data['status']:''}
-      />
-      <TextField
+      >
+        <MenuItem key={0} value={'In Transit'}>In Transit</MenuItem>
+        <MenuItem key={1} value={'Received'}>Received</MenuItem>
+      </TextField>
+      <Autocomplete
+      id="styleCombo"
+      options={availableStyles}
+      freeSolo
+      getOptionLabel={(option) => option}
+      fullWidth      
+      renderInput={(params) => 
+        <TextField {...params} 
         variant="outlined"
         margin="normal"
         required
-        fullWidth
         id="style"
         label="Style"
         name="style"
@@ -91,8 +156,16 @@ export default function PurchaseForm(props){
         helperText = {errormsg['style'] ? errormsg['style'][0]:''}
         error = {errormsg['style'] ? true: false}
         defaultValue = {props.mode=='update' ? props.data['style']:''}
+        />}
       />
-      <TextField
+
+      <Autocomplete
+      id="sizeCombo"
+      options={availableSizes}
+      freeSolo
+      getOptionLabel={(option) => option}
+      renderInput={(params) => 
+        <TextField {...params} 
         variant="outlined"
         margin="normal"
         required
@@ -104,20 +177,28 @@ export default function PurchaseForm(props){
         helperText = {errormsg['size'] ? errormsg['size'][0]:''}
         error = {errormsg['size'] ? true: false}
         defaultValue = {props.mode=='update' ? props.data['size']:''}
+        />}
       />
-      <TextField
-      variant="outlined"
-      margin="normal"
-      required
-      fullWidth
-      id="color"
-      label="Color"
-      name="color"
-      disabled = {props.mode=='update' ? true:false}
-      helperText = {errormsg['color'] ? errormsg['color'][0]:''}
-      error = {errormsg['color'] ? true: false}
-      defaultValue = {props.mode=='update' ? props.data['color']:''}
+      <Autocomplete
+      id="colorCombo"
+      options={availableColors}
+      freeSolo
+      getOptionLabel={(option) => option}
+      renderInput={(params) => 
+        <TextField {...params} 
+        variant="outlined"
+        margin="normal"
+        required
+        id="color"
+        label="Color"
+        name="color"
+        disabled = {props.mode=='update' ? true:false}
+        helperText = {errormsg['color'] ? errormsg['color'][0]:''}
+        error = {errormsg['color'] ? true: false}
+        defaultValue = {props.mode=='update' ? props.data['color']:''}
+        />}
       />
+      
       <TextField
         variant="outlined"
         margin="normal"        
@@ -179,6 +260,6 @@ export default function PurchaseForm(props){
       >
         Submit
       </Button>          
-    </form>
+      </form>
     </div>); 
 }

@@ -18,9 +18,9 @@ const columns = [
 ];
 
 function StoreDetails(){
-  
-  const [stores, setStores] = useState([{ id: 1, storeCode: 'dummy1', storeName: 'dummy store' },
-  { id: 2, storeCode: 'dummy2', storeName: 'dummy store2' }]);
+  //{ id: 1, storeCode: 'dummy1', storeName: 'dummy store' },
+  //{ id: 2, storeCode: 'dummy2', storeName: 'dummy store2' }
+  const [stores, setStores] = useState([]);
   
   const [token] = useCookies(['mr-token']);
 

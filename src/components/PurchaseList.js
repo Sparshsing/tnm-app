@@ -8,23 +8,11 @@ import { Divider, Button, TextField } from '@material-ui/core';
 import PurchaseForm from './PurchaseForm';
 
 
-const columns = [
-  { field: 'status', headerName: 'Status', width: 150},
-  { field: 'style', headerName: 'Style', width: 150 },
-  { field: 'size', headerName: 'Size', width: 150 },
-  { field: 'color', headerName: 'Color', width: 150 },
-  { field: 'company', headerName: 'Company' },
-  { field: 'warehouse', headerName: 'Warehouse', width: 150 },
-  { field: 'ordered', headerName: 'Ordered', width: 150 },
-  { field: 'orderDate', headerName: 'Order Date', width: 150},
-  { field: 'arrivalDate', headerName: 'Arrival Date', width: 150 },
-  { field: 'sfmId', headerName: 'SFM ID', width: 150 }
-];
 
 function PurchaseList(){
-  
-  const [purchases, setPurchases] = useState([{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
-  { id: 2,  sfmId: 'dummy2', style: 'dummy style' }]);
+  //{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
+  //{ id: 2,  sfmId: 'dummy2', style: 'dummy style' }
+  const [purchases, setPurchases] = useState([]);
   
   const [token] = useCookies(['mr-token']);
   const [mode, setMode] = useState('none');
@@ -40,6 +28,60 @@ function PurchaseList(){
     console.log("file is: ", event.target.files[0])
 		setIsFilePicked(true);
 	};
+
+  const columns = [
+    { field: 'id', headerName: 'Purchase Id', width: 150, hide:true },
+    { field: 'status', headerName: 'Status', width: 150,
+      renderCell: (params) => {
+          return(
+          <Button
+            variant="contained"
+            color= { params.value=="In Transit" ? "secondary":"primary" }
+            size="small"
+            data-pid={params.id}
+            onClick={handleStatusChange}
+            style={{ marginLeft: 16 }}
+          >
+            {params.value}
+          </Button>);
+      },
+      },
+    { field: 'style', headerName: 'Style', width: 150 },
+    { field: 'size', headerName: 'Size', width: 150 },
+    { field: 'color', headerName: 'Color', width: 150 },
+    { field: 'company', headerName: 'Company' },
+    { field: 'warehouse', headerName: 'Warehouse', width: 150 },
+    { field: 'ordered', headerName: 'Ordered', width: 150 },
+    { field: 'orderDate', headerName: 'Order Date', width: 150},
+    { field: 'arrivalDate', headerName: 'Arrival Date', width: 150 },
+    { field: 'sfmId', headerName: 'SFM ID', width: 150 }
+  ];
+
+  const handleStatusChange = (e) => {
+    const pid = parseInt(e.currentTarget.dataset.pid);
+    let rowdata = purchases.find(p => p.id == pid);
+    const status = rowdata.status=='In Transit' ? 'Received': 'In Transit'
+    const newRow = {...rowdata, status}
+    console.log(newRow);
+    API.updatePurchase(token['mr-token'], pid, newRow)
+      .then(resp => {
+        if(resp.status==200) return resp.json();
+        if(resp.status==400) throw JSON.stringify(resp.json());
+        else throw 'Something went wrong. Please Refresh';
+      })
+      .then(data => {
+        const updatedRows = purchases.map((row) => {
+          if (row.id == data.id)
+            return data;          
+          return row;
+        });
+        setMessage('updated purchase');
+        console.log(updatedRows.map(x => x.id));
+        setPurchases(updatedRows);
+      })
+      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
+    
+  }
 
 	const handleUpload = (e) => {
     e.preventDefault();
@@ -140,7 +182,7 @@ function PurchaseList(){
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
             <DataGrid rows={purchases} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} />
+            }} onSelectionModelChange={handleSelection} disableSelectionOnClick={true}/>
           </div>
         </div>
         :

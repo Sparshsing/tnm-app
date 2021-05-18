@@ -24,8 +24,9 @@ const columns = [
 
 function InventoryList(){
   
-  const [productInventory, setproductInventory] = useState([{ id: 1, style: 'dummy1', size: 'dummy ' },
-  { id: 2, style: 'dummy2', size: 'dummy ' }]);
+  //{ id: 1, style: 'dummy1', size: 'dummy ' },
+  //{ id: 2, style: 'dummy2', size: 'dummy ' }
+  const [productInventory, setproductInventory] = useState([]);
   
   const [token] = useCookies(['mr-token']);
 
@@ -34,7 +35,7 @@ function InventoryList(){
     API.getInventoryList(token['mr-token'])
     .then(data => {
       console.log(data); 
-      data.forEach((item, i) => item.id = item.sfmId);
+      // data.forEach((item, i) => item.id = item.sfmId);
       
       return setproductInventory(data);
     })

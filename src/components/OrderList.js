@@ -4,16 +4,22 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText } from '@material-ui/core';
+import { Divider, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
 import OrderForm from './OrderForm';
 
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
 const columns = [
+  { field: 'orderId', headerName: 'Order Id', width: 150 },
   { field: 'storeName', headerName: 'Store Name', width: 150 },
   { field: 'orderStatus', headerName: 'Order Status', width: 150 },
-  { field: 'saleDate', headerName: 'Sale Date', width: 150 },
+  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 150 },
   { field: 'orderNo', headerName: 'Order No', width: 150 },
   { field: 'orderCount', headerName: 'Order Count', width: 150 },
-  { field: 'recipientName', headerName: 'Recipent Name', width: 150 },
+  { field: 'recipientName', headerName: 'Recipent Name', width: 150, editable:true },
   { field: 'style', headerName: 'Style', width: 150 },
   { field: 'size', headerName: 'Size', width: 150 },
   { field: 'color', headerName: 'Color', width: 150 },
@@ -28,10 +34,13 @@ const columns = [
   { field: 'giftMessages', headerName: 'Gift Messages', width: 150 },
   { field: 'sfmId', headerName: 'SFM ID', width: 150 },
   { field: 'sku', headerName: 'SKU', width: 150 },
-  { field: 'shipDate', headerName: 'Ship Date', width: 150 },
+  { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150 },
   { field: 'priorityShip', headerName: 'Priority Ship', width: 150 },
-  { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150 },
-  { field: 'trackingNumber', headerName: 'Tracking Number', width: 150 },
+  { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number',
+    editable:true,
+    valueFormatter: ({ value }) => currencyFormatter.format(Number(value))
+  },
+  { field: 'trackingNumber', headerName: 'Tracking Number', width: 150, editable:true },
   { field: 'productAvailability', headerName: 'Product Availability', width: 150 }
 ];
 
@@ -45,6 +54,7 @@ function OrderList(){
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
   const [mySelectedRows, setMySelectedRows] = useState([]);
+  const [myEditedRows, setMyEditedRows] = useState([]);
 
   const [selectedFile, setSelectedFile] = useState();
 	const [isFilePicked, setIsFilePicked] = useState(false);
@@ -63,6 +73,71 @@ function OrderList(){
     console.log("file is: ", event.target.files[0])
 		setIsShippingFilePicked(true);
 	};
+
+  const handleRowSelected = (s) => {
+    console.log(s);
+    let rows = [...s.api.current.getSelectedRows().values()];
+    console.log('selected rows ere : ', rows);
+    setMyEditedRows(rows);
+  }
+
+  const handleMassUpdate = (e) => {
+    console.log('updating the orders', myEditedRows);
+
+    async function updateTheOrders(){
+      let updateErrors = []
+      for(let row of myEditedRows){
+        try{
+          const updateOrdersAsync = async () => { return API.updateOrder(token['mr-token'], row.orderId, row)}
+          let resp = await updateOrdersAsync();
+          if(resp.status==200){
+            console.log(`updated order with id ${row.orderId}`);
+          }
+          else if(resp.status==400){
+            console.log(`Invalid Update for order with id ${row.orderId}`);
+            let result = await resp.json()
+            let orderId = row.orderId
+            updateErrors.push({orderId, result});
+          }
+          else
+            throw "server error"
+        }
+        catch(err){
+          console.log(`Something went wrong for order id ${row.orderId}`);
+          console.error(err);
+          updateErrors.push(`Something went wrong for order id ${row.orderId}`);
+        }
+      }
+
+      if(updateErrors.length>0)
+        setMessage('Some rows were not updated\n' + JSON.stringify(updateErrors));
+      else
+        setMessage('Updated successfully');
+      }
+
+      updateTheOrders();
+      
+      //fetchlist();
+  }
+
+  // needed to update myEditedRows if cell value changed after selection
+  const handleEditCellChangeCommitted = React.useCallback(
+    ({ id, field, props }) => {
+        console.log('cell commit', myEditedRows, props);
+        const data = props; // Fix eslint value is missing in prop-types for JS files
+        const updatedRows = myEditedRows.map((row) => {
+          const obj = {};
+          obj[field] = data.value;
+          if (row.orderId === id) {
+            return { ...row, ...obj};
+          }
+          return row;
+        });
+        setMyEditedRows(updatedRows);
+        console.log('cell commit after ', updatedRows);
+    },
+    [myEditedRows],
+  );
 
 	const handleUpload = (e) => {
     e.preventDefault();
@@ -172,31 +247,32 @@ function OrderList(){
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
-          <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-          { mySelectedRows.length>0 && 
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', flexDirection: 'row'}}>
+            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
             <div>
-            <Button variant="outlined" color="primary" onClick={handleDeleteClick}>Delete</Button>
-            <Dialog
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
-              
-              <DialogActions>
-                <Button onClick={handleClose} color="primary">Cancel</Button>
-                <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
-              </DialogActions>
-            </Dialog>
+              <Button variant="outlined" color="primary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+                
+                <DialogActions>
+                  <Button onClick={handleClose} color="primary">Cancel</Button>
+                  <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+                </DialogActions>
+              </Dialog>
             </div>
-          }
-          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
-          <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
-          <div style={{  width: '100%', height: '450px', minWidth:'600px'}}>        
+            <Button variant="outlined" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Update Selected</Button>
+            <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
+            <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
+          </div>
+          <div style={{  width: '100%', height: '500px', minWidth:'600px'}}>        
             <DataGrid rows={orders} columns={columns} checkboxSelection  components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} />
+            }} disableSelectionOnClick={true} onSelectionModelChange={handleSelection} onRowSelected={handleRowSelected} onEditCellChangeCommitted={handleEditCellChangeCommitted} />
           </div>
         </div>
         :

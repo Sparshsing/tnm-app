@@ -5,6 +5,7 @@ import StoreDetails from './StoreDetails';
 import PurchaseList from './PurchaseList';
 import InventoryList from './InventoryList';
 import OrderList from './OrderList';
+import Printing from './Printing';
 import Dashboard from './Dashboard'
 
 function TheContent(){
@@ -18,6 +19,7 @@ function TheContent(){
         <Route exact path='/purchases' component={PurchaseList} />
         <Route exact path='/inventory' component={InventoryList} />
         <Route exact path='/orders' component={OrderList} />
+        <Route exact path='/printing' component={Printing} />
           {/* <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
           <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
           <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />

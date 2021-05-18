@@ -158,6 +158,17 @@ export default class API{
     })
   }
 
+  static modifyOrder(token, id, data){
+    return fetch(APIROOT + '/api/orders/' + id + '/', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
   static uploadOrdersFile(token, data){
     return fetch(APIROOT + '/api/orders/import_ordersfile/',
 			{

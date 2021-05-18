@@ -1,6 +1,6 @@
 import API from '../api-service'
 import React, {useState, useEffect} from 'react';
-import {Button, TextField, FormLabel, Typography, MenuItem} from '@material-ui/core';
+import {Button, TextField, FormLabel, Typography, MenuItem, FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie'
 
@@ -49,9 +49,11 @@ export default function OrderForm(props){
     const formData = new FormData(e.target);    
     let dataObject = {};    
     formData.forEach((value, key) => dataObject[key] = value);
-    dataObject['style'] = dataObject['sfmId'].split("-")[0];
-    dataObject['size'] = dataObject['sfmId'].split("-")[1];
-    dataObject['color'] = dataObject['sfmId'].split("-")[2];
+    let splitArray = dataObject['sfmId'].split("-")[0];
+    let style = ''
+    dataObject['style'] = style.concat(...splitArray.slice(0, splitArray.length-2));
+    dataObject['size'] = splitArray[splitArray.length-2];
+    dataObject['color'] = splitArray[splitArray.length-1];
     if(dataObject['saleDate'] == "")
       dataObject['saleDate'] = null;
     if(dataObject['shipDate'] == "")
@@ -163,6 +165,22 @@ export default function OrderForm(props){
         error = {errormsg['recipientName'] ? true: false}
         defaultValue = {props.mode=='update' ? props.data['recipientName']:''}
       />
+      <FormControl>
+  <InputLabel htmlFor="my-input">Email address</InputLabel>
+  <Input type="text" id="my-input" aria-describedby="my-helper-text" list="browsers">
+  <datalist id="browsers">
+  <option value="Edge" />
+  <option value="Firefox" />
+  <option value="Chrome" />
+  <option value="Opera" />
+  <option value="Safari" />
+  
+</datalist>
+</Input>
+  <FormHelperText id="my-helper-text">We'll never share your email.</FormHelperText>
+</FormControl>
+      
+
       {/*
       <TextField
         variant="outlined"
