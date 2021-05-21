@@ -2,6 +2,7 @@ import API from '../api-service'
 import React, {useState, useEffect} from 'react';
 import {Button, TextField, FormLabel, Typography, MenuItem, Dialog, DialogTitle, DialogActions} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Redirect } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
 import { setGridPageSizeStateUpdate } from '@material-ui/data-grid';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -97,6 +98,8 @@ export default function PurchaseForm(props){
     props.setMode('none');
   }
   
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
   if(saved)
     return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Purchases</Button></div>);
   else

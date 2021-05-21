@@ -12,7 +12,7 @@ function TheContent(){
 
   return (    
         <Switch>
-        <Route exact path='/' component={Dashboard} />
+        <Route exact path='/' render={ props => <div {...props}>Welcome To SFM Dropshipping</div>} />
         <Route exact path='/dashboard' component={Dashboard} />
         <Route exact path='/products' component={ProductDetails} />
         <Route exact path='/stores' component={StoreDetails} />

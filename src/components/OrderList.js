@@ -4,8 +4,9 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
+import { Divider, MenuItem, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
 import OrderForm from './OrderForm';
+import OrderUpdateForm from './OrderUpdateForm';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -35,7 +36,7 @@ const columns = [
   { field: 'sfmId', headerName: 'SFM ID', width: 150 },
   { field: 'sku', headerName: 'SKU', width: 150 },
   { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150 },
-  { field: 'priorityShip', headerName: 'Priority Ship', width: 150 },
+  { field: 'priorityShip', headerName: 'Priority Ship', width: 150, editable:true  },
   { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number',
     editable:true,
     valueFormatter: ({ value }) => currencyFormatter.format(Number(value))
@@ -51,27 +52,43 @@ function OrderList(){
   const [orders, setOrders] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [myEditedRows, setMyEditedRows] = useState([]);
 
-  const [selectedFile, setSelectedFile] = useState();
+  const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
-  const [selectedShippingFile, setSelectedShippingFile] = useState();
+  const [selectedShippingFile, setSelectedShippingFile] = useState(null);
   const [isShippingFilePicked, setIsShippingFilePicked] = useState(false);
   const [message, setMessage] = useState('');
 
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+
 	const fileChangeHandler = (event) => {
-		setSelectedFile(event.target.files[0]);
-    console.log("file is: ", event.target.files[0])
-		setIsFilePicked(true);
+    if(event.target.files.length==1){
+      setSelectedFile(event.target.files[0]);
+      console.log("order file is: ", event.target.files[0])
+      setIsFilePicked(true);
+    }
+    else{
+      setSelectedFile(null);
+      setIsFilePicked(false);
+    }
+		
 	};
 
   const shippingFileChangeHandler = (event) => {
-		setSelectedShippingFile(event.target.files[0]);
-    console.log("file is: ", event.target.files[0])
-		setIsShippingFilePicked(true);
+    if(event.target.files.length==1){
+      setSelectedShippingFile(event.target.files[0]);
+      console.log("ship file is: ", event.target.files[0])
+      setIsShippingFilePicked(true);
+    }
+    else{
+      setSelectedShippingFile(null);
+      setIsShippingFilePicked(false);
+    }
 	};
 
   const handleRowSelected = (s) => {
@@ -100,7 +117,7 @@ function OrderList(){
             updateErrors.push({orderId, result});
           }
           else
-            throw "server error"
+            throw "server error";
         }
         catch(err){
           console.log(`Something went wrong for order id ${row.orderId}`);
@@ -113,9 +130,9 @@ function OrderList(){
         setMessage('Some rows were not updated\n' + JSON.stringify(updateErrors));
       else
         setMessage('Updated successfully');
-      }
+    }
 
-      updateTheOrders();
+    updateTheOrders();
       
       //fetchlist();
   }
@@ -194,6 +211,7 @@ function OrderList(){
 	};
 
   const handleAddClick = (e) => {setMode('add')}
+  const handleUpdateClick = (e) => {setMode('update')}
   const handleDeleteClick = (e) => {setOpen(true)}
   const handleClose = (e) => {setOpen(false)}
   const handleDeleteConfirm = (e) => {
@@ -217,12 +235,18 @@ function OrderList(){
   }
 
   useEffect(() => {
-    if(mode=='none')
+    if(mode=='none'){
+      setMySelectedRows([]);
+      setMyEditedRows([]);
+      console.log('inside useeffect');
       fetchlist()
+    }
+      
   }, [mode, token]
   );
 
   function fetchlist(){
+    console.log('fetching details');
     API.getOrderList(token['mr-token'])
     .then(data => {
       console.log(data); 
@@ -232,10 +256,6 @@ function OrderList(){
     })
     .catch(e => {console.log("api error"); console.error(e)});
   }
-
-  useEffect( () => {    
-    console.log(token);    
-  }, [token]);
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -247,15 +267,16 @@ function OrderList(){
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', flexDirection: 'row'}}>
+          {usertype==0 && <Button style={{ marginBottom:'10px'}} color='primary' variant='contained' disabled={mySelectedRows.length==1 && myEditedRows[0].processing=='N'? false:true} onClick={handleUpdateClick}>Update Single</Button>}
+          {usertype!=0 && <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', flexDirection: 'row'}}>
             <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+            <Button style={{ marginBottom:'10px'}} color='primary' variant='contained' disabled={mySelectedRows.length==1 ? false:true} onClick={handleUpdateClick}>Update Single</Button>
+            <Button variant="outlined" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Update Multiple</Button>
             <div>
-              <Button variant="outlined" color="primary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
+              <Button variant="outlined" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
               <Dialog
                 open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
+                onClose={handleClose}                
               >
                 <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
                 
@@ -265,10 +286,9 @@ function OrderList(){
                 </DialogActions>
               </Dialog>
             </div>
-            <Button variant="outlined" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Update Selected</Button>
             <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
             <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
-          </div>
+          </div>}
           <div style={{  width: '100%', height: '500px', minWidth:'600px'}}>        
             <DataGrid rows={orders} columns={columns} checkboxSelection  components={{
               Toolbar: GridToolbar,
@@ -276,7 +296,11 @@ function OrderList(){
           </div>
         </div>
         :
-        <OrderForm mode={mode} setMode={setMode}></OrderForm>
+        (mode=='add' ? 
+          <OrderForm mode={mode} setMode={setMode}></OrderForm>
+          :
+          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode}></OrderUpdateForm>)
+        
       }
     </div>
   );

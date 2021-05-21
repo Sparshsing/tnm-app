@@ -29,6 +29,7 @@ function InventoryList(){
   const [productInventory, setproductInventory] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
 
   useEffect(() => {
     console.log({...productInventory[0]});
@@ -49,13 +50,14 @@ function InventoryList(){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  else
+  if(parseInt(userInfo['mr-user'].split('-')[1])==0)
+    return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Inventory</h3>
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
-      <div style={{  width: '100%', minWidth:'600px'}}>        
-        <DataGrid rows={productInventory} columns={columns} autoHeight={true} components={{
+      <div style={{  width: '100%', minWidth:'600px', height:'500px'}}>        
+        <DataGrid rows={productInventory} columns={columns} components={{
           Toolbar: GridToolbar,
         }} />
       </div>

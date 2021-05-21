@@ -3,6 +3,8 @@ import React, {useState, useEffect} from 'react';
 import {Button, TextField, FormLabel, Typography, MenuItem, FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie'
+import { Redirect } from 'react-router-dom'
+
 
 const useStyles = makeStyles((theme) => ({    
   form: {
@@ -22,19 +24,35 @@ export default function OrderForm(props){
   const [saved, setSaved, getSaved] = useState(false);
   const [availableProducts, setavailableProducts] = useState([]);
   const [availableStores, setAvailableStores] = useState([]);
+  const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold']
   let badData = false;
   console.log("opened form");
 
   useEffect(() => {
     API.getProductList(token['mr-token'])
+    .then(resp => resp.json())
     .then(data => {
-      console.log(data); 
-      
+      //console.log(data); 
+      const sortBy = [ 
+        {prop:'style', direction: 1}, 
+        {prop:'size', direction: 1}, 
+        {prop:'color', direction: 1},
+      ];
+
+      data.sort(function(a,b){
+        let i = 0, result = 0;
+        while(i < sortBy.length && result === 0) {
+          result = sortBy[i].direction*(a[ sortBy[i].prop ].toString() < b[ sortBy[i].prop ].toString() ? -1 : (a[ sortBy[i].prop ].toString() > b[ sortBy[i].prop ].toString() ? 1 : 0));
+          i++;
+        }
+        return result;
+      })
       return setavailableProducts(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
 
     API.getStoreList(token['mr-token'])
+    .then(resp => resp.json())
     .then(data => {
       console.log(data); 
       
@@ -49,9 +67,8 @@ export default function OrderForm(props){
     const formData = new FormData(e.target);    
     let dataObject = {};    
     formData.forEach((value, key) => dataObject[key] = value);
-    let splitArray = dataObject['sfmId'].split("-")[0];
-    let style = ''
-    dataObject['style'] = style.concat(...splitArray.slice(0, splitArray.length-2));
+    let splitArray = dataObject['sfmId'].split("-");
+    dataObject['style'] = splitArray.slice(0, splitArray.length-2).join('-');
     dataObject['size'] = splitArray[splitArray.length-2];
     dataObject['color'] = splitArray[splitArray.length-1];
     if(dataObject['saleDate'] == "")
@@ -86,6 +103,8 @@ export default function OrderForm(props){
     props.setMode('none');
   }
   
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
   if(saved)
     return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Orders</Button></div>);
   else
@@ -120,12 +139,19 @@ export default function OrderForm(props){
         variant="outlined"
         margin="normal"        
         fullWidth
+        select
         id="orderStatus"
         label="Order Status"
         name="orderStatus"
         helperText = {errormsg['orderStatus'] ? errormsg['orderStatus'][0]:''}
         error = {errormsg['orderStatus'] ? true: false}
-      />
+      >
+      {states.map((option) => (
+        <MenuItem key={option} value={option}>
+          {option}
+        </MenuItem>
+      ))}
+      </TextField>
       <TextField
         variant="outlined"
         margin="normal"
@@ -165,20 +191,6 @@ export default function OrderForm(props){
         error = {errormsg['recipientName'] ? true: false}
         defaultValue = {props.mode=='update' ? props.data['recipientName']:''}
       />
-      <FormControl>
-  <InputLabel htmlFor="my-input">Email address</InputLabel>
-  <Input type="text" id="my-input" aria-describedby="my-helper-text" list="browsers">
-  <datalist id="browsers">
-  <option value="Edge" />
-  <option value="Firefox" />
-  <option value="Chrome" />
-  <option value="Opera" />
-  <option value="Safari" />
-  
-</datalist>
-</Input>
-  <FormHelperText id="my-helper-text">We'll never share your email.</FormHelperText>
-</FormControl>
       
 
       {/*

@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField } from '@material-ui/core';
+import { Divider, Button, TextField, Dialog, DialogTitle, DialogActions } from '@material-ui/core';
 import PurchaseForm from './PurchaseForm';
 
 
@@ -15,19 +15,62 @@ function PurchaseList(){
   const [purchases, setPurchases] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [recordDetails, setRecordDetails] = useState({});
 
-  const [selectedFile, setSelectedFile] = useState();
+  const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
   const [message, setMessage] = useState('');
+  const [open, setOpen] = useState(false);
 
 	const fileChangeHandler = (event) => {
-		setSelectedFile(event.target.files[0]);
-    console.log("file is: ", event.target.files[0])
-		setIsFilePicked(true);
+    if(event.target.files.length==1){
+      setSelectedFile(event.target.files[0]);
+      console.log("file is: ", event.target.files[0]);
+      setIsFilePicked(true);
+    }
+    else{
+      setSelectedFile(null);
+      setIsFilePicked(false);
+    }
 	};
+
+  const handleDeleteClick = (e) => {setOpen(true)}
+  const handleClose = (e) => {setOpen(false)}
+
+  const handleDeleteConfirm = (e) => {
+    console.log('u confirmed delete');
+    let errors = [];
+    const deleteRows = async () => {
+      for(let rowId of mySelectedRows) {
+        try{
+          const resp = await API.deletePurchase(token['mr-token'], rowId);
+          if(resp.status==200 || resp.status==204){
+            console.log(`deleted purchase with id ${rowId}`);
+          }          
+          else{
+            console.log(`Failed to delete purchase with id ${rowId}`);
+            throw `Failed to delete purchase with id ${rowId}`;
+          }
+        }
+        catch(e){
+          console.error(`could not delete purchase id ${rowId}`, e);
+          errors.push(`could not delete purchase id ${rowId}`);
+        }
+      }
+
+      if(errors.length>0)
+        setMessage('Some rows were not deleted\n' + errors.toString() + ' Pleae refresh');
+      else
+        setMessage('Deleted successfully. Please refresh');
+
+    }
+    setOpen(false);
+    deleteRows();
+
+  }
 
   const columns = [
     { field: 'id', headerName: 'Purchase Id', width: 150, hide:true },
@@ -152,6 +195,11 @@ function PurchaseList(){
   function fetchList(){    
       console.log("fetching data");
       API.getPurchasesList(token['mr-token'])
+      .then(resp => {
+        if(resp.status==200)
+          return resp.json()
+        else throw 'Something went wrong';
+      })
       .then(data => {
         console.log(data);
         // not needed as purchases object already contains field called id
@@ -159,7 +207,7 @@ function PurchaseList(){
         setMySelectedRows([]);
         setPurchases(data);
       })
-      .catch(e => {console.log("api error"); console.error(e);});    
+      .catch(e => {console.log("api error"); console.error(e); setMessage(String(e))});    
   }
 
   useEffect( () => {    
@@ -168,16 +216,29 @@ function PurchaseList(){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  else
+  if(parseInt(userInfo['mr-user'].split('-')[1])==0)
+    return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Purchases</h3>
-      {message=='' ? '' : <div>{message}</div>}
+      {message=='' ? '' : <div style={{color:'red'}}>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '10px' }}/>
       { mode=='none' ?
         <div>
           <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
           <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
+          <Button variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
+          <Dialog
+            open={open}
+            onClose={handleClose}                
+          >
+            <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+            
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">Cancel</Button>
+              <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+            </DialogActions>
+          </Dialog>
           <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
             <DataGrid rows={purchases} columns={columns} checkboxSelection autoHeight={true} components={{

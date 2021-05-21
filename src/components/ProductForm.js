@@ -2,6 +2,7 @@ import API from '../api-service'
 import React, {useState} from 'react';
 import {Button, TextField, FormLabel, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Redirect } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
 
 const useStyles = makeStyles((theme) => ({    
@@ -18,6 +19,8 @@ export default function ProductForm(props){
 
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-userInfo']);
+
   const [errormsg, setErrormsg] = useState({});
   const [saved, setSaved, getSaved] = useState(false);
   let badData = false;
@@ -55,6 +58,10 @@ export default function ProductForm(props){
     props.setMode('none');
   }
   
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
+  if(parseInt(userInfo['mr-user'].split('-')[1])!=1)
+    return (<Redirect to='/'></Redirect>);
   if(saved)
     return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Products</Button></div>);
   else

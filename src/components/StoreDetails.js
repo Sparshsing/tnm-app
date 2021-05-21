@@ -23,11 +23,14 @@ function StoreDetails(){
   const [stores, setStores] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
 
   useEffect(() => {
     API.getStoreList(token['mr-token'])
+    .then(resp => resp.json())
     .then(data => {
-      console.log(data); 
+      console.log(data);
+      // client permission to filter only his store, is handled in api
       data.forEach((item, i) => item.id = i+1);
       
       return setStores(data);
@@ -36,13 +39,10 @@ function StoreDetails(){
   }, []
   );
 
-  useEffect( () => {    
-    console.log(token);    
-  }, [token]);
-
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  else
+  if(parseInt(userInfo['mr-user'].split('-')[1])==2)
+    return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Stores</h3>

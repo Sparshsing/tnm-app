@@ -17,13 +17,14 @@ import Paper from '@material-ui/core/Paper';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Button from '@material-ui/core/Button';
-import { mainListItems, secondaryListItems } from './listItems';
+import { mainListItems, staffListItems, clientListItems , secondaryListItems } from './listItems';
 // import Chart from './Chart';
 // import Deposits from './Deposits';
 
-import {Route, BrowserRouter} from 'react-router-dom';
+import {Route, BrowserRouter, Redirect} from 'react-router-dom';
 import {Link} from 'react-router-dom';
-import TheContent from './TheContent'
+import { useCookies } from 'react-cookie';
+import TheContent from './TheContent';
 
 function Copyright() {
   return (
@@ -126,13 +127,27 @@ const useStyles = makeStyles((theme) => ({
 export default function TheLayout() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const [token, setToken, removeToken] = useCookies(['mr-token']);
+  const [userInfo, setUserInfo, removeUserInfo] = useCookies(['mr-user']);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleSignOut = (e) => {
+    removeToken('mr-token');
+    removeUserInfo('mr-user');
+  }
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
+  //const usertype=0;
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
   return (
     <div className={classes.root}>
@@ -151,9 +166,11 @@ export default function TheLayout() {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             SFM Dropshipping
           </Typography>
-          <Button color="secondary" variant="contained" component={Link} to="/signin">
-            Sign In
-          </Button>
+          {token['mr-token'] ? 
+            <Button color="secondary" variant="contained" onClick = {handleSignOut}>SignOut</Button> 
+            : 
+            <Button color="secondary" variant="contained" component={Link} to="/signin">Sign In</Button>
+          }
         </Toolbar>
       </AppBar>
       <Drawer
@@ -169,9 +186,11 @@ export default function TheLayout() {
           </IconButton>
         </div>
         <Divider />
-        <List>{mainListItems}</List>
+        {usertype==0 && <List>{clientListItems}</List>}
+        {usertype==1 && <List>{mainListItems}</List>}
+        {usertype==2 && <List>{staffListItems}</List>}
         <Divider />
-        <List>{secondaryListItems}</List>
+        {usertype==1 && <List>{secondaryListItems}</List> }
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />

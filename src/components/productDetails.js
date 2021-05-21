@@ -9,13 +9,13 @@ import ProductForm from './ProductForm';
 
 const columns = [
   { field: 'sfmId', headerName: 'SFM ID', width: 150},
-  { field: 'style', headerName: 'Style', width: 150, editable: true},
-  { field: 'size', headerName: 'Size', width: 150, editable: true},
-  { field: 'color', headerName: 'Color', width: 150, editable: true},
+  { field: 'style', headerName: 'Style', width: 150},
+  { field: 'size', headerName: 'Size', width: 150},
+  { field: 'color', headerName: 'Color', width: 150},
   { field: 'sku', headerName: 'SKU', width: 150 },
-  { field: 'cost', headerName: 'Cost', width: 150 , editable: true},
-  { field: 'price', headerName: 'Price', width: 150 , editable: true},
-  { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, editable: true}
+  { field: 'cost', headerName: 'Cost', width: 150},
+  { field: 'price', headerName: 'Price', width: 150},
+  { field: 'amountInStock', headerName: 'Amount In Stock', width: 150}
 ];
 
 function ProductDetails(){
@@ -25,18 +25,37 @@ function ProductDetails(){
   const [products, setProducts] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [recordDetails, setRecordDetails] = useState({});
 
-  const [selectedFile, setSelectedFile] = useState();
+  const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
   const [message, setMessage] = useState('');
 
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+
+  const restrictedColumns = [
+    { field: 'style', headerName: 'Style', width: 150},
+    { field: 'size', headerName: 'Size', width: 150},
+    { field: 'color', headerName: 'Color', width: 150},
+    { field: 'sku', headerName: 'SKU', width: 150 },
+  ];
+
+  if(usertype==0) 
+    restrictedColumns.push({ field: 'price', headerName: 'Price', width: 150});
+
   const fileChangeHandler = (event) => {
-		setSelectedFile(event.target.files[0]);
-    console.log("file is: ", event.target.files[0])
-		setIsFilePicked(true);
+    if(event.target.files.length==1){
+      setSelectedFile(event.target.files[0]);
+      console.log("file is: ", event.target.files[0])
+      setIsFilePicked(true);
+    }
+    else{
+      setSelectedFile(null);
+      setIsFilePicked(false);
+    }
 	};
 
   const handleUpload = (e) => {
@@ -85,11 +104,18 @@ function ProductDetails(){
 
   function fetchlist(){
     API.getProductList(token['mr-token'])
+    .then(resp => {
+      console.log(resp);
+      if(resp.status==200)
+        return resp.json();
+      else
+        throw 'Something went wrong'
+    })
     .then(data => {
       console.log(data); 
       // data.forEach((item, i) => item.id = item.sfmId);
       setProducts(data);
-    })
+    })    
     .catch(e => {console.log("api error"); console.error(e)});
   }
 
@@ -116,10 +142,6 @@ function ProductDetails(){
     setMySelectedRows(items.selectionModel);    
   }
 
-  useEffect( () => {    
-    console.log(token);    
-  }, [token]);
-
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   else
@@ -130,11 +152,14 @@ function ProductDetails(){
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
-          <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-          <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
-          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
-          <div style={{  width: '100%', minWidth:'600px'}}>
-            <DataGrid rows={products} columns={columns} checkboxSelection autoHeight={true} components={{
+          { usertype==1 && 
+          <div>
+            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+            <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
+            <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
+          </div>}
+          <div style={{  width: '100%', minWidth:'600px', height: '500px'}}>
+            <DataGrid rows={products} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
               Toolbar: GridToolbar,
             }} onSelectionModelChange={handleSelection} />
           </div>

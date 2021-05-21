@@ -9,7 +9,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getProduct(token, id){
@@ -51,7 +51,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getPurchasesList(token){
@@ -61,7 +61,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getPurchase(token, id){
@@ -96,6 +96,16 @@ export default class API{
     })
   }
 
+  static deletePurchase(token, id){
+    return fetch(APIROOT + '/api/purchases/' + id + '/', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+    })
+  }
+
   static getInventoryList(token){
     return fetch(APIROOT + '/api/inventory/', {
       method: 'GET',
@@ -108,6 +118,16 @@ export default class API{
 
   static getOrderList(token){
     return fetch(APIROOT + '/api/orders/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    }).then(resp => resp.json())
+  }
+
+  static getPrintingList(token){
+    return fetch(APIROOT + '/api/printing/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -150,17 +170,6 @@ export default class API{
   static updateOrder(token, id, data){
     return fetch(APIROOT + '/api/orders/' + id + '/', {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`
-      },
-      body: JSON.stringify(data)
-    })
-  }
-
-  static modifyOrder(token, id, data){
-    return fetch(APIROOT + '/api/orders/' + id + '/', {
-      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
@@ -222,12 +231,12 @@ export default class API{
   }
 
   static signinUser(credentials){
-    return fetch(APIROOT + '/auth/', {
+    return fetch(APIROOT + '/api-token-auth/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(credentials)
-    }).then(resp => resp.json())
+    })
   }
 }

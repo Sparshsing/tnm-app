@@ -16,6 +16,7 @@ import API from '../api-service'
 import { FormLabel } from '@material-ui/core';
 import { useCookies} from 'react-cookie';
 import { Redirect } from "react-router-dom";
+import { FirstPage } from '@material-ui/icons';
 
 function Copyright() {
   return (
@@ -58,19 +59,40 @@ export default function SignIn() {
   const [errormsg, setErrormsg] = useState('');
 
   const [token, setToken] = useCookies(['mr-token']);
+  const [userInfo, setUserInfo] = useCookies(['mr-user']);
   useEffect( () => {    
-    console.log(token);    
-  }, [token]);
+    
+  }, [token, userInfo]);
 
   const signinClicked = (e) => {
     e.preventDefault();
     API.signinUser({username, password})
-    .then(resp => {if (resp.token) setToken('mr-token', resp.token); else setErrormsg("unable to contact server");})
-    .catch(error => {console.error(error);setErrormsg("invalid username or password")});
+    .then(resp =>{
+      if(resp.status==200)
+        return resp.json();
+      if(resp.status==400)
+        throw 'Invalid username or password';
+      else
+        throw 'Something went wrong';
+    } )
+    .then(data => {
+      let utype = 0;
+      if(data.is_superuser)
+        utype = 1;
+      else if(data.is_staff)
+        utype = 2;
+
+      // userinfo needs to be set FirstPage, because async functions no batching, and we need userinfo
+      // if token loads late, it will redirect for 1-2 times but it will work, but not with userinfo
+      setUserInfo('mr-user',`${data.user_id}-${utype}`);
+      setToken('mr-token', data.token);      
+      
+    })
+    .catch(error => {console.error(error);setErrormsg(String(error))});
   }
 
   if(token['mr-token'])
-    return (<Redirect to='/products'></Redirect>);
+    return (<Redirect to='/'></Redirect>);
   else
   return (
     <Container component="main" maxWidth="xs">

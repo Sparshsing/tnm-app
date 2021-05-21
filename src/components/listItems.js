@@ -66,6 +66,76 @@ export const mainListItems = (
   </div>
 );
 
+export const staffListItems = (
+  <div>
+    <ListItem button button component={Link} to='/orders'>
+      <ListItemIcon>
+        <PlaylistAddCheck />
+      </ListItemIcon>
+      <ListItemText primary="Orders" />
+    </ListItem>
+    <ListItem button button component={Link} to='/printing'>
+      <ListItemIcon>
+        <ImportantDevices />
+      </ListItemIcon>
+      <ListItemText primary="Printing" />
+    </ListItem>    
+    <ListItem button component={Link} to='/inventory'>
+      <ListItemIcon>
+        <HomeWork />
+      </ListItemIcon>
+      <ListItemText primary="Inventory" />
+    </ListItem>
+    <ListItem button component={Link} to='/purchases'>
+      <ListItemIcon>
+        <ShoppingCart />
+      </ListItemIcon>
+      <ListItemText primary="Purchases" />
+    </ListItem>
+    <ListItem button component={Link} to='/products'>
+      <ListItemIcon>
+        <ViewCarousel />
+      </ListItemIcon>
+      <ListItemText primary="Products" />
+    </ListItem>    
+  </div>
+);
+
+export const clientListItems = (
+  <div>
+    <ListItem button component={Link} to='/dashboard'>
+      <ListItemIcon>
+        <DashboardIcon />
+      </ListItemIcon>
+      <ListItemText primary="Dashboard" />
+    </ListItem>
+    <ListItem button button component={Link} to='/orders'>
+      <ListItemIcon>
+        <PlaylistAddCheck />
+      </ListItemIcon>
+      <ListItemText primary="Orders" />
+    </ListItem>    
+    <ListItem button component={Link} to='/stores'>
+      <ListItemIcon>
+        <Store />
+      </ListItemIcon>
+      <ListItemText primary="Stores" />
+    </ListItem>    
+    <ListItem button component={Link} to='/products'>
+      <ListItemIcon>
+        <ViewCarousel />
+      </ListItemIcon>
+      <ListItemText primary="Products" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <Receipt />
+      </ListItemIcon>
+      <ListItemText primary="Invoice" />
+    </ListItem>
+  </div>
+);
+
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Advanced</ListSubheader>

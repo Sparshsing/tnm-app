@@ -3,10 +3,10 @@ import API from '../api-service'
 import OrderForm from './OrderForm';
 import GridCellExpand from './GridCellExpand'
 import React, {useState, useEffect} from 'react'
-import {isOverflown, DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import {isOverflown, DataGrid, GridToolbar, GridRowsProp, GridColDef, useGridContainerProps } from '@material-ui/data-grid';
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
+import { Divider, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -31,7 +31,7 @@ const useStyles = makeStyles({
 const columns = [
   { field: 'orderId', headerName: 'Id', width: 150, hide:true },
   { field: 'storeName', headerName: 'Store Name', width: 150 },
-  { field: 'orderStatus', headerName: 'Order Status', width: 150 },
+  { field: 'displayStatus', headerName: 'Status', width: 150 },
   // { field: 'details', headerName: 'Recipient|Order No|#', width: 150,
   //     valueGetter: getDetails,
   //     sortComparator: (v1, v2, cellParams1, cellParams2) =>
@@ -59,20 +59,38 @@ function Printing(){
   const [orders, setOrders] = useState([]);
   
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
   const [mySelectedRows, setMySelectedRows] = useState([]);
-  const [myEditedRows, setMyEditedRows] = useState([]);
+  //const [myEditedRows, setMyEditedRows] = useState([]);
   
   const [message, setMessage] = useState('');
   
 
-  const handleRowSelected = (s) => {
-    console.log(s);
-    let rows = [...s.api.current.getSelectedRows().values()];
-    console.log('selected rows ere : ', rows);
-    setMyEditedRows(rows);
+  const handleCheckboxClick = (e) =>{
+    const oid = parseInt(e.target.dataset.oid)
+    console.log(oid);
+    console.log(e.target.checked);
+    let checkedRows = [];
+    if(e.target.checked) 
+      checkedRows = [...mySelectedRows, oid]
+    else{
+      const index = mySelectedRows.indexOf(oid);
+      if (index > -1)
+        mySelectedRows.splice(index, 1);
+      checkedRows = [...mySelectedRows];
+    }
+    console.log(checkedRows);
+    setMySelectedRows(checkedRows)
   }
+
+  // const handleRowSelected = (s) => {
+  //   console.log(s);
+  //   let rows = [...s.api.current.getSelectedRows().values()];
+  //   console.log('selected rows ere : ', rows);
+  //   setMyEditedRows(rows);
+  // }
 
   const handleSpecialButtonsClick = (e) =>{
     console.log(e.currentTarget, e.currentTarget.dataset.oid);
@@ -116,46 +134,64 @@ function Printing(){
   }
 
   // needed to update myEditedRows if cell value changed after selection
-  const handleEditCellChangeCommitted = React.useCallback(
-    ({ id, field, props }) => {
-        console.log('cell commit', myEditedRows, props);
-        const data = props; // Fix eslint value is missing in prop-types for JS files
-        const updatedRows = myEditedRows.map((row) => {
-          const obj = {};
-          obj[field] = data.value;
-          if (row.orderId === id) {
-            return { ...row, ...obj};
-          }
-          return row;
-        });
-        setMyEditedRows(updatedRows);
-        console.log('cell commit after ', updatedRows);
-    },
-    [myEditedRows],
-  );
+  // const handleEditCellChangeCommitted = React.useCallback(
+  //   ({ id, field, props }) => {
+  //       console.log('cell commit', myEditedRows, props);
+  //       const data = props; // Fix eslint value is missing in prop-types for JS files
+  //       const updatedRows = myEditedRows.map((row) => {
+  //         const obj = {};
+  //         obj[field] = data.value;
+  //         if (row.orderId === id) {
+  //           return { ...row, ...obj};
+  //         }
+  //         return row;
+  //       });
+  //       setMyEditedRows(updatedRows);
+  //       console.log('cell commit after ', updatedRows);
+  //   },
+  //   [myEditedRows],
+  // );
 
   const handleAddClick = (e) => {setMode('add')}
   const handleDeleteClick = (e) => {setOpen(true)}
   const handleClose = (e) => {setOpen(false)}
+
   const handleDeleteConfirm = (e) => {
     console.log('u confirmed delete');
-      mySelectedRows.forEach( rowId => {
-        API.deleteOrder(token['mr-token'], rowId)
-        .then( resp => {
-          if(resp.status==200 || resp.status==204)
+    let errors = [];
+    const deleteRows = async () => {
+      for(let rowId of mySelectedRows) {
+        try{
+          const resp = await API.deleteOrder(token['mr-token'], rowId);
+          if(resp.status==200 || resp.status==204){
             console.log(`deleted order with id ${rowId}`);
-          else
+          }          
+          else{
             console.log(`Failed to delete order with id ${rowId}`);
-        })
-        .catch(e => console.error(`could not delete order id ${rowId}`, e))
-      });
-      setOpen(false);
+            throw `Failed to delete order with id ${rowId}`;
+          }
+        }
+        catch(e){
+          console.error(`could not delete order id ${rowId}`, e);
+          errors.push(`could not delete order id ${rowId}`);
+        }
+      }
+
+      if(errors.length>0)
+        setMessage('Some rows were not deleted\n' + errors.toString() + ' Pleae refresh');
+      else
+        setMessage('Deleted successfully. Please refresh');
+
+    }
+    setOpen(false);
+    deleteRows();
+
   }
 
-  const handleSelection = (items) => {
-    console.log(items);    
-    setMySelectedRows(items.selectionModel);    
-  }
+  // const handleSelection = (items) => {
+  //   console.log(items);    
+  //   setMySelectedRows(items.selectionModel);    
+  // }
 
   useEffect(() => {
     if(mode=='none')
@@ -164,9 +200,9 @@ function Printing(){
   );
 
   function fetchlist(){
-    API.getOrderList(token['mr-token'])
+    API.getPrintingList(token['mr-token'])
     .then(data => {
-      let rows = data.filter( d => d.orderStatus.toLowerCase()!='shipped');
+      const rows = data;
       console.log('fetching orders');
       console.log(rows.map(r => r.orderId));
       rows.forEach((item, i) => item.id = item.orderId);
@@ -200,25 +236,25 @@ function Printing(){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  else
+  
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+
+  
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <h3>Printing</h3>
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
-        <div>
-          <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-          
+        <div>          
             <div>
-            <Button variant="outlined" color="primary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete</Button>
+            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
+            <Button variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete</Button>
             <Dialog
               open={open}
               onClose={handleClose}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
             >
-              <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+              <DialogTitle>"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
               
               <DialogActions>
                 <Button onClick={handleClose} color="primary">Cancel</Button>
@@ -236,7 +272,12 @@ function Printing(){
             <Table className={classes.table} size="small" aria-label="spanning table">
               <TableHead>                
                 <TableRow>
-                  <TableCell>Order Status</TableCell>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      disabled={true}
+                    />
+                  </TableCell>
+                  <TableCell>Status</TableCell>
                   <TableCell align="right">Shop</TableCell>
                   <TableCell align="right">Recipient/Order/#</TableCell>
                   <TableCell align="right">Style</TableCell>
@@ -258,7 +299,7 @@ function Printing(){
                     showSpan = true;
                     for(let j=i+1;j<arr.length; j++){
                       if(row.orderNo!=arr[j].orderNo || row.storeName!=arr[j].storeName 
-                        || row.recipientName!=arr[j].recipientName || row.orderStatus!=arr[j].orderStatus){
+                        || row.recipientName!=arr[j].recipientName || row.displayStatus!=arr[j].displayStatus){
                           nextGroup = j;
                           break;
                         }                        
@@ -266,7 +307,13 @@ function Printing(){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    {showSpan && <TableCell rowSpan={nextGroup-i}>{row.orderStatus}</TableCell>}
+                    <TableCell>
+                      <Checkbox
+                        inputProps={{ 'data-oid' : row.orderId }}
+                        onChange={handleCheckboxClick}
+                      />
+                    </TableCell>
+                    {showSpan && <TableCell rowSpan={nextGroup-i}>{row.displayStatus}</TableCell>}
                     {showSpan && <TableCell rowSpan={nextGroup-i}>{row.storeName}</TableCell>}
                     {showSpan && <TableCell rowSpan={nextGroup-i}><div>{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
                     <TableCell align="right">{row.style}</TableCell>
