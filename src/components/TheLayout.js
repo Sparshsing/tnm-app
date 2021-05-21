@@ -146,11 +146,11 @@ export default function TheLayout() {
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  //const usertype=0;
-  if(!userInfo['mr-user'])
-    const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
-  else
-    const usertype = 0
+
+  let usertype=0;
+  if(userInfo['mr-user'])
+    usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  
 
   return (
     <div className={classes.root}>
