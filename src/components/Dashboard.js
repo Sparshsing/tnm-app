@@ -1,52 +1,43 @@
 import API from '../api-service'
 import React, {useState, useEffect} from 'react';
-import {Button, TextField, MenuItem, Typography } from '@material-ui/core';
+import {Button, TextField, MenuItem, Typography, Divider } from '@material-ui/core';
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 
 function Dashboard(){
 
   const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
   const [errormsg, setErrormsg] = useState({});
   const [saved, setSaved, getSaved] = useState(false);
   const [availableProducts, setavailableProducts] = useState([]);
   const [availableStores, setAvailableStores] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [selectedStore, setSelectedStore] = useState('All');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [recievedData, setRecievedData] = useState({});
+
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
   useEffect(() => {
-    // API.getProductList(token['mr-token'])
-    // .then(resp => resp.json())
-    // .then(data => {
-    //   //console.log(data); 
-    //   const sortBy = [ 
-    //     {prop:'style', direction: 1}, 
-    //     {prop:'size', direction: 1}, 
-    //     {prop:'color', direction: 1},
-    //   ];
-
-    //   data.sort(function(a,b){
-    //     let i = 0, result = 0;
-    //     while(i < sortBy.length && result === 0) {
-    //       result = sortBy[i].direction*(a[ sortBy[i].prop ].toString() < b[ sortBy[i].prop ].toString() ? -1 : (a[ sortBy[i].prop ].toString() > b[ sortBy[i].prop ].toString() ? 1 : 0));
-    //       i++;
-    //     }
-    //     return result;
-    //   })
-    //   return setavailableProducts(data);
-    // })
-    // .catch(e => {console.log("api error"); console.error(e)});
 
     API.getStoreList(token['mr-token'])
     .then(resp => resp.json())
     .then(data => {
       
       data.unshift({storeName:'All', storeCode:'All'});
-      console.log(data);
       return setAvailableStores(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
+
+    API.getInventoryList(token['mr-token'])
+    .then(data => {
+      console.log(data);
+      return setInventory(data);
+    })
+    .catch(e => {console.log("api error"); console.error(e)});
+
   }, []
   );
 
@@ -58,11 +49,26 @@ function Dashboard(){
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(selectedStore, typeof(startDate))
-
+    const store = usertype==1 ? selectedStore : availableStores.filter(s => s.user==userInfo['mr-user'].split('-')[0])[0].storeCode;
+    console.log(store);
+    if(store=='')
+      return;
+    const params = {store, startDate, endDate}
+    API.getOverview(token['mr-token'], params)
+    .then(resp => {
+      if(resp.status==200)
+        return resp.json();
+      else
+        throw 'something went wrong';
+    })
+    .then(data => {setRecievedData(data)})
+    .catch(e => console.log(e));
+    
   }
 
   return (    
         <div>
+        { usertype==1 &&
           <TextField
           variant="outlined"
           margin="normal"
@@ -74,12 +80,13 @@ function Dashboard(){
           value={selectedStore}
           onChange={storeChanged}
           >
-          {availableStores.map((option) => (
-            <MenuItem key={option.storeCode} value={option.storeCode}>
-              {option.storeName}
-            </MenuItem>
-          ))}
-        </TextField>
+            {availableStores.map((option) => (
+              <MenuItem key={option.storeCode} value={option.storeCode}>
+                {option.storeName}
+              </MenuItem>
+            ))}
+          </TextField>
+          }
         <TextField
           variant="outlined"
           margin="normal"
@@ -117,21 +124,45 @@ function Dashboard(){
           </Button>
 
           <Typography>
-          <strong>Total Orders </strong>{selectedStore}
+          <strong>Total Orders : </strong>{recievedData.total}
           </Typography>
           <Typography>
-          <strong>Fulfilled </strong>{selectedStore}
+          <strong>Fulfilled : </strong>{recievedData.fulfilled}
           </Typography>
           <Typography>
-          <strong>Unfulfilled </strong>{selectedStore}
+          <strong>Unfulfilled : </strong>{recievedData.unfulfilled}
           </Typography>
           <Typography>
-          <strong>OnHold </strong>{selectedStore}
+          <strong>OnHold : </strong>{recievedData.onhold}
           </Typography>
           <Typography>
-          <strong>Out Of Stock </strong>{selectedStore}
+          <strong>Out Of Stock : </strong>{recievedData.outofstock}
           </Typography>
-        </div>
+          <Divider/>
+          { usertype==1 &&
+          <div>
+            <Typography>
+              <strong>Products : </strong> {[...new Set(inventory.map(i => i.style))].length}
+            </Typography>
+            <Typography>
+            <strong>Store Count : </strong>{recievedData.storecount}
+            </Typography>          
+            <Typography>
+            <strong>Inventory Needs :</strong>
+            </Typography>
+            <Divider/>
+            <Typography>
+            <ul>
+            {inventory.filter(inv => inv.needToPurchase>0).map( (i) => (
+                <li key={i.sfmId}>
+                  <strong>{i.style} - {i.size} - {i.color} : </strong>{i.needToPurchase}
+                </li>
+            ))}
+            </ul>
+            </Typography>
+          </div>
+          }
+      </div>
   );
 }
 

@@ -230,6 +230,18 @@ export default class API{
 		)
   }
 
+  static getOverview(token, data){
+    return fetch(APIROOT + '/api/orders/get_overview/',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
   static signinUser(credentials){
     return fetch(APIROOT + '/api-token-auth/', {
       method: 'POST',

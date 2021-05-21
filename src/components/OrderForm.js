@@ -24,7 +24,7 @@ export default function OrderForm(props){
   const [saved, setSaved, getSaved] = useState(false);
   const [availableProducts, setavailableProducts] = useState([]);
   const [availableStores, setAvailableStores] = useState([]);
-  const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold']
+  const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
   let badData = false;
   console.log("opened form");
 

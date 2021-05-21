@@ -62,11 +62,15 @@ function Printing(){
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
+  const [searched, setSearched] = useState('');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   //const [myEditedRows, setMyEditedRows] = useState([]);
   
   const [message, setMessage] = useState('');
   
+  const searchClicked = (e) => {
+    fetchlist();
+  }
 
   const handleCheckboxClick = (e) =>{
     const oid = parseInt(e.target.dataset.oid)
@@ -202,9 +206,22 @@ function Printing(){
   function fetchlist(){
     API.getPrintingList(token['mr-token'])
     .then(data => {
-      const rows = data;
+      let rows = data;
       console.log('fetching orders');
-      console.log(rows.map(r => r.orderId));
+      console.log(rows.map(r => r.orderId))
+      //filter
+      if(searched!='')
+        rows = rows.filter(r => {
+          const str = searched.toLowerCase()
+          return r.displayStatus.toLowerCase().search(str)>=0 ||
+          r.orderNo.toLowerCase().search(str)>=0 ||
+          r.storeName.toLowerCase().search(str)>=0 ||
+          r.recipientName.toLowerCase().search(str)>=0 ||
+          r.design.toLowerCase().search(str)>=0 ||
+          r.giftMessages.toLowerCase().search(str)>=0 ||
+          r.style.toLowerCase().search(str)>=0 ;
+        })
+      
       rows.forEach((item, i) => item.id = item.orderId);
 
       const sortBy = [ 
@@ -242,7 +259,14 @@ function Printing(){
   
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <h3>Printing</h3>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
+        <h3>Printing</h3>
+        <div>
+          <input type="text" value={searched} text='Search' onChange={(e) => setSearched(e.target.value)}></input>
+          <Button onClick={searchClicked}>Search</Button>
+          </div>
+        
+      </div>      
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
