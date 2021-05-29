@@ -5,6 +5,9 @@ import { useCookies } from 'react-cookie';
 import {Redirect} from 'react-router-dom';
 
 export default function AccountDetails(props){
+
+  props.setTitle('My Account');
+
   const [token] = useCookies(['mr-token']);
   const [userInfo, setUserInfo] = useCookies(['mr-user']);
   const [username, setUsername] = useState('');

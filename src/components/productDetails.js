@@ -18,7 +18,9 @@ const columns = [
   { field: 'amountInStock', headerName: 'Amount In Stock', width: 150}
 ];
 
-function ProductDetails(){
+function ProductDetails(props){
+
+  props.setTitle('Products');
   
   // { id: 1, sfmId: 'dummy1', style: 'dummy style' },
   // { id: 2,  sfmId: 'dummy2', style: 'dummy style' }

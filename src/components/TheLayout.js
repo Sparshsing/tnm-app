@@ -18,7 +18,12 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Button from '@material-ui/core/Button';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 import { mainListItems, staffListItems, clientListItems , secondaryListItems } from './listItems';
+import companylogo from './logo.png';
 // import Chart from './Chart';
 // import Deposits from './Deposits';
 
@@ -47,7 +52,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   toolbar: {
+    backgroundColor: "rgb(47,83,149)",
     paddingRight: 24, // keep right padding when drawer closed
+    paddingBottom: "5px",
+    paddingTop: "10px",
   },
   toolbarIcon: {
     display: 'flex',
@@ -128,6 +136,7 @@ const useStyles = makeStyles((theme) => ({
 export default function TheLayout() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const [title, setTitle] = React.useState('Home');
   const [token, setToken, removeToken] = useCookies(['mr-token']);
   const [userInfo, setUserInfo, removeUserInfo] = useCookies(['mr-user']);
 
@@ -167,17 +176,10 @@ export default function TheLayout() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            SFM Dropshipping
+          <Typography component="h1" variant="h4" color="inherit" noWrap className={classes.title}>
+            {title}
           </Typography>
-          <IconButton aria-label="Account" component={Link} to='/accountdetails'>
-            <AccountCircleRoundedIcon />
-          </IconButton>
-          {token['mr-token'] ? 
-            <Button color="secondary" variant="contained" onClick = {handleSignOut}>SignOut</Button> 
-            : 
-            <Button color="secondary" variant="contained" component={Link} to="/signin">Sign In</Button>
-          }
+          <img src={companylogo} alt='SFM' style={{width:"120px"}}></img>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -197,12 +199,25 @@ export default function TheLayout() {
         {usertype==1 && <List>{mainListItems}</List>}
         {usertype==2 && <List>{staffListItems}</List>}
         <Divider />
+        <ListItem button component={Link} to='/accountDetails'>
+          <ListItemIcon>
+            <AccountCircleRoundedIcon />
+          </ListItemIcon>
+          <ListItemText primary="My Account" />
+        </ListItem>
+        <ListItem button onClick={handleSignOut}>
+          <ListItemIcon>
+            <ExitToAppIcon />
+          </ListItemIcon>
+          <ListItemText primary="Sign Out" />
+        </ListItem>
+        <Divider />
         {usertype==1 && <List>{secondaryListItems}</List> }
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth={false} className={classes.container}>
-          <TheContent />
+          <TheContent setTitle={setTitle}/>
         </Container>
       </main>
     </div>

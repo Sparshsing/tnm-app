@@ -4,7 +4,9 @@ import {Button, TextField, MenuItem, Typography, Divider } from '@material-ui/co
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 
-function Dashboard(){
+function Dashboard(props){
+
+  props.setTitle('DashBoard');
 
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);

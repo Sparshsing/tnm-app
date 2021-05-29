@@ -45,7 +45,9 @@ const columns = [
   { field: 'productAvailability', headerName: 'Product Availability', width: 150 }
 ];
 
-function OrderList(){
+function OrderList(props){
+
+  props.setTitle('Orders');
   
   // { id: 1, style: 'dummy1', size: 'dummy ' },
   // { id: 2, style: 'dummy2', size: 'dummy ' }

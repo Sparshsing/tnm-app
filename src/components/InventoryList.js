@@ -22,7 +22,10 @@ const columns = [
   { field: 'needToPurchase', headerName: 'Need to Purchase', width: 150 }
 ];
 
-function InventoryList(){
+function InventoryList(props){
+
+  props.setTitle('Inventory');
+
   
   //{ id: 1, style: 'dummy1', size: 'dummy ' },
   //{ id: 2, style: 'dummy2', size: 'dummy ' }

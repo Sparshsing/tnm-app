@@ -9,7 +9,10 @@ import PurchaseForm from './PurchaseForm';
 
 
 
-function PurchaseList(){
+function PurchaseList(props){
+
+  props.setTitle('Purchases');
+
   //{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
   //{ id: 2,  sfmId: 'dummy2', style: 'dummy style' }
   const [purchases, setPurchases] = useState([]);

@@ -17,7 +17,10 @@ const columns = [
   { field: 'zipCode', headerName: 'Zip Code', width: 150 }
 ];
 
-function StoreDetails(){
+function StoreDetails(props){
+
+  props.setTitle('Stores');
+
   //{ id: 1, storeCode: 'dummy1', storeName: 'dummy store' },
   //{ id: 2, storeCode: 'dummy2', storeName: 'dummy store2' }
   const [stores, setStores] = useState([]);

@@ -51,7 +51,10 @@ const columns = [
   { field: 'productAvailability', headerName: 'Product Availability', width: 150 }
 ];
 
-function Printing(){
+function Printing(props){
+
+  props.setTitle('Printing');
+
   const classes = useStyles();
   
   // { id: 1, style: 'dummy1', size: 'dummy ' },
