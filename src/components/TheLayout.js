@@ -17,6 +17,7 @@ import Paper from '@material-ui/core/Paper';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import Button from '@material-ui/core/Button';
+import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 import { mainListItems, staffListItems, clientListItems , secondaryListItems } from './listItems';
 // import Chart from './Chart';
 // import Deposits from './Deposits';
@@ -169,6 +170,9 @@ export default function TheLayout() {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             SFM Dropshipping
           </Typography>
+          <IconButton aria-label="Account" component={Link} to='/accountdetails'>
+            <AccountCircleRoundedIcon />
+          </IconButton>
           {token['mr-token'] ? 
             <Button color="secondary" variant="contained" onClick = {handleSignOut}>SignOut</Button> 
             : 

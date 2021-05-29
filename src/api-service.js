@@ -251,4 +251,36 @@ export default class API{
       body: JSON.stringify(credentials)
     })
   }
+
+  static getAccountDetails(token, id){
+    return fetch(APIROOT + '/api/accounts/' + id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static updateProfile(token, id, data){
+    return fetch(APIROOT + '/api/accounts/update_profile/' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
+  static changePassword(token, id, data){
+    return fetch(APIROOT + '/api/accounts/change_password' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
 }
