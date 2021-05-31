@@ -1,45 +1,75 @@
 import API from '../api-service'
 import React, {useState, useEffect} from 'react';
-import {Button, TextField, MenuItem, Typography, Divider } from '@material-ui/core';
+import {Button, TextField, MenuItem, Typography, Divider, Paper } from '@material-ui/core';
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 
-function Dashboard(props){
+const getDeafultStartDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  return d.toISOString().split('T')[0];
+  // const offset = d.getTimezoneOffset()
+  // const d2 = new Date(d.getTime() - (offset*60*1000))
+  // return d2.toISOString().split('T')[0]
+}
 
-  props.setTitle('DashBoard');
+function Dashboard(props){
 
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
-  const [errormsg, setErrormsg] = useState({});
-  const [saved, setSaved, getSaved] = useState(false);
-  const [availableProducts, setavailableProducts] = useState([]);
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+
+  const [errormsg, setErrormsg] = useState('');
+  const [loading, setLoading] = useState(true);
   const [availableStores, setAvailableStores] = useState([]);
   const [inventory, setInventory] = useState([]);
-  const [selectedStore, setSelectedStore] = useState('All');
-  const [startDate, setStartDate] = useState('');
+  const [selectedStore, setSelectedStore] = useState('');
+  
+  const [startDate, setStartDate] = useState(getDeafultStartDate());
   const [endDate, setEndDate] = useState('');
   const [recievedData, setRecievedData] = useState({});
 
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
-
   useEffect(() => {
+    (async () => {
+      props.setTitle('Dashboard');
+      try{
+        const resp = await API.getStoreList(token['mr-token']);
+        let stores = await resp.json();
+        if(stores.length==0){
+          throw 'No stores available';
+        }
+        if(usertype==0){
+          const userid = userInfo['mr-user'].split('-')[0];
+          stores = stores.filter(s => s.user==userid);
+        }
+        else
+          stores.unshift({storeName:'All', storeCode:'All'});
+        setAvailableStores(stores);
+        let defaultStore = stores[0].storeCode;
+        if(usertype==1)
+          defaultStore = 'All';
+        setSelectedStore(defaultStore);
+        displaysummary(defaultStore, startDate, endDate);
+      }catch(e){
+        console.log("api error");
+        console.error(e);
+        setErrormsg('Something went wrong. Please refresh');
+      }
 
-    API.getStoreList(token['mr-token'])
-    .then(resp => resp.json())
-    .then(data => {
-      
-      data.unshift({storeName:'All', storeCode:'All'});
-      return setAvailableStores(data);
-    })
-    .catch(e => {console.log("api error"); console.error(e)});
-
-    API.getInventoryList(token['mr-token'])
-    .then(data => {
-      console.log(data);
-      return setInventory(data);
-    })
-    .catch(e => {console.log("api error"); console.error(e)});
-
+      if(usertype==1){
+        try{
+          const invdata = await API.getInventoryList(token['mr-token']);
+          //console.log(invdata);
+          setInventory(invdata);
+        }      
+        catch(e){
+          console.log("api error");
+          console.error(e);
+          setErrormsg('Something went wrong. Please refresh');
+        }
+      }
+      setLoading(false);
+    })();
   }, []
   );
 
@@ -51,32 +81,46 @@ function Dashboard(props){
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(selectedStore, typeof(startDate))
-    const store = usertype==1 ? selectedStore : availableStores.filter(s => s.user==userInfo['mr-user'].split('-')[0])[0].storeCode;
+    displaysummary(selectedStore, startDate, endDate);    
+  }
+
+  const displaysummary = (store, startDate, endDate) =>{
     console.log(store);
-    if(store=='')
+    if(store==''){
+      setErrormsg('Please choose a store');
       return;
+    }
     const params = {store, startDate, endDate}
     API.getOverview(token['mr-token'], params)
     .then(resp => {
       if(resp.status==200)
         return resp.json();
       else
-        throw 'something went wrong';
+        throw 'Something went wrong. Please make sure store is selected.';
     })
     .then(data => {setRecievedData(data)})
-    .catch(e => console.log(e));
-    
+    .catch(err => {
+      console.log(err);
+      setErrormsg(String(err));
+    });
   }
 
-  return (    
+  if(!token['mr-token'])
+    return (<Redirect to='/signin'></Redirect>);
+  if(usertype==2)
+    return (<Redirect to='/signin'></Redirect>);
+  if(loading)
+    return (<div>Loading. Please wait</div>);
+  return (
         <div>
-        { usertype==1 &&
+          {errormsg && <h3 style={{color:"red"}}>{errormsg}</h3>}
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-around', alignItems: "center"}}>
           <TextField
           variant="outlined"
           margin="normal"
           required
           select
-          fullWidth
+          style={{minWidth: "250px"}}
           label="Store"
           name="store"
           value={selectedStore}
@@ -88,80 +132,84 @@ function Dashboard(props){
               </MenuItem>
             ))}
           </TextField>
-          }
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          label="Start Date"
-          name="startDate"
-          type="date"
-          value = {startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          label="End Date"
-          name="endtDate"
-          type="date"
-          value = {endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <Button
+          <TextField
+            variant="outlined"
+            margin="normal"
+            label="Start Date"
+            name="startDate"
+            type="date"
+            value = {startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            label="End Date"
+            name="endtDate"
+            type="date"
+            value = {endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <Button
             type="submit"
-            fullWidth
             variant="contained"
             color="primary"
             onClick={handleSubmit}
           >
-            Submit
+          Submit
           </Button>
-
-          <Typography>
-          <strong>Total Orders : </strong>{recievedData.total}
-          </Typography>
-          <Typography>
-          <strong>Fulfilled : </strong>{recievedData.fulfilled}
-          </Typography>
-          <Typography>
-          <strong>Unfulfilled : </strong>{recievedData.unfulfilled}
-          </Typography>
-          <Typography>
-          <strong>OnHold : </strong>{recievedData.onhold}
-          </Typography>
-          <Typography>
-          <strong>Out Of Stock : </strong>{recievedData.outofstock}
-          </Typography>
-          <Divider/>
+          </div>
+          <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
+            <Typography variant="h4">
+              <strong>Orders Summary</strong>
+            </Typography>
+            <Typography>
+            <strong>Total Orders : </strong>{recievedData.total}
+            </Typography>
+            <Typography>
+            <strong>Fulfilled : </strong>{recievedData.fulfilled}
+            </Typography>
+            <Typography>
+            <strong>Unfulfilled : </strong>{recievedData.unfulfilled}
+            </Typography>
+            <Typography>
+            <strong>OnHold : </strong>{recievedData.onhold}
+            </Typography>
+            <Typography>
+            <strong>Out Of Stock : </strong>{recievedData.outofstock}
+            </Typography>
+          </Paper>
           { usertype==1 &&
           <div>
-            <Typography>
-              <strong>Products : </strong> {[...new Set(inventory.map(i => i.style))].length}
+            <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
+            <Typography variant="h4">
+              <strong>General</strong>
             </Typography>
-            <Typography>
-            <strong>Store Count : </strong>{recievedData.storecount}
-            </Typography>          
-            <Typography>
-            <strong>Inventory Needs :</strong>
-            </Typography>
-            <Divider/>
-            <Typography>
-            <ul>
-            {inventory.filter(inv => inv.needToPurchase>0).map( (i) => (
-                <li key={i.sfmId}>
-                  <strong>{i.style} - {i.size} - {i.color} : </strong>{i.needToPurchase}
-                </li>
-            ))}
-            </ul>
-            </Typography>
+              <Typography>
+                <strong>Products : </strong> {inventory.length>0 && [...new Set(inventory.map(i => i.style))].length}
+              </Typography>
+              <Typography>
+              <strong>Store Count : </strong>{recievedData.storecount}
+              </Typography>
+            </Paper>
+            <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
+              <Typography variant="h4">
+                <strong>Inventory Needs</strong>
+              </Typography>
+              <ul>
+              {inventory.length>0 && inventory.filter(inv => inv.needToPurchase>0).map( (i) => (
+                  <li key={i.sfmId}>
+                    <strong>{i.style} - {i.size} - {i.color} : </strong>{i.needToPurchase}
+                  </li>
+              ))}
+              </ul>
+            </Paper>
           </div>
           }
       </div>

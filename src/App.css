@@ -11,3 +11,16 @@
   color: white;
 }
 
+.file-input-label {
+  background-color: indigo;
+  color: white;
+  padding: 10px 16px;
+  padding-bottom: 12px;
+  font-size: 0.875rem;
+  font-family: sans-serif;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  margin: 1rem;
+  line-height: 1.75;
+}
+

@@ -19,8 +19,6 @@ const columns = [
 ];
 
 function ProductDetails(props){
-
-  props.setTitle('Products');
   
   // { id: 1, sfmId: 'dummy1', style: 'dummy style' },
   // { id: 2,  sfmId: 'dummy2', style: 'dummy style' }
@@ -99,6 +97,8 @@ function ProductDetails(props){
 	};
 
   useEffect(() => {
+    props.setTitle('Products');
+
     if(mode=='none')
       fetchlist();
   }, [token, mode]

@@ -23,9 +23,6 @@ const columns = [
 ];
 
 function InventoryList(props){
-
-  props.setTitle('Inventory');
-
   
   //{ id: 1, style: 'dummy1', size: 'dummy ' },
   //{ id: 2, style: 'dummy2', size: 'dummy ' }
@@ -35,6 +32,8 @@ function InventoryList(props){
   const [userInfo] = useCookies(['mr-user']);
 
   useEffect(() => {
+    props.setTitle('Inventory');
+
     console.log({...productInventory[0]});
     API.getInventoryList(token['mr-token'])
     .then(data => {

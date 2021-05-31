@@ -4,7 +4,10 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, MenuItem, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
+import { Divider, MenuItem, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import OrderForm from './OrderForm';
 import OrderUpdateForm from './OrderUpdateForm';
 
@@ -46,8 +49,6 @@ const columns = [
 ];
 
 function OrderList(props){
-
-  props.setTitle('Orders');
   
   // { id: 1, style: 'dummy1', size: 'dummy ' },
   // { id: 2, style: 'dummy2', size: 'dummy ' }
@@ -69,9 +70,11 @@ function OrderList(props){
   const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
 	const fileChangeHandler = (event) => {
+    console.log(event);
     if(event.target.files.length==1){
       setSelectedFile(event.target.files[0]);
-      console.log("order file is: ", event.target.files[0])
+      console.log("order file is: ", event.target.files[0]);
+      event.target.labels[0].textContent = event.target.files[0].name
       setIsFilePicked(true);
     }
     else{
@@ -237,6 +240,7 @@ function OrderList(props){
   }
 
   useEffect(() => {
+    props.setTitle('Orders');
     if(mode=='none'){
       setMySelectedRows([]);
       setMyEditedRows([]);
@@ -264,18 +268,15 @@ function OrderList(props){
   else
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <h3>Orders</h3>
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
-      <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
           {usertype==0 && <Button style={{ marginBottom:'10px'}} color='primary' variant='contained' disabled={mySelectedRows.length==1 && myEditedRows[0].processing=='N'? false:true} onClick={handleUpdateClick}>Update Single</Button>}
-          {usertype!=0 && <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', flexDirection: 'row'}}>
-            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-            <Button style={{ marginBottom:'10px'}} color='primary' variant='contained' disabled={mySelectedRows.length==1 ? false:true} onClick={handleUpdateClick}>Update Single</Button>
-            <Button variant="outlined" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Update Multiple</Button>
+          {usertype!=0 && <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
+            <IconButton style={{ width: '60px'}} color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+            <IconButton color='primary' variant='contained' disabled={mySelectedRows.length==1 ? false:true} onClick={handleUpdateClick}><EditIcon /></IconButton>
             <div>
-              <Button variant="outlined" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
+              <IconButton variant="outlined" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}><DeleteIcon /></IconButton>
               <Dialog
                 open={open}
                 onClose={handleClose}                
@@ -288,8 +289,9 @@ function OrderList(props){
                 </DialogActions>
               </Dialog>
             </div>
-            <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
-            <form ><TextField type="file" name="myShippingfile" onChange={shippingFileChangeHandler}></TextField><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
+            <Button variant="contained" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Mass Update</Button>
+            <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
+            <form ><input type="file" name="myShippingfile" id="myShippingfile" onChange={shippingFileChangeHandler} hidden></input><label htmlFor="myShippingfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
           </div>}
           <div style={{  width: '100%', height: '500px', minWidth:'600px'}}>        
             <DataGrid rows={orders} columns={columns} checkboxSelection  components={{

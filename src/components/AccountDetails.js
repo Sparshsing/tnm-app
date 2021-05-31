@@ -6,8 +6,6 @@ import {Redirect} from 'react-router-dom';
 
 export default function AccountDetails(props){
 
-  props.setTitle('My Account');
-
   const [token] = useCookies(['mr-token']);
   const [userInfo, setUserInfo] = useCookies(['mr-user']);
   const [username, setUsername] = useState('');
@@ -24,6 +22,7 @@ export default function AccountDetails(props){
   const userId = parseInt(userInfo['mr-user'].split('-')[0])
   useEffect(() => {
     (async () => {
+      props.setTitle('My Account');
       try{
         const resp = await API.getAccountDetails(token['mr-token'], userId)
         const data = await resp.json();
@@ -84,7 +83,6 @@ export default function AccountDetails(props){
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <div>
-        <h3>My Account</h3>
         {changePassword===false ? <Button
           variant="contained"
           color="secondary"

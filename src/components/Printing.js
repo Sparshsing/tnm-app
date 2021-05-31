@@ -53,8 +53,6 @@ const columns = [
 
 function Printing(props){
 
-  props.setTitle('Printing');
-
   const classes = useStyles();
   
   // { id: 1, style: 'dummy1', size: 'dummy ' },
@@ -201,6 +199,7 @@ function Printing(props){
   // }
 
   useEffect(() => {
+    props.setTitle('Printing');
     if(mode=='none')
       fetchlist()
   }, [mode, token]
