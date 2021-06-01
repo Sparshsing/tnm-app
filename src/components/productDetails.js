@@ -4,7 +4,10 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
-import { Divider, Button, TextField } from '@material-ui/core';
+import { Divider, Button, TextField, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import ProductForm from './ProductForm';
 
 const columns = [
@@ -96,14 +99,6 @@ function ProductDetails(props){
 			});
 	};
 
-  useEffect(() => {
-    props.setTitle('Products');
-
-    if(mode=='none')
-      fetchlist();
-  }, [token, mode]
-  );
-
   function fetchlist(){
     API.getProductList(token['mr-token'])
     .then(resp => {
@@ -120,6 +115,14 @@ function ProductDetails(props){
     })    
     .catch(e => {console.log("api error"); console.error(e)});
   }
+  
+  useEffect(() => {
+    props.setTitle('Products');
+
+    if(mode=='none')
+      fetchlist();
+  }, [token, mode]
+  );
 
   const updatebtnClicked = (e) => {
     console.log("update clicked");
@@ -149,18 +152,18 @@ function ProductDetails(props){
   else
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <h3>Products</h3>
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
-      <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>
           { usertype==1 && 
-          <div>
-            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-            <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
-            <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
+            <div>
+            <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+            <IconButton disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' ><EditIcon /></IconButton>
+            </div>
+            <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
           </div>}
-          <div style={{  width: '100%', minWidth:'600px', height: '500px'}}>
+          <div style={{  width: '100%', minWidth:'600px', height: 'calc(100vh - 140px'}}>
             <DataGrid rows={products} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
               Toolbar: GridToolbar,
             }} onSelectionModelChange={handleSelection} />

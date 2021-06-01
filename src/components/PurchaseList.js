@@ -4,7 +4,10 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
-import { Divider, Button, TextField, Dialog, DialogTitle, DialogActions } from '@material-ui/core';
+import { Divider, Button, TextField, Dialog, DialogTitle, DialogActions, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import PurchaseForm from './PurchaseForm';
 
 
@@ -222,26 +225,28 @@ function PurchaseList(props){
     return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <h3>Purchases</h3>
       {message=='' ? '' : <div style={{color:'red'}}>{message}</div>}
-      <Divider style={{  width: '100%', marginBottom: '10px' }}/>
       { mode=='none' ?
         <div>
-          <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-          <Button style={{ width: '60px', marginBottom:'10px'}} disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' >Update</Button>
-          <Button variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete Selected</Button>
-          <Dialog
-            open={open}
-            onClose={handleClose}                
-          >
-            <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
-            
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">Cancel</Button>
-              <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
-            </DialogActions>
-          </Dialog>
-          <form ><TextField type="file" name="myfile" onChange={fileChangeHandler}></TextField><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
+            <div>
+            <IconButton  color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+            <IconButton disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' ><EditIcon /></IconButton>
+            <IconButton variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}><DeleteIcon /></IconButton>
+            <Dialog
+              open={open}
+              onClose={handleClose}                
+            >
+              <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+              
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">Cancel</Button>
+                <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+              </DialogActions>
+            </Dialog>
+            </div>
+            <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
+          </div>
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
             <DataGrid rows={purchases} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,

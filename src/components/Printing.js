@@ -1,12 +1,17 @@
 import '../App.css';
 import API from '../api-service'
 import OrderForm from './OrderForm';
-import GridCellExpand from './GridCellExpand'
-import React, {useState, useEffect} from 'react'
+import OrderUpdateForm from './OrderUpdateForm';
+import GridCellExpand from './GridCellExpand';
+import React, {useState, useEffect} from 'react';
 import {isOverflown, DataGrid, GridToolbar, GridRowsProp, GridColDef, useGridContainerProps } from '@material-ui/data-grid';
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
-import { Divider, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, createChainedFunction } from '@material-ui/core';
+import { useCookies } from 'react-cookie';
+import { Redirect } from 'react-router-dom';
+import { Divider, Button, Checkbox, Dialog, DialogActions, DialogTitle, TextField, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EmailIcon from '@material-ui/icons/Email';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -158,6 +163,7 @@ function Printing(props){
   // );
 
   const handleAddClick = (e) => {setMode('add')}
+  const handleEditClick = (e) => {setMode('update')}
   const handleDeleteClick = (e) => {setOpen(true)}
   const handleClose = (e) => {setOpen(false)}
 
@@ -262,31 +268,35 @@ function Printing(props){
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
-        <h3>Printing</h3>
         <div>
-          <input type="text" value={searched} text='Search' onChange={(e) => setSearched(e.target.value)}></input>
-          <Button onClick={searchClicked}>Search</Button>
-          </div>
-        
+          
+        </div>
       </div>      
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
-      <Divider style={{  width: '100%', marginBottom: '15px' }}/>
       { mode=='none' ?
         <div>          
-            <div>
-            <Button style={{ width: '60px', marginBottom:'10px'}} color='primary' variant='contained' onClick={handleAddClick}>Add</Button>
-            <Button variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}>Delete</Button>
-            <Dialog
-              open={open}
-              onClose={handleClose}
-            >
-              <DialogTitle>"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
               
-              <DialogActions>
-                <Button onClick={handleClose} color="primary">Cancel</Button>
-                <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
-              </DialogActions>
-            </Dialog>
+            <div>
+              <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+              <IconButton variant="contained" color="primary" disabled={mySelectedRows.length==1 ? false:true} onClick={handleEditClick}><EditIcon /></IconButton>
+              <IconButton variant="contained" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}><DeleteIcon /></IconButton>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+              >
+                <DialogTitle>"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+                
+                <DialogActions>
+                  <Button onClick={handleClose} color="primary">Cancel</Button>
+                  <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+                </DialogActions>
+              </Dialog>
+              </div>
+              <div>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searched} text='Search' onChange={(e) => setSearched(e.target.value)}></TextField>
+                <Button color="primary" variant="contained" onClick={searchClicked}>Search</Button>
+              </div>            
             </div>
           
           {/*<div style={{  width: '100%', height: '450px', minWidth:'600px'}}>        
@@ -294,7 +304,7 @@ function Printing(props){
               Toolbar: GridToolbar,
             }} disableSelectionOnClick={true} onSelectionModelChange={handleSelection} onRowSelected={handleRowSelected} onEditCellChangeCommitted={handleEditCellChangeCommitted} />
           </div>*/}
-          <TableContainer component={Paper} style={{height: '500px'}}>
+          <TableContainer component={Paper} style={{height: 'calc(100vh - 140px)'}}>
             <Table className={classes.table} size="small" aria-label="spanning table">
               <TableHead>                
                 <TableRow>
@@ -346,7 +356,7 @@ function Printing(props){
                     <TableCell align="right">{row.size}</TableCell>
                     <TableCell align="right">{row.color}</TableCell>
                     <TableCell align="right">{row.design}</TableCell>
-                    <TableCell align="right" style={{  maxWidth: '100px'}}><GridCellExpand value={row.giftMessages} width={500}></GridCellExpand></TableCell>
+                    <TableCell align="right" style={{  maxWidth: '100px'}}>{row.giftMessages && <EmailIcon />}</TableCell>
                     <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} color={row.processing=='Y' ? "primary" : "secondary"} variant="contained">{row.processing}</Button></TableCell>
                     <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} color={row.printed=='Y' ? "primary" : "secondary"} variant="contained">{row.printed}</Button></TableCell>
                     <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} color={row.shipped=='Y' ? "primary" : "secondary"} variant="contained">{row.shipped}</Button></TableCell>
@@ -360,7 +370,11 @@ function Printing(props){
           </TableContainer>
         </div>
         :
-        <OrderForm mode={mode} setMode={setMode}></OrderForm>
+        (mode=="add" ?
+          <OrderForm mode={mode} setMode={setMode}></OrderForm>
+          :
+          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode}></OrderUpdateForm>
+        )
       }
     </div>
   );

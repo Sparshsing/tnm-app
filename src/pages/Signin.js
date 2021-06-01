@@ -57,6 +57,7 @@ export default function SignIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errormsg, setErrormsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const [token, setToken] = useCookies(['mr-token']);
   const [userInfo, setUserInfo] = useCookies(['mr-user']);
@@ -66,16 +67,18 @@ export default function SignIn() {
 
   const signinClicked = (e) => {
     e.preventDefault();
+    setLoading(true);
     API.signinUser({username, password})
     .then(resp =>{
       if(resp.status==200)
         return resp.json();
       if(resp.status==400)
-        throw 'Invalid username or password';
+        throw 'Invalid username or passord';
       else
         throw 'Something went wrong';
     } )
     .then(data => {
+      setLoading(false);
       let utype = 0;
       if(data.is_superuser)
         utype = 1;
@@ -88,12 +91,17 @@ export default function SignIn() {
       setToken('mr-token', data.token);      
       
     })
-    .catch(error => {console.error(error);setErrormsg(String(error))});
+    .catch(error => {
+      console.error(error);
+      setErrormsg(String(error));
+      setLoading(false);
+    });
   }
 
   if(token['mr-token'])
     return (<Redirect to='/'></Redirect>);
-  else
+  if(loading)
+    return (<p>Loading... Please wait.</p>)
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -105,7 +113,7 @@ export default function SignIn() {
           Sign in
         </Typography>
         <form className={classes.form} onSubmit={signinClicked}>
-          {errormsg && <FormLabel error={true} >Invalid username or password</FormLabel>}
+          {errormsg && <FormLabel error={true} >{errormsg}</FormLabel>}
           <TextField
             variant="outlined"
             margin="normal"
@@ -145,7 +153,7 @@ export default function SignIn() {
           >
             Sign In
           </Button>
-          <Grid container>
+          {/*<Grid container>
             <Grid item xs>
               <Link href="#" variant="body2">
                 Forgot password?
@@ -156,7 +164,7 @@ export default function SignIn() {
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
-          </Grid>
+          </Grid>*/}
         </form>
       </div>
       <Box mt={8}>

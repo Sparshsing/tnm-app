@@ -170,19 +170,19 @@ function Dashboard(props){
               <strong>Orders Summary</strong>
             </Typography>
             <Typography>
-            <strong>Total Orders : </strong>{recievedData.total}
+            <strong>Total Orders &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.total}
             </Typography>
             <Typography>
-            <strong>Fulfilled : </strong>{recievedData.fulfilled}
+            <strong>Fulfilled &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.fulfilled}
             </Typography>
             <Typography>
-            <strong>Unfulfilled : </strong>{recievedData.unfulfilled}
+            <strong>Unfulfilled &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.unfulfilled}
             </Typography>
             <Typography>
-            <strong>OnHold : </strong>{recievedData.onhold}
+            <strong>OnHold &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.onhold}
             </Typography>
             <Typography>
-            <strong>Out Of Stock : </strong>{recievedData.outofstock}
+            <strong>Out Of Stock &nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.outofstock}
             </Typography>
           </Paper>
           { usertype==1 &&
@@ -192,23 +192,25 @@ function Dashboard(props){
               <strong>General</strong>
             </Typography>
               <Typography>
-                <strong>Products : </strong> {inventory.length>0 && [...new Set(inventory.map(i => i.style))].length}
+                <strong>Products &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>
+                {inventory.length>0 && [...new Set(inventory.map(i => i.style))].length}
               </Typography>
               <Typography>
-              <strong>Store Count : </strong>{recievedData.storecount}
+              <strong>Store Count &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.storecount}
               </Typography>
             </Paper>
             <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
               <Typography variant="h4">
                 <strong>Inventory Needs</strong>
               </Typography>
-              <ul>
+              <table style={{padding: "20px"}}>
               {inventory.length>0 && inventory.filter(inv => inv.needToPurchase>0).map( (i) => (
-                  <li key={i.sfmId}>
-                    <strong>{i.style} - {i.size} - {i.color} : </strong>{i.needToPurchase}
-                  </li>
+                  <tr key={i.sfmId}>
+                    <td><strong>{i.style} - {i.size} - {i.color} {}</strong></td>
+                    <td><strong>: </strong>{i.needToPurchase}</td>
+                  </tr>
               ))}
-              </ul>
+              </table>
             </Paper>
           </div>
           }

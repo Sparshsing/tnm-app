@@ -23,6 +23,9 @@ export default function OrderForm(props){
   const [errormsg, setErrormsg] = useState({});
   const [saved, setSaved, getSaved] = useState(false);
   const [availableProducts, setavailableProducts] = useState([]);
+  const [availableStyles, setavailableStyles] = useState([]);
+  const [availableSizes, setavailableSizes] = useState([]);
+  const [availableColors, setavailableColors] = useState([]);
   const [availableStores, setAvailableStores] = useState([]);
   const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
   let badData = false;
@@ -47,7 +50,10 @@ export default function OrderForm(props){
         }
         return result;
       })
-      return setavailableProducts(data);
+      setavailableStyles([...new Set(data.map(i => i.style))]);
+      setavailableSizes([...new Set(data.map(i => i.size))]);
+      setavailableColors([...new Set(data.map(i => i.color))]);
+      setavailableProducts(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
 
@@ -62,15 +68,28 @@ export default function OrderForm(props){
   }, []
   );
 
+  const handleStyleChange = (e) => {
+    const newstyle = e.target.value;
+    console.log('style changed', newstyle);
+    setavailableSizes([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.size))]);
+    setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.color))]);
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('submit clicked');
     const formData = new FormData(e.target);    
     let dataObject = {};    
     formData.forEach((value, key) => dataObject[key] = value);
-    let splitArray = dataObject['sfmId'].split("-");
-    dataObject['style'] = splitArray.slice(0, splitArray.length-2).join('-');
-    dataObject['size'] = splitArray[splitArray.length-2];
-    dataObject['color'] = splitArray[splitArray.length-1];
+    // let splitArray = dataObject['sfmId'].split("-");
+    // dataObject['style'] = splitArray.slice(0, splitArray.length-2).join('-');
+    // dataObject['size'] = splitArray[splitArray.length-2];
+    // dataObject['color'] = splitArray[splitArray.length-1];
+    dataObject['sfmId'] = dataObject['style'] + '-' + dataObject['size'] + '-' + dataObject['color']
+    if(availableProducts.filter(p => p.sfmId==dataObject['sfmId']).length==0){
+      setErrormsg({'style': ['The style size color combination does not exist']});
+      return;
+    }
     if(dataObject['saleDate'] == "")
       dataObject['saleDate'] = null;
     if(dataObject['shipDate'] == "")
@@ -106,13 +125,12 @@ export default function OrderForm(props){
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   if(saved)
-    return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Orders</Button></div>);
-  else
+    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back to Orders</Button></Typography>);
   return(
     <div>
-      <div style={{display:'flex'}}>
-        <Typography>{props.mode=='update' ? 'Update':'Add'}</Typography>
-        <Button onClick={handleGoBack}>Go back</Button>
+      <div style={{display:'flex', justifyContent: "space-between"}}>
+        <Typography variant="h4">{props.mode=='update' ? 'Update':'Add'}</Typography>
+        <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button>
       </div>
     <form className={classes.form} onSubmit={handleSubmit} >
       { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
@@ -126,6 +144,7 @@ export default function OrderForm(props){
         id="store"
         label="Store Name"
         name="store"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['store'] ? errormsg['store'][0]:''}
         error = {errormsg['store'] ? true: false}
         >
@@ -143,6 +162,7 @@ export default function OrderForm(props){
         id="orderStatus"
         label="Order Status"
         name="orderStatus"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['orderStatus'] ? errormsg['orderStatus'][0]:''}
         error = {errormsg['orderStatus'] ? true: false}
       >
@@ -193,44 +213,66 @@ export default function OrderForm(props){
       />
       
 
-      {/*
+      
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
+        select
         id="style"
         label="Style"
         name="style"
+        onChange={handleStyleChange}
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['style'] ? errormsg['style'][0]:''}
         error = {errormsg['style'] ? true: false}
-      />
+      >
+      {availableStyles.map((option) => (
+        <MenuItem key={option} value={option}>
+          {option}
+        </MenuItem>
+      ))}
+      </TextField>
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
+        select
         id="size"
         label="Size"
         name="size"
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['size'] ? errormsg['size'][0]:''}
         error = {errormsg['size'] ? true: false}
-      />
+        >
+        {availableSizes.map((option) => (
+          <MenuItem key={option} value={option}>
+            {option}
+          </MenuItem>
+        ))}
+      </TextField>
       <TextField
-      variant="outlined"
-      margin="normal"
-      required
-      fullWidth
-      id="color"
-      label="Color"
-      name="color"
-      disabled = {props.mode=='update' ? true:false}
-      helperText = {errormsg['color'] ? errormsg['color'][0]:''}
-      error = {errormsg['color'] ? true: false}
-      /> */}
-      <TextField
+        variant="outlined"
+        margin="normal"
+        required
+        fullWidth
+        select
+        id="color"
+        label="Color"
+        name="color"
+        disabled = {props.mode=='update' ? true:false}
+        helperText = {errormsg['color'] ? errormsg['color'][0]:''}
+        error = {errormsg['color'] ? true: false}
+      >
+      {availableColors.map((option) => (
+        <MenuItem key={option} value={option}>
+          {option}
+        </MenuItem>
+      ))}
+      </TextField>
+      {/*<TextField
         variant="outlined"
         margin="normal"        
         fullWidth
@@ -248,6 +290,7 @@ export default function OrderForm(props){
         </MenuItem>
       ))}
       </TextField>
+      */}
       <TextField
         variant="outlined"
         margin="normal"
@@ -255,6 +298,7 @@ export default function OrderForm(props){
         id="design"
         label="design"
         name="design"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['design'] ? errormsg['design'][0]:''}
         error = {errormsg['design'] ? true: false}
       />
@@ -315,6 +359,7 @@ export default function OrderForm(props){
         id="sfmNotes"
         label="SFM Notes"
         name="sfmNotes"
+        inputProps={{maxLength:5000}}
         helperText = {errormsg['sfmNotes'] ? errormsg['sfmNotes'][0]:''}
         error = {errormsg['sfmNotes'] ? true: false}
       />
@@ -325,6 +370,7 @@ export default function OrderForm(props){
         id="Buyer Name"
         label="buyerName"
         name="buyerName"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['buyerName'] ? errormsg['buyerName'][0]:''}
         error = {errormsg['buyerName'] ? true: false}
       />
@@ -336,6 +382,7 @@ export default function OrderForm(props){
         id="buyerEmail"
         label="Buyer Email"
         name="buyerEmail"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['buyerEmail'] ? errormsg['buyerEmail'][0]:''}
         error = {errormsg['buyerEmail'] ? true: false}
       />
@@ -346,6 +393,7 @@ export default function OrderForm(props){
         id="buyerComments"
         label="Buyer Comments"
         name="buyerComments"
+        inputProps={{maxLength:5000}}
         helperText = {errormsg['buyerComments'] ? errormsg['buyerComments'][0]:''}
         error = {errormsg['buyerComments'] ? true: false}
       />
@@ -356,6 +404,7 @@ export default function OrderForm(props){
         id="giftMessages"
         label="Gift Messages"
         name="giftMessages"
+        inputProps={{maxLength:5000}}
         helperText = {errormsg['giftMessages'] ? errormsg['giftMessages'][0]:''}
         error = {errormsg['giftMessages'] ? true: false}
       />
@@ -391,6 +440,7 @@ export default function OrderForm(props){
         id="priorityShip"
         label="priorityShip"
         name="priorityShip"
+        inputProps={{maxLength:50}}
         helperText = {errormsg['priorityShip'] ? errormsg['priorityShip'][0]:''}
         error = {errormsg['priorityShip'] ? true: false}
       />
@@ -402,7 +452,7 @@ export default function OrderForm(props){
         label="Customer Paid Shipping $"
         name="customerPaidShipping"
         type="number"
-        inputProps={{step:0.01}}
+        inputProps={{step:0.01, min:0, max:99999}}
         helperText = {errormsg['customerPaidShipping'] ? errormsg['customerPaidShipping'][0]:''}
         error = {errormsg['customerPaidShipping'] ? true: false}
       />
@@ -413,6 +463,7 @@ export default function OrderForm(props){
         id="trackingNumber"
         label="Tracking Number"
         name="trackingNumber"
+        inputProps={{maxLength:30}}
         helperText = {errormsg['trackingNumber'] ? errormsg['trackingNumber'][0]:''}
         error = {errormsg['trackingNumber'] ? true: false}
       />

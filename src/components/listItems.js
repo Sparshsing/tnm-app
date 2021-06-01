@@ -138,7 +138,6 @@ export const clientListItems = (
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Advanced</ListSubheader>
     <ListItem button component="a" href={APIROOT+"/admin"}>
       <ListItemIcon>
         <SettingsApplications />

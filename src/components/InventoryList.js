@@ -56,9 +56,7 @@ function InventoryList(props){
     return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <h3>Inventory</h3>
-      <Divider style={{  width: '100%', marginBottom: '15px' }}/>
-      <div style={{  width: '100%', minWidth:'600px', height:'500px'}}>        
+      <div style={{  width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}}>        
         <DataGrid rows={productInventory} columns={columns} components={{
           Toolbar: GridToolbar,
         }} />
