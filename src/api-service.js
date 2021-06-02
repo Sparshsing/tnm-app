@@ -44,6 +44,16 @@ export default class API{
     })
   }
 
+  static deleteProduct(token, id){
+    return fetch(APIROOT + '/api/products/' + id + '/', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+    })
+  }
+
   static getStoreList(token){
     return fetch(APIROOT + '/api/stores/', {
       method: 'GET',

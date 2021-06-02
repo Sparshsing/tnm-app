@@ -1,5 +1,5 @@
 import API from '../api-service'
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {Button, TextField, FormLabel, Typography, MenuItem, FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie'
@@ -27,6 +27,9 @@ export default function OrderForm(props){
   const [availableSizes, setavailableSizes] = useState([]);
   const [availableColors, setavailableColors] = useState([]);
   const [availableStores, setAvailableStores] = useState([]);
+  const styleref = useRef(null);
+  const sizeref = useRef(null);
+  const colorref = useRef(null);
   const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
   let badData = false;
   console.log("opened form");
@@ -69,10 +72,22 @@ export default function OrderForm(props){
   );
 
   const handleStyleChange = (e) => {
+    console.log(styleref, sizeref, colorref);
     const newstyle = e.target.value;
+    //sizeref.current.value = '';
+    //colorref.current.value = '';
     console.log('style changed', newstyle);
     setavailableSizes([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.size))]);
     setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.color))]);
+  }
+
+  const handleSizeChange = (e) => {
+    console.log(styleref.current.value, sizeref.current.value, colorref.current.value);
+    const newstyle = styleref.current.value;
+    const newsize = e.target.value;
+    //colorref.current.value = '';
+    console.log('size changed', newsize);
+    setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle && p.size==newsize).map(x => x.color))]);
   }
 
   const handleSubmit = (e) => {
@@ -125,7 +140,7 @@ export default function OrderForm(props){
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   if(saved)
-    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back to Orders</Button></Typography>);
+    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button></Typography>);
   return(
     <div>
       <div style={{display:'flex', justifyContent: "space-between"}}>
@@ -209,7 +224,6 @@ export default function OrderForm(props){
         inputProps={{maxLength:50}}
         helperText = {errormsg['recipientName'] ? errormsg['recipientName'][0]:''}
         error = {errormsg['recipientName'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['recipientName']:''}
       />
       
 
@@ -223,6 +237,7 @@ export default function OrderForm(props){
         id="style"
         label="Style"
         name="style"
+        inputRef={styleref}
         onChange={handleStyleChange}
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['style'] ? errormsg['style'][0]:''}
@@ -240,9 +255,11 @@ export default function OrderForm(props){
         required
         fullWidth
         select
+        inputRef={sizeref}
         id="size"
         label="Size"
         name="size"
+        onChange={handleSizeChange}
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['size'] ? errormsg['size'][0]:''}
         error = {errormsg['size'] ? true: false}
@@ -259,6 +276,7 @@ export default function OrderForm(props){
         required
         fullWidth
         select
+        inputRef={colorref}
         id="color"
         label="Color"
         name="color"

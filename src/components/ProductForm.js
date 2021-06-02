@@ -1,5 +1,5 @@
 import API from '../api-service'
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Button, TextField, FormLabel, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { Redirect } from 'react-router-dom'
@@ -22,9 +22,74 @@ export default function ProductForm(props){
   const [userInfo] = useCookies(['mr-userInfo']);
 
   const [errormsg, setErrormsg] = useState({});
+  const [data, setData] = useState({});
   const [saved, setSaved, getSaved] = useState(false);
   let badData = false;
   console.log("opened form");
+
+  useEffect(() => {
+    if(props.mode!='update')
+      return;
+
+    const getproduct = async () => {      
+      try{
+        const resp = await API.getProduct(token['mr-token'], props.id)
+        if(resp.status==200){
+          const product = await resp.json();
+          console.log("retreiving data");
+          setData(product);
+        }
+        else throw 'Could not get the product details';        
+      }
+      catch(e){
+        console.log("api error");
+        console.error(e);
+        setErrormsg({'form': String(e)});
+      }
+    }
+    getproduct();
+
+  }, []);
+
+  const updateProduct = async (id, dataObject) => {
+    try{
+      const resp = await API.updateProduct(token['mr-token'], id, dataObject);
+      console.log("response status ", resp.status);
+      if(resp.status==200)
+        setSaved(true);
+      else if(resp.status==400){
+        console.log(resp);
+        const errors = await resp.json();
+        setErrormsg(errors);
+      }
+      else throw 'Failed due to unknown reasons';
+    }
+    catch(error){
+      console.log("api error");
+      console.error(error);
+      setErrormsg({'form': String(error)});
+    }
+  }
+
+  const addProduct = async (dataObject) => {    
+    try{
+      const resp = await API.addProduct(token['mr-token'], dataObject);
+      console.log("response status ", resp.status);
+      if(resp.status==201)
+        setSaved(true);
+      else if(resp.status==400){
+        console.log(resp);
+        const errors = await resp.json();
+        setErrormsg(errors);
+      }
+      else throw 'Failed due to unknown reasons';
+    }
+    catch(error){
+      console.log("api error");
+      console.error(error);
+      setErrormsg({'form': String(error)});
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,26 +97,12 @@ export default function ProductForm(props){
     let dataObject = {};    
     formData.forEach((value, key) => dataObject[key] = value);
     console.log("sending data");
-    console.log(dataObject);      
+    dataObject = {...data, ...dataObject};
+    console.log(dataObject);
     if(props.mode=='update')
-      API.updateProduct(token['mr-token'], props.id, dataObject)
-      .then(resp => {
-        if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
-        if(resp.status==200) { setSaved(true); }
-        return resp.json()
-      })
-      .then(data => {if(badData) setErrormsg(data)})
-      .catch(error => {console.log("api error"); console.error(error)});
+      updateProduct(props.id, dataObject);
     else
-      API.addProduct(token['mr-token'], dataObject)
-      .then(resp => {
-        console.log("saving",resp.status);
-        if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
-        if(resp.status==201) { setSaved(true); }
-        return resp.json()
-      })
-      .then(data => {if(badData) setErrormsg(data)})
-      .catch(error => {console.log("api error"); console.error(error)});      
+      addProduct(dataObject);
   };
 
   const handleGoBack = (e) => {
@@ -63,17 +114,17 @@ export default function ProductForm(props){
   if(parseInt(userInfo['mr-user'].split('-')[1])!=1)
     return (<Redirect to='/'></Redirect>);
   if(saved)
-    return(<div>Saved Succcesfully <Button onClick={handleGoBack}>Go back to Products</Button></div>);
-  else
+    return (<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button></Typography>);
+  if(props.mode=='update' && Object.keys(data).length === 0)
+    return (<div>Loading...</div>);
   return(
     <div>
-      <div style={{display:'flex'}}>
-        <Typography>{props.mode=='update' ? 'Update':'Add'}</Typography>
-        <Button onClick={handleGoBack}>Go back</Button>
+      <div style={{display:'flex', justifyContent: "space-between"}}>
+        <Typography variant="h4">{props.mode=='update' ? 'Update':'Add'}</Typography>
+        <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button>
       </div>
     <form className={classes.form} onSubmit={handleSubmit} >
-      { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
-      
+      { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}
       <TextField
         variant="outlined"
         margin="normal"
@@ -85,7 +136,7 @@ export default function ProductForm(props){
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['style'] ? errormsg['style'][0]:''}
         error = {errormsg['style'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['style']:''}
+        defaultValue = {props.mode=='update' ? data['style']:''}
       />
       <TextField
         variant="outlined"
@@ -98,7 +149,7 @@ export default function ProductForm(props){
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['size'] ? errormsg['size'][0]:''}
         error = {errormsg['size'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['size']:''}
+        defaultValue = {props.mode=='update' ? data['size']:''}
       />
       <TextField
       variant="outlined"
@@ -111,7 +162,7 @@ export default function ProductForm(props){
       disabled = {props.mode=='update' ? true:false}
       helperText = {errormsg['color'] ? errormsg['color'][0]:''}
       error = {errormsg['color'] ? true: false}
-      defaultValue = {props.mode=='update' ? props.data['color']:''}
+      defaultValue = {props.mode=='update' ? data['color']:''}
       />
       <TextField
         variant="outlined"
@@ -123,7 +174,7 @@ export default function ProductForm(props){
         disabled = {props.mode=='update' ? true:false}
         helperText = {errormsg['sku'] ? errormsg['sku'][0]:''}
         error = {errormsg['sku'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['sku']:''}
+        defaultValue = {props.mode=='update' ? data['sku']:''}
       />
       <TextField
         variant="outlined"
@@ -137,7 +188,7 @@ export default function ProductForm(props){
         inputProps={{step:0.01}}
         helperText = {errormsg['cost'] ? errormsg['cost'][0]:''}
         error = {errormsg['cost'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['cost']:''}
+        defaultValue = {props.mode=='update' ? data['cost']:''}
       />
       <TextField
         variant="outlined"
@@ -151,7 +202,7 @@ export default function ProductForm(props){
         inputProps={{step:0.01}}
         helperText = {errormsg['price'] ? errormsg['price'][0]:''}
         error = {errormsg['price'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['price']:''}
+        defaultValue = {props.mode=='update' ? data['price']:''}
       />
       
       <Button

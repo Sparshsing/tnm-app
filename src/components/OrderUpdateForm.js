@@ -157,7 +157,7 @@ export default function OrderUpdateForm(props){
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   if(saved)
-    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back to Orders</Button></Typography>);
+    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button></Typography>);
   if(!dataReturned)
     return (<div>Loading</div>)
   return(

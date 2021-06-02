@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
-import { Divider, Button, TextField, IconButton } from '@material-ui/core';
+import { Button, IconButton, Dialog, DialogActions, DialogTitle} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -31,7 +31,7 @@ function ProductDetails(props){
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
-  const [recordDetails, setRecordDetails] = useState({});
+  const [open, setOpen] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
@@ -126,18 +126,8 @@ function ProductDetails(props){
 
   const updatebtnClicked = (e) => {
     console.log("update clicked");
-    if(mySelectedRows.length==1){
-      const selectedRowId = mySelectedRows[0]
-      setMySelectedRows([])
-      API.getProduct(token['mr-token'], selectedRowId)
-        .then(resp => resp.json())
-        .then(data => {
-        console.log("filling formdata");
-        setRecordDetails(data);
-        setMode('update');
-        })
-        .catch(e =>{console.log("api error");console.error(e)});
-      }
+    if(mySelectedRows.length==1)
+      setMode('update');
   };
 
   const handleAddClick = (e) => {setMode('add')}
@@ -145,6 +135,38 @@ function ProductDetails(props){
   const handleSelection = (items) => {
     console.log(items);    
     setMySelectedRows(items.selectionModel);    
+  }
+
+  const handleDeleteClick = (e) => {setOpen(true)}
+  const handleClose = (e) => {setOpen(false)}
+  const handleDeleteConfirm = async (e) => { 
+    console.log('u confirmed delete');
+    let deleted = 0;
+    const errors = [];
+    for(let rowId of mySelectedRows) {
+      try{
+        const resp = await API.deleteProduct(token['mr-token'], rowId);        
+        if(resp.status==200 || resp.status==204){
+          console.log(`deleted order with id ${rowId}`);
+          deleted++;
+        }            
+        else{
+          console.log(`Failed to delete product with id ${rowId}`);
+          const p = products.find(x => x.id==rowId)['sfmId'];
+          throw `Could not delete product ${p}`;
+        }           
+      }
+      catch(e){
+        console.error(`could not delete product id ${rowId}`, e);
+        errors.push(e.toString());
+      }
+    }
+    if(deleted < mySelectedRows.length)
+      setMessage('Could not delete products ' + errors.toString());
+    else
+      setMessage('Successfull');
+    setOpen(false);
+    fetchlist();
   }
 
   if(!token['mr-token'])
@@ -158,8 +180,20 @@ function ProductDetails(props){
           { usertype==1 && 
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
             <div>
-            <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
-            <IconButton disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' ><EditIcon /></IconButton>
+              <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+              <IconButton disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' ><EditIcon /></IconButton>
+              <IconButton variant="outlined" color="secondary" disabled={mySelectedRows.length>0 ? false:true} onClick={handleDeleteClick}><DeleteIcon /></IconButton>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                >
+                <DialogTitle id="alert-dialog-title">"Are you sure you want to delete the {mySelectedRows.length} items"</DialogTitle>
+                
+                <DialogActions>
+                  <Button onClick={handleClose} color="primary">Cancel</Button>
+                  <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
+                </DialogActions>
+              </Dialog>
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
           </div>}
@@ -170,7 +204,7 @@ function ProductDetails(props){
           </div>
         </div>
         :
-        <ProductForm id={ mode=='update' ? mySelectedRows : null }  data={ mode=='update' ? recordDetails : null} mode={mode} setMode={setMode}></ProductForm>
+        <ProductForm id={ mode=='update' ? mySelectedRows[0] : null } mode={mode} setMode={setMode}></ProductForm>
       }
     </div>
   );

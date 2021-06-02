@@ -26,8 +26,9 @@ const useStyles = makeStyles({
   table: {
     minWidth: 700,
   },
-  th: {
-    background:"black",
+  headcell: {
+    fontWeight: "bold",
+    fontSize: "1rem"
   }
 });
 
@@ -44,7 +45,7 @@ const columns = [
   { field: 'orderNo', headerName: 'Order No', width: 150 },
   { field: 'orderCount', headerName: 'Order Count', width: 150},
   { field: 'recipientName', headerName: 'Recipent Name', width: 150},
-  { field: 'style', headerName: 'Style', width: 150 },
+  { field: 'style', headerName: 'Style', width: 350 },
   { field: 'size', headerName: 'Size', width: 150 },
   { field: 'color', headerName: 'Color', width: 150 },
   { field: 'design', headerName: 'Design', width: 150 },
@@ -275,7 +276,7 @@ function Printing(props){
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       { mode=='none' ?
         <div>          
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
               
             <div>
               <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
@@ -292,12 +293,12 @@ function Printing(props){
                   <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
                 </DialogActions>
               </Dialog>
-              </div>
-              <div>
+            </div>
+            <div>
                 <TextField variant="outlined" size="small" margin="none" type="text" value={searched} text='Search' onChange={(e) => setSearched(e.target.value)}></TextField>
                 <Button color="primary" variant="contained" onClick={searchClicked}>Search</Button>
               </div>            
-            </div>
+          </div>
           
           {/*<div style={{  width: '100%', height: '450px', minWidth:'600px'}}>        
             <DataGrid rows={orders} columns={columns} checkboxSelection  components={{
@@ -313,19 +314,19 @@ function Printing(props){
                       disabled={true}
                     />
                   </TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell align="right">Shop</TableCell>
-                  <TableCell align="right">Recipient/Order/#</TableCell>
-                  <TableCell align="right">Style</TableCell>
-                  <TableCell align="right">Size</TableCell>
-                  <TableCell align="right">Color</TableCell>
-                  <TableCell align="right">Design</TableCell>
-                  <TableCell align="right">Message</TableCell>
-                  <TableCell align="right">Processed</TableCell>
-                  <TableCell align="right">Printed</TableCell>
-                  <TableCell align="right">Shipped</TableCell>
-                  <TableCell align="right">Product Availability</TableCell>
-                  <TableCell align="right">Notes</TableCell>
+                  <TableCell className={classes.headcell} >Status</TableCell>
+                  <TableCell className={classes.headcell} >Shop</TableCell>
+                  <TableCell className={classes.headcell} >Recipient/Order/#</TableCell>
+                  <TableCell className={classes.headcell} >Style</TableCell>
+                  <TableCell className={classes.headcell} >Size</TableCell>
+                  <TableCell className={classes.headcell} >Color</TableCell>
+                  <TableCell className={classes.headcell} >Design</TableCell>
+                  <TableCell className={classes.headcell} >Message</TableCell>
+                  <TableCell className={classes.headcell} >Processed</TableCell>
+                  <TableCell className={classes.headcell} >Printed</TableCell>
+                  <TableCell className={classes.headcell} >Shipped</TableCell>
+                  <TableCell className={classes.headcell} >Product Availability</TableCell>
+                  <TableCell className={classes.headcell} >Notes</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -343,25 +344,25 @@ function Printing(props){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    <TableCell>
+                    <TableCell padding="checkbox">
                       <Checkbox
                         inputProps={{ 'data-oid' : row.orderId }}
                         onChange={handleCheckboxClick}
                       />
                     </TableCell>
-                    {showSpan && <TableCell rowSpan={nextGroup-i}>{row.displayStatus}</TableCell>}
-                    {showSpan && <TableCell rowSpan={nextGroup-i}>{row.storeName}</TableCell>}
-                    {showSpan && <TableCell rowSpan={nextGroup-i}><div>{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
-                    <TableCell align="right">{row.style}</TableCell>
-                    <TableCell align="right">{row.size}</TableCell>
-                    <TableCell align="right">{row.color}</TableCell>
-                    <TableCell align="right">{row.design}</TableCell>
-                    <TableCell align="right" style={{  maxWidth: '100px'}}>{row.giftMessages && <EmailIcon />}</TableCell>
-                    <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} color={row.processing=='Y' ? "primary" : "secondary"} variant="contained">{row.processing}</Button></TableCell>
-                    <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} color={row.printed=='Y' ? "primary" : "secondary"} variant="contained">{row.printed}</Button></TableCell>
-                    <TableCell align="right"><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} color={row.shipped=='Y' ? "primary" : "secondary"} variant="contained">{row.shipped}</Button></TableCell>
-                    <TableCell align="right">{row.productAvailability}</TableCell>
-                    <TableCell align="right">{row.sfmNotes}</TableCell>
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}>{row.displayStatus}</TableCell>}
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}>{row.storeName}</TableCell>}
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
+                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.style}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.size}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.color}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.design}</TableCell>
+                    <TableCell style={{  maxWidth: '50px'}}>{row.giftMessages && <EmailIcon />}</TableCell>
+                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} color={row.processing=='Y' ? "primary" : "secondary"} variant="contained">{row.processing}</Button></TableCell>
+                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} color={row.printed=='Y' ? "primary" : "secondary"} variant="contained">{row.printed}</Button></TableCell>
+                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} color={row.shipped=='Y' ? "primary" : "secondary"} variant="contained">{row.shipped}</Button></TableCell>
+                    <TableCell >{row.productAvailability}</TableCell>
+                    <TableCell style={{ maxWidth : '300px', whiteSpace : 'normal'}}>{row.sfmNotes}</TableCell>
                   </TableRow>);
                   })
                 }                
