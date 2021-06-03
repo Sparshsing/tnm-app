@@ -213,6 +213,7 @@ function Printing(props){
   );
 
   function fetchlist(){
+    setMySelectedRows([]);
     API.getPrintingList(token['mr-token'])
     .then(data => {
       let rows = data;
@@ -273,7 +274,7 @@ function Printing(props){
           
         </div>
       </div>      
-      {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
+      {message!='' && <div style={{color:"red"}}>{message}</div>}
       { mode=='none' ?
         <div>          
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
@@ -362,7 +363,7 @@ function Printing(props){
                     <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} color={row.printed=='Y' ? "primary" : "secondary"} variant="contained">{row.printed}</Button></TableCell>
                     <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} color={row.shipped=='Y' ? "primary" : "secondary"} variant="contained">{row.shipped}</Button></TableCell>
                     <TableCell >{row.productAvailability}</TableCell>
-                    <TableCell style={{ maxWidth : '300px', whiteSpace : 'normal'}}>{row.sfmNotes}</TableCell>
+                    <TableCell style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{row.sfmNotes}</TableCell>
                   </TableRow>);
                   })
                 }                

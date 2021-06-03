@@ -57,7 +57,7 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Products" />
     </ListItem>
-    <ListItem button>
+    <ListItem button component={Link} to='/invoices'>
       <ListItemIcon>
         <Receipt />
       </ListItemIcon>
@@ -127,7 +127,7 @@ export const clientListItems = (
       </ListItemIcon>
       <ListItemText primary="Products" />
     </ListItem>
-    <ListItem button>
+    <ListItem button component={Link} to='/invoices'>
       <ListItemIcon>
         <Receipt />
       </ListItemIcon>

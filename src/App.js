@@ -11,6 +11,7 @@ const loading = (
 
 // Pages
 const Signin = React.lazy(() => import('./pages/Signin'));
+const PrintInvoice = React.lazy(() => import('./pages/PrintInvoice'));
 const TheLayout = React.lazy(() => import('./components/TheLayout'));
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
       <HashRouter>
             <React.Suspense fallback={loading}>
               <Switch>
-                <Route exact path="/signin" name="Login Page" render={props => <Signin {...props}/>} />              
+                <Route exact path="/signin" name="Login Page" render={props => <Signin {...props}/>} />
+                <Route exact path="/printinvoice" name="Invoice" render={props => <PrintInvoice {...props}/>} />
                 <Route path="/" name="Home" render={props => <TheLayout {...props}/>} />
               </Switch>
             </React.Suspense>

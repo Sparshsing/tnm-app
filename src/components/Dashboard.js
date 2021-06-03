@@ -7,10 +7,10 @@ import { Redirect } from 'react-router-dom'
 const getDeafultStartDate = () => {
   const d = new Date();
   d.setDate(d.getDate() - 30);
-  return d.toISOString().split('T')[0];
-  // const offset = d.getTimezoneOffset()
-  // const d2 = new Date(d.getTime() - (offset*60*1000))
-  // return d2.toISOString().split('T')[0]
+  //d.toISOString().split('T')[0];
+  const offset = d.getTimezoneOffset()
+  const d2 = new Date(d.getTime() - (offset*60*1000))
+  return d2.toISOString().split('T')[0]
 }
 
 function Dashboard(props){
@@ -80,6 +80,7 @@ function Dashboard(props){
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(startDate, endDate);
     console.log(selectedStore, typeof(startDate))
     displaysummary(selectedStore, startDate, endDate);    
   }

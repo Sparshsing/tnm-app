@@ -188,6 +188,37 @@ export default class API{
     })
   }
 
+  static getInvoiceList(token){
+    return fetch(APIROOT + '/api/invoices/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static getInvoice(token, id){
+    return fetch(APIROOT + '/api/invoices/' + id + '/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      }
+    })
+  }
+
+  static generateInvoices(token, data){
+    return fetch(APIROOT + '/api/invoices/generate_invoices/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
   static uploadOrdersFile(token, data){
     return fetch(APIROOT + '/api/orders/import_ordersfile/',
 			{

@@ -1,5 +1,5 @@
 import API from '../api-service'
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {Button, TextField, FormLabel, Typography, MenuItem, FormControl, InputLabel, Input, FormHelperText} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCookies } from 'react-cookie'
@@ -30,6 +30,9 @@ export default function OrderUpdateForm(props){
   const [availableStyles, setavailableStyles] = useState([]);
   const [availableSizes, setavailableSizes] = useState([]);
   const [availableColors, setavailableColors] = useState([]);
+  const styleref = useRef(null);
+  const sizeref = useRef(null);
+  const colorref = useRef(null);
   const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
 
 
@@ -146,10 +149,22 @@ export default function OrderUpdateForm(props){
   }
 
   const handleStyleChange = (e) => {
+    console.log(styleref, sizeref, colorref);
     const newstyle = e.target.value;
+    //sizeref.current.value = '';
+    //colorref.current.value = '';
     console.log('style changed', newstyle);
     setavailableSizes([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.size))]);
     setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle).map(x => x.color))]);
+  }
+
+  const handleSizeChange = (e) => {
+    console.log(styleref.current.value, sizeref.current.value, colorref.current.value);
+    const newstyle = styleref.current.value;
+    const newsize = e.target.value;
+    //colorref.current.value = '';
+    console.log('size changed', newsize);
+    setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle && p.size==newsize).map(x => x.color))]);
   }
 
   console.log('rendering');
@@ -166,109 +181,7 @@ export default function OrderUpdateForm(props){
         <Typography variant="h4" >Update</Typography>
         <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button>
       </div>
-      {usertype==0 ?
-          <form className={classes.form} onSubmit={handleClientFormSubmit} >
-          { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
-          <FormLabel>Order Id: {data['orderId']} ------ Order No: {data['orderNo']}</FormLabel>
-          {/*<TextField
-            variant="outlined"
-            margin="normal"        
-            fullWidth
-            select
-            required
-            id="sfmId"
-            label="Style - Size - Color"
-            name="sfmId"
-            helperText = {errormsg['sfmId'] ? errormsg['sfmId'][0]:''}
-            error = {errormsg['sfmId'] ? true: false}
-            defaultValue = {data['sfmId']}
-          >
-          {availableProducts.map((option) => (
-            <MenuItem key={option.sfmId} value={option.sfmId}>
-              {option.sfmId}
-            </MenuItem>
-          ))}
-          </TextField>*/}
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            select
-            id="style"
-            label="Style"
-            name="style"
-            onChange={handleStyleChange}
-            helperText = {errormsg['style'] ? errormsg['style'][0]:''}
-            error = {errormsg['style'] ? true: false}
-            defaultValue = {data['style']}
-          >
-          {availableStyles.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-          </TextField>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            select
-            id="size"
-            label="Size"
-            name="size"
-            helperText = {errormsg['size'] ? errormsg['size'][0]:''}
-            error = {errormsg['size'] ? true: false}
-            defaultValue = {data['size']}
-            >
-            {availableSizes.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            select
-            id="color"
-            label="Color"
-            name="color"
-            helperText = {errormsg['color'] ? errormsg['color'][0]:''}
-            error = {errormsg['color'] ? true: false}
-            defaultValue = {data['color']}
-          >
-          {availableColors.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-          </TextField>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            id="design"
-            label="design"
-            name="design"
-            helperText = {errormsg['design'] ? errormsg['design'][0]:''}
-            error = {errormsg['design'] ? true: false}
-            defaultValue = {data['design']}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Submit
-          </Button>
-        </form>
-        :
+      {usertype!=0 ?
         <form className={classes.form} onSubmit={handleSubmit} >
           <FormLabel>Order Id: {data['orderId']} ------ Order No: {data['orderNo']}</FormLabel>
           { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
@@ -361,6 +274,7 @@ export default function OrderUpdateForm(props){
             required
             fullWidth
             select
+            inputRef={styleref}
             id="style"
             label="Style"
             name="style"
@@ -381,6 +295,8 @@ export default function OrderUpdateForm(props){
             required
             fullWidth
             select
+            inputRef={sizeref}
+            onChange={handleSizeChange}
             id="size"
             label="Size"
             name="size"
@@ -400,6 +316,7 @@ export default function OrderUpdateForm(props){
             required
             fullWidth
             select
+            inputRef={colorref}
             id="color"
             label="Color"
             name="color"
@@ -640,6 +557,114 @@ export default function OrderUpdateForm(props){
             Submit
           </Button>
         </form>
+        :
+        <form className={classes.form} onSubmit={handleClientFormSubmit} >
+          { Object.keys(errormsg).length!=0 && <FormLabel error={true} >Invalid data {errormsg['form']}</FormLabel>}      
+          <FormLabel>Order Id: {data['orderId']} ------ Order No: {data['orderNo']}</FormLabel>
+          {/*<TextField
+            variant="outlined"
+            margin="normal"        
+            fullWidth
+            select
+            required
+            id="sfmId"
+            label="Style - Size - Color"
+            name="sfmId"
+            helperText = {errormsg['sfmId'] ? errormsg['sfmId'][0]:''}
+            error = {errormsg['sfmId'] ? true: false}
+            defaultValue = {data['sfmId']}
+          >
+          {availableProducts.map((option) => (
+            <MenuItem key={option.sfmId} value={option.sfmId}>
+              {option.sfmId}
+            </MenuItem>
+          ))}
+          </TextField>*/}
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            select
+            inputRef={styleref}
+            id="style"
+            label="Style"
+            name="style"
+            onChange={handleStyleChange}
+            helperText = {errormsg['style'] ? errormsg['style'][0]:''}
+            error = {errormsg['style'] ? true: false}
+            defaultValue = {data['style']}
+          >
+          {availableStyles.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+          </TextField>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            select
+            inputRef={sizeref}
+            id="size"
+            label="Size"
+            name="size"
+            onChange={handleSizeChange}
+            helperText = {errormsg['size'] ? errormsg['size'][0]:''}
+            error = {errormsg['size'] ? true: false}
+            defaultValue = {data['size']}
+            >
+            {availableSizes.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            select
+            inputRef={colorref}
+            id="color"
+            label="Color"
+            name="color"
+            helperText = {errormsg['color'] ? errormsg['color'][0]:''}
+            error = {errormsg['color'] ? true: false}
+            defaultValue = {data['color']}
+          >
+          {availableColors.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+          </TextField>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="design"
+            label="design"
+            name="design"
+            helperText = {errormsg['design'] ? errormsg['design'][0]:''}
+            error = {errormsg['design'] ? true: false}
+            defaultValue = {data['design']}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            Submit
+          </Button>
+        </form>
+        
+        
       }
     </div>); 
 }

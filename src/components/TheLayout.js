@@ -179,7 +179,7 @@ export default function TheLayout() {
           <Typography component="h1" variant="h4" color="inherit" noWrap className={classes.title}>
             {title}
           </Typography>
-          <img src={companylogo} alt='SFM' style={{width:"120px"}}></img>
+          <img src={companylogo} alt='SFM logo' style={{width:"120px"}}></img>
         </Toolbar>
       </AppBar>
       <Drawer

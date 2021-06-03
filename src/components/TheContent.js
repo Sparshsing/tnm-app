@@ -8,6 +8,7 @@ import OrderList from './OrderList';
 import Printing from './Printing';
 import Dashboard from './Dashboard';
 import AccountDetails from './AccountDetails';
+import Invoices from './Invoices';
 
 function TheContent(props){
   const setTitle = props.setTitle;
@@ -22,10 +23,11 @@ function TheContent(props){
         <Route exact path='/orders' render={(props) => (<OrderList {...props} setTitle={setTitle} />)} />
         <Route exact path='/printing' render={(props) => (<Printing {...props} setTitle={setTitle} />)} />
         <Route exact path='/accountdetails' render={(props) => (<AccountDetails {...props} setTitle={setTitle} />)} />
+        <Route exact path='/invoices' render={(props) => (<Invoices {...props} setTitle={setTitle} />)} />
           {/* <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
           <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
           <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />
-  <Route path="/" name="Home" render={props => <TheLayout {...props}/>} /> */}
+          <Route path="/" name="Home" render={props => <TheLayout {...props}/>} /> */}
         </Switch>
   );
 }
