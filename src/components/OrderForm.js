@@ -30,7 +30,7 @@ export default function OrderForm(props){
   const styleref = useRef(null);
   const sizeref = useRef(null);
   const colorref = useRef(null);
-  const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
+  const statuses = ['Unfulfilled', 'Processed', 'Printed', 'Shipped'];
   let badData = false;
   console.log("opened form");
 
@@ -180,8 +180,9 @@ export default function OrderForm(props){
         inputProps={{maxLength:50}}
         helperText = {errormsg['orderStatus'] ? errormsg['orderStatus'][0]:''}
         error = {errormsg['orderStatus'] ? true: false}
+        defaultValue = 'Unfulfilled'
       >
-      {states.map((option) => (
+      {statuses.map((option) => (
         <MenuItem key={option} value={option}>
           {option}
         </MenuItem>

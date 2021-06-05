@@ -33,7 +33,7 @@ export default function OrderUpdateForm(props){
   const styleref = useRef(null);
   const sizeref = useRef(null);
   const colorref = useRef(null);
-  const states = ['', 'Shipped', 'Printed', 'Fulfilled', 'Unfulfilled', 'On Hold', 'Cancel'];
+  const statuses = ['Unfulfilled', 'Processed', 'Printed', 'Shipped', 'Cancelled'];
 
 
   let badData = false;
@@ -141,7 +141,10 @@ export default function OrderUpdateForm(props){
       return resp.json()
     })
     .then(data => {if(badData) setErrormsg(data)})
-    .catch(error => {console.log("api error"); console.error(error)});
+    .catch(error => {console.log("api error");
+      console.error(error);
+      setErrormsg({'form': 'Something went wrong. Please refresh.'})
+    });
   };
 
   const handleGoBack = (e) => {
@@ -219,7 +222,7 @@ export default function OrderUpdateForm(props){
             error = {errormsg['orderStatus'] ? true: false}
             defaultValue = {data['orderStatus']}
           >
-          {states.map((option) => (
+          {statuses.map((option) => (
             <MenuItem key={option} value={option}>
               {option}
             </MenuItem>

@@ -257,7 +257,34 @@ function OrderList(props){
     .then(data => {
       console.log(data); 
       data.forEach((item, i) => item.id = item.orderId);
-      
+      // data.sort(function(a,b){
+      //   if(!a['shipDate']){
+      //     console.log(a.orderId)
+      //     return -1;
+      //   }
+      //   if(!b['shipDate']) return -1;
+      //   return a.toString() > b.toString() ? -1 : 1;
+      // })
+      const sortBy = [
+        {prop:'shipDate', direction: -1},
+        {prop:'storeName', direction: 1}, 
+        {prop:'recipientName', direction: 1},
+      ];
+
+      data.sort(function(a,b){
+        let i = 0, result = 0;
+        if(!a['shipDate'] && !b['shipDate'])
+          i++;
+        else if(!a['shipDate'])
+          return -1;
+        else if(!b['shipDate'])
+          return 1;
+        while(i < sortBy.length && result === 0) {
+          result = sortBy[i].direction*(a[ sortBy[i].prop ].toString() < b[ sortBy[i].prop ].toString() ? -1 : (a[ sortBy[i].prop ].toString() > b[ sortBy[i].prop ].toString() ? 1 : 0));
+          i++;
+        }
+        return result;
+      })
       return setOrders(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});

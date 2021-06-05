@@ -207,7 +207,7 @@ export default function TheLayout() {
         </ListItem>
         <ListItem button onClick={handleSignOut}>
           <ListItemIcon>
-            <ExitToAppIcon />
+            <ExitToAppIcon color="secondary"/>
           </ListItemIcon>
           <ListItemText primary="Sign Out" />
         </ListItem>
