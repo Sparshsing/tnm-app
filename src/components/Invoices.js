@@ -1,10 +1,11 @@
 import API from '../api-service';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar} from '@material-ui/data-grid';
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import { useCookies } from 'react-cookie';
+import { Redirect } from 'react-router-dom';
 
 const getDeafultStartDate = () => {
   const d = new Date();
@@ -22,7 +23,20 @@ const getDeafultEndDate = () => {
   return d2.toISOString().split('T')[0];
 }
 
+const useStyles = makeStyles({
+  redcolor: {
+    background: 'red',
+    color: 'white'
+  },
+  greencolor: {
+    background: 'green',
+    color: 'white'
+  }
+
+});
+
 export default function Invoices(props){
+  const classes = useStyles();
 
   //{ id: 1, style: 'dummy1', size: 'dummy ' },
   //{ id: 2, style: 'dummy2', size: 'dummy ' }
@@ -37,27 +51,66 @@ export default function Invoices(props){
 
   const columns = [
     { field: 'id', headerName: 'Id', width: 150, hide: true },
-    { field: 'startDate', headerName: 'Start Date', width: 150 },
-    { field: 'endDate', headerName: 'End Date', width: 150 },
-    { field: 'storeName', headerName: 'Store', width: 150 },
-    { field: 'invoiceNo', headerName: 'Invoice Number', width: 150 },
-    { field: 'status', headerName: 'Status', width: 150 },
-    { field: 'receipt', headerName: 'Receipt', width: 150,
+    { field: 'receipt', headerName: 'Receipt', width: 110,
         renderCell: (params) => {
             return(
             <Button
               variant="contained"
+              color="primary"
               size="small"
               data-pid={params.id}
               onClick={handleOpenReceipt}
-              style={{ marginLeft: 16 }}
             >
               Open
             </Button>);
         },
-        },
+    },
+    { field: 'startDate', headerName: 'Start Date', width: 130 },
+    { field: 'endDate', headerName: 'End Date', width: 130 },
+    { field: 'storeName', headerName: 'Store', width: 150 },
+    { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
+    { field: 'status', headerName: 'Status', width: 110,
+      renderCell: (params) => {
+          return(
+          <Button
+            variant="contained"
+            className={params.value=="Paid"?classes.greencolor:classes.redcolor}
+            size="small"
+            data-pid={params.id}
+            onClick={handleStatusChange}
+          >
+            {params.value}
+          </Button>);
+      },
+    },
+    { field: 'total', headerName: 'Total', width: 110 },    
     { field: 'notes', headerName: 'Notes', width: 150 }  
   ];
+
+  const handleStatusChange = (e) => {
+    const pid = parseInt(e.currentTarget.dataset.pid);
+    let rowdata = invoices.find(p => p.id == pid);
+    const status = rowdata.status=='Paid' ? 'UnPaid': 'Paid'
+    const newRow = {...rowdata, status}
+    API.updateInvoice(token['mr-token'], pid, newRow)
+      .then(resp => {
+        if(resp.status==200) return resp.json();
+        if(resp.status==400) throw JSON.stringify(resp.json());
+        else throw 'Unknown reason. Please refresh';
+      })
+      .then(data => {
+        const updatedRows = invoices.map((row) => {
+          if (row.id == data.id)
+            return data;          
+          return row;
+        });
+        setMessage('Status Updated');
+        setInvoices(updatedRows);
+      })
+      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
+
+    console.log(e.target.value);
+  }
 
   const handleOpenReceipt = (e) => {
     const pid = parseInt(e.currentTarget.dataset.pid);
@@ -141,7 +194,7 @@ export default function Invoices(props){
       <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}}>
         <DataGrid rows={invoices} columns={columns} components={{
           Toolbar: GridToolbar,
-        }} />
+        }} disableColumnMenu/>
       </div>
     </div>
   );

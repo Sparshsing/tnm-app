@@ -1,9 +1,9 @@
 import '../App.css';
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react';
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
-import API from '../api-service'
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import API from '../api-service';
+import { useCookies } from 'react-cookie';
+import { Redirect } from 'react-router-dom';
 import { Divider, Button, TextField, Dialog, DialogTitle, DialogActions, IconButton } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
@@ -114,7 +114,7 @@ function PurchaseList(props){
       .then(resp => {
         if(resp.status==200) return resp.json();
         if(resp.status==400) throw JSON.stringify(resp.json());
-        else throw 'Something went wrong. Please Refresh';
+        else throw 'Unknown reason. Please refresh';
       })
       .then(data => {
         const updatedRows = purchases.map((row) => {

@@ -61,7 +61,7 @@ export const mainListItems = (
       <ListItemIcon>
         <Receipt />
       </ListItemIcon>
-      <ListItemText primary="Invoice" />
+      <ListItemText primary="Invoices" />
     </ListItem>
   </div>
 );

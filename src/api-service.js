@@ -208,6 +208,17 @@ export default class API{
     })
   }
 
+  static updateInvoice(token, id, data){
+    return fetch(APIROOT + '/api/invoices/' + id + '/', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: JSON.stringify(data)
+    })
+  }
+
   static generateInvoices(token, data){
     return fetch(APIROOT + '/api/invoices/generate_invoices/', {
       method: 'POST',

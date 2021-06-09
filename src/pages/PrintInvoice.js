@@ -95,11 +95,11 @@ export default function Invoices(props){
               <table>
               <tr>
                 <td>Start Date</td>
-                <td>{invoiceDetails.startDate}</td>
+                <td>{new Date(invoiceDetails.startDate).toLocaleDateString('en-US')}</td>
               </tr>
               <tr>
                 <td>End Date</td>
-                <td>{invoiceDetails.endDate}</td>
+                <td>{new Date(invoiceDetails.endDate).toLocaleDateString('en-US')}</td>
               </tr>
               <tr>
                 <td>Order Count</td>
@@ -130,8 +130,8 @@ export default function Invoices(props){
         </tr>
         {invoiceDetails.items.map(i => (
           <tr key={i.id}>
-            <td>{i.shipDate}</td>
-            <td>{i.orderDate}</td>
+            <td>{new Date(i.shipDate).toLocaleDateString('en-US')}</td>
+            <td>{new Date(i.orderDate).toLocaleDateString('en-US')}</td>
             <td>{i.orderNo}</td>
             <td>{i.customer}</td>
             <td>{i.description}</td>

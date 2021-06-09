@@ -11,14 +11,15 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ProductForm from './ProductForm';
 
 const columns = [
-  { field: 'sfmId', headerName: 'SFM ID', width: 150},
-  { field: 'style', headerName: 'Style', width: 150},
-  { field: 'size', headerName: 'Size', width: 150},
+  { field: 'id', headerName: 'ID', width: 50},
+  { field: 'sfmId', headerName: 'SFM ID', width: 300, hide:true},
+  { field: 'style', headerName: 'Style', width: 200},
+  { field: 'size', headerName: 'Size', width: 100},
   { field: 'color', headerName: 'Color', width: 150},
   { field: 'sku', headerName: 'SKU', width: 150 },
-  { field: 'cost', headerName: 'Cost', width: 150},
-  { field: 'price', headerName: 'Price', width: 150},
-  { field: 'amountInStock', headerName: 'Amount In Stock', width: 150}
+  { field: 'cost', headerName: 'Cost', width: 100, type: 'number'},
+  { field: 'price', headerName: 'Price', width: 100, type: 'number'},
+  { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, type: 'number'}
 ];
 
 function ProductDetails(props){
@@ -200,7 +201,7 @@ function ProductDetails(props){
           <div style={{  width: '100%', minWidth:'600px', height: 'calc(100vh - 140px'}}>
             <DataGrid rows={products} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} />
+            }} onSelectionModelChange={handleSelection} disableColumnMenu={true}/>
           </div>
         </div>
         :

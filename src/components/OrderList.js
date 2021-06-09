@@ -1,6 +1,7 @@
 import '../App.css';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
+import { makeStyles } from '@material-ui/core/styles';
 import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
@@ -16,39 +17,54 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
+const useStyles = makeStyles({
+  root: {
+    '& .cold': {
+      backgroundColor: '#b9d5ff91',
+      color: '#1a3e72',
+    },
+    '& .hot': {
+      backgroundColor: '#ff943975',
+      color: '#1a3e72',
+    },
+  },
+});
+
+
 const columns = [
-  { field: 'orderId', headerName: 'Order Id', width: 150 },
+  { field: 'orderId', headerName: 'Id', width: 80 },
   { field: 'storeName', headerName: 'Store Name', width: 150 },
-  { field: 'orderStatus', headerName: 'Order Status', width: 150 },
-  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 150 },
+  { field: 'orderStatus', headerName: 'Status', width: 110 },
+  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 120 },
   { field: 'orderNo', headerName: 'Order No', width: 150 },
-  { field: 'orderCount', headerName: 'Order Count', width: 150 },
-  { field: 'recipientName', headerName: 'Recipent Name', width: 150, editable:true },
+  { field: 'orderCount', headerName: 'Order Cnt', width: 110 },
+  { field: 'recipientName', headerName: 'Recipent Name', editable:true, width: 200 },
   { field: 'style', headerName: 'Style', width: 150 },
-  { field: 'size', headerName: 'Size', width: 150 },
-  { field: 'color', headerName: 'Color', width: 150 },
+  { field: 'size', headerName: 'Size', width: 80 },
+  { field: 'color', headerName: 'Color', width: 110 },
   { field: 'design', headerName: 'Design', width: 150 },
-  { field: 'processing', headerName: 'Processing', width: 150 },
-  { field: 'printed', headerName: 'Printed', width: 150 },
-  { field: 'shipped', headerName: 'Shipped', width: 150 },
+  { field: 'processing', headerName: 'Processing'},
+  { field: 'printed', headerName: 'Printed', width: 80 },
+  { field: 'shipped', headerName: 'Shipped', width: 90 },
   { field: 'sfmNotes', headerName: 'SFM Notes', width: 150 },
-  { field: 'buyerName', headerName: 'Buyer Name', width: 150 },
-  { field: 'buyerEmail', headerName: 'Buyer Email', width: 150 },
+  { field: 'buyerName', headerName: 'Buyer Name', width: 200 },
+  { field: 'buyerEmail', headerName: 'Buyer Email', width: 200 },
   { field: 'buyerComments', headerName: 'Buyer Comments', width: 150 },
   { field: 'giftMessages', headerName: 'Gift Messages', width: 150 },
-  { field: 'sfmId', headerName: 'SFM ID', width: 150 },
-  { field: 'sku', headerName: 'SKU', width: 150 },
+  { field: 'sfmId', headerName: 'SFM ID', width: 300 },
+  { field: 'sku', headerName: 'SKU', width: 200 },
   { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150 },
-  { field: 'priorityShip', headerName: 'Priority Ship', width: 150, editable:true  },
+  { field: 'priorityShip', headerName: 'Priority Ship', width: 110, editable:true  },
   { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number',
     editable:true,
     valueFormatter: ({ value }) => currencyFormatter.format(Number(value))
   },
   { field: 'trackingNumber', headerName: 'Tracking Number', width: 150, editable:true },
-  { field: 'productAvailability', headerName: 'Product Availability', width: 150 }
+  { field: 'productAvailability', headerName: 'Product Availability', width: 120 }
 ];
 
 function OrderList(props){
+  const classes = useStyles();
   
   // { id: 1, style: 'dummy1', size: 'dummy ' },
   // { id: 2, style: 'dummy2', size: 'dummy ' }
@@ -255,7 +271,7 @@ function OrderList(props){
     console.log('fetching details');
     API.getOrderList(token['mr-token'])
     .then(data => {
-      console.log(data); 
+      //console.log(data); 
       data.forEach((item, i) => item.id = item.orderId);
       // data.sort(function(a,b){
       //   if(!a['shipDate']){
@@ -320,10 +336,22 @@ function OrderList(props){
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
             <form ><input type="file" name="myShippingfile" id="myShippingfile" onChange={shippingFileChangeHandler} hidden></input><label htmlFor="myShippingfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
           </div>}
-          <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 100px)", minWidth:'600px'}}>        
-            <DataGrid rows={orders} columns={columns} checkboxSelection  components={{
-              Toolbar: GridToolbar,
-            }} disableSelectionOnClick={true} onSelectionModelChange={handleSelection} onRowSelected={handleRowSelected} onEditCellChangeCommitted={handleEditCellChangeCommitted} />
+          <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 100px)", minWidth:'600px'}} className={classes.root}>        
+            <DataGrid
+              rows={orders} columns={columns}
+              checkboxSelection 
+              components={{ Toolbar: GridToolbar,}}
+              disableSelectionOnClick={true}
+              onSelectionModelChange={handleSelection}
+              onRowSelected={handleRowSelected}
+              onEditCellChangeCommitted={handleEditCellChangeCommitted}
+              disableColumnMenu={true}
+              getRowClassName={(params) =>{
+                if(params.row.productAvailability=="Short" || params.row.productAvailability=="Out Of Stock")
+                return 'hot'
+              }                
+              }
+            />
           </div>
         </div>
         :
