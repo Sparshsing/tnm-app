@@ -4,7 +4,7 @@ import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/da
 import API from '../api-service';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
-import { Button, IconButton, Dialog, DialogActions, DialogTitle} from '@material-ui/core';
+import { Button, IconButton, Dialog, DialogActions, DialogTitle, TextField} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -13,7 +13,7 @@ import ProductForm from './ProductForm';
 const columns = [
   { field: 'id', headerName: 'ID', width: 50},
   { field: 'sfmId', headerName: 'SFM ID', width: 300, hide:true},
-  { field: 'style', headerName: 'Style', width: 200},
+  { field: 'style', headerName: 'Style', width: 250},
   { field: 'size', headerName: 'Size', width: 100},
   { field: 'color', headerName: 'Color', width: 150},
   { field: 'sku', headerName: 'SKU', width: 150 },
@@ -27,7 +27,8 @@ function ProductDetails(props){
   // { id: 1, sfmId: 'dummy1', style: 'dummy style' },
   // { id: 2,  sfmId: 'dummy2', style: 'dummy style' }
   const [products, setProducts] = useState([]);
-  
+  const [searchFilteredProducts, setSearchFilteredProducts] = useState([]);
+  const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
@@ -125,6 +126,25 @@ function ProductDetails(props){
   }, [token, mode]
   );
 
+  useEffect(() => {
+    updateSearchFilteredProducts(searchString);
+  }, [products]
+  );
+
+  const updateSearchFilteredProducts = (theSearchString) =>{
+    let rows = [...products];
+    if(theSearchString!='')
+        rows = rows.filter(r => {
+          const str = theSearchString.toLowerCase()
+          return r.style.toLowerCase().search(str)>=0 ||
+          r.size.toLowerCase().search(str)>=0 ||
+          r.color.toLowerCase().search(str)>=0;
+          
+        })
+    setMySelectedRows([]);
+    setSearchFilteredProducts(rows);
+  }
+
   const updatebtnClicked = (e) => {
     console.log("update clicked");
     if(mySelectedRows.length==1)
@@ -197,11 +217,15 @@ function ProductDetails(props){
               </Dialog>
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
+            <div>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredProducts(e.target.value)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredProducts(searchString)}>Search</Button>
+            </div>
           </div>}
           <div style={{  width: '100%', minWidth:'600px', height: 'calc(100vh - 140px'}}>
-            <DataGrid rows={products} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
+            <DataGrid rows={searchFilteredProducts} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} disableColumnMenu={true}/>
+            }} onSelectionModelChange={handleSelection} disableColumnMenu={true} disableSelectionOnClick/>
           </div>
         </div>
         :

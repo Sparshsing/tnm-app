@@ -7,14 +7,14 @@ import { Redirect } from 'react-router-dom'
 import { Divider } from '@material-ui/core';
 
 const columns = [
-  { field: 'storeName', headerName: 'Store Name', width: 150 },
-  { field: 'storeCode', headerName: 'Store Code', width: 150 },
-  { field: 'emailAddress', headerName: 'Email Address', width: 150 },
-  { field: 'addressLine1', headerName: 'Addres Line 1', width: 150 },
-  { field: 'addressLine2', headerName: 'Adress Line 2', width: 150 },
+  { field: 'storeName', headerName: 'Store Name', width: 200 },
+  { field: 'storeCode', headerName: 'Store Code', width: 110 },
+  { field: 'emailAddress', headerName: 'Email Address', width: 250 },
+  { field: 'addressLine1', headerName: 'Addres Line 1', width: 200 },
+  { field: 'addressLine2', headerName: 'Adress Line 2', width: 200 },
   { field: 'city', headerName: 'City', width: 150 },
   { field: 'state', headerName: 'State', width: 150 },
-  { field: 'zipCode', headerName: 'Zip Code', width: 150 }
+  { field: 'zipCode', headerName: 'Zip Code', width: 100 }
 ];
 
 function StoreDetails(props){
@@ -51,7 +51,7 @@ function StoreDetails(props){
       <div style={{  width: '100%', minWidth:'600px', height: "calc(100vh - 100px"}}>
         <DataGrid rows={stores} columns={columns} components={{
           Toolbar: GridToolbar,
-        }} />
+        }} disableColumnMenu/>
       </div>
     </div>      
   );

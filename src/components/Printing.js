@@ -28,8 +28,24 @@ const useStyles = makeStyles({
   },
   headcell: {
     fontWeight: "bold",
-    fontSize: "1rem"
+    fontSize: "1rem",
+    padding: "6px"
+  },
+  redbtn: {
+    color: "white",
+    background: "red",
+    float: "right"
+  },
+  greenbtn: {
+    color: "white",
+    background: "green",
+    float: "right"
+  },
+  tablecell: {
+    padding: "6px"
   }
+
+
 });
 
 //const getDetails = (params) => 
@@ -64,20 +80,17 @@ function Printing(props){
   // { id: 1, style: 'dummy1', size: 'dummy ' },
   // { id: 2, style: 'dummy2', size: 'dummy ' }
   const [orders, setOrders] = useState([]);
-  
+  const [searchFilteredOrders, setSearchFilteredOrders] = useState([]);
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
-  const [searched, setSearched] = useState('');
+  const [searchString, setSearchString] = useState('');
   const [mySelectedRows, setMySelectedRows] = useState([]);
+  const [loading, setLoading] = useState(false);
   //const [myEditedRows, setMyEditedRows] = useState([]);
   
   const [message, setMessage] = useState('');
-  
-  const searchClicked = (e) => {
-    fetchlist();
-  }
 
   const handleCheckboxClick = (e) =>{
     const oid = parseInt(e.target.dataset.oid)
@@ -212,25 +225,20 @@ function Printing(props){
   }, [mode, token]
   );
 
+  useEffect( () => {
+    updateSearchFilteredOrders(searchString);
+  }, [orders]);
+
   function fetchlist(){
+    setLoading(true);
     setMySelectedRows([]);
     API.getPrintingList(token['mr-token'])
     .then(data => {
       let rows = data;
       console.log('fetching orders');
-      console.log(rows.map(r => r.orderId))
+      //console.log(rows.map(r => r.orderId))
       //filter
-      if(searched!='')
-        rows = rows.filter(r => {
-          const str = searched.toLowerCase()
-          return r.displayStatus.toLowerCase().search(str)>=0 ||
-          r.orderNo.toLowerCase().search(str)>=0 ||
-          r.storeName.toLowerCase().search(str)>=0 ||
-          r.recipientName.toLowerCase().search(str)>=0 ||
-          r.design.toLowerCase().search(str)>=0 ||
-          r.giftMessages.toLowerCase().search(str)>=0 ||
-          r.style.toLowerCase().search(str)>=0 ;
-        })
+      
       
       rows.forEach((item, i) => item.id = item.orderId);
 
@@ -251,13 +259,29 @@ function Printing(props){
       })
       console.log(rows.map(r => r.orderId));
       setOrders(rows);
+      setLoading(false);
     })
-    .catch(e => {console.log("api error"); console.error(e)});
-  }
+    .catch(e => {console.log("api error"); console.error(e); setLoading(false)});
+  }  
 
-  useEffect( () => {    
-    console.log(token);    
-  }, [token]);
+  const updateSearchFilteredOrders = (theSearchString) =>{
+    let rows = [...orders];
+    if(theSearchString!='')
+        rows = rows.filter(r => {
+          const str = theSearchString.toLowerCase()
+          return r.displayStatus.toLowerCase().search(str)>=0 ||
+          r.style.toLowerCase().search(str)>=0 ||
+          r.orderNo.toLowerCase().search(str)>=0 ||
+          r.storeName.toLowerCase().search(str)>=0 ||
+          r.recipientName.toLowerCase().search(str)>=0 ||
+          r.design.toLowerCase().search(str)>=0 ||
+          r.size.toLowerCase().search(str)>=0 ||
+          r.color.toLowerCase().search(str)>=0 ||
+          r.productAvailability.toLowerCase().search(str)>=0;
+        })
+    setMySelectedRows([]);
+    setSearchFilteredOrders(rows);
+  }
 
   let nextGroup = 0;
 
@@ -266,7 +290,8 @@ function Printing(props){
   
   const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
-  
+  if(loading)
+    return (<h2>Loading...  Please wait</h2>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
@@ -296,8 +321,8 @@ function Printing(props){
               </Dialog>
             </div>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searched} text='Search' onChange={(e) => setSearched(e.target.value)}></TextField>
-                <Button color="primary" variant="contained" onClick={searchClicked}>Search</Button>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredOrders(searchString)}>Search</Button>
               </div>            
           </div>
           
@@ -310,7 +335,7 @@ function Printing(props){
             <Table className={classes.table} size="small" aria-label="spanning table">
               <TableHead>                
                 <TableRow>
-                  <TableCell padding="checkbox">
+                  <TableCell className={classes.tablecell}>
                     <Checkbox
                       disabled={true}
                     />
@@ -322,7 +347,7 @@ function Printing(props){
                   <TableCell className={classes.headcell} >Size</TableCell>
                   <TableCell className={classes.headcell} >Color</TableCell>
                   <TableCell className={classes.headcell} >Design</TableCell>
-                  <TableCell className={classes.headcell} >Message</TableCell>
+                  <TableCell className={classes.headcell} >Msg</TableCell>
                   <TableCell className={classes.headcell} >Processed</TableCell>
                   <TableCell className={classes.headcell} >Printed</TableCell>
                   <TableCell className={classes.headcell} >Shipped</TableCell>
@@ -331,7 +356,7 @@ function Printing(props){
                 </TableRow>
               </TableHead>
               <TableBody>
-                { orders.map((row, i, arr) => {
+                { searchFilteredOrders.map((row, i, arr) => {
                   let showSpan = false;
                   if(i==nextGroup){
                     showSpan = true;
@@ -345,25 +370,25 @@ function Printing(props){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    <TableCell padding="checkbox">
+                    <TableCell className={classes.tablecell}>
                       <Checkbox
                         inputProps={{ 'data-oid' : row.orderId }}
                         onChange={handleCheckboxClick}
                       />
                     </TableCell>
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}>{row.displayStatus}</TableCell>}
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}>{row.storeName}</TableCell>}
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
-                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.style}</TableCell>
-                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.size}</TableCell>
-                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.color}</TableCell>
-                    <TableCell style={{ whiteSpace : 'nowrap'}}>{row.design}</TableCell>
-                    <TableCell style={{  maxWidth: '50px'}}>{row.giftMessages && <EmailIcon />}</TableCell>
-                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} color={row.processing=='Y' ? "primary" : "secondary"} variant="contained">{row.processing}</Button></TableCell>
-                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} color={row.printed=='Y' ? "primary" : "secondary"} variant="contained">{row.printed}</Button></TableCell>
-                    <TableCell ><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} color={row.shipped=='Y' ? "primary" : "secondary"} variant="contained">{row.shipped}</Button></TableCell>
-                    <TableCell >{row.productAvailability}</TableCell>
-                    <TableCell style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{row.sfmNotes}</TableCell>
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.displayStatus}</TableCell>}
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.storeName}</TableCell>}
+                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
+                    <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.style}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.size}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.color}</TableCell>
+                    <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.design}</TableCell>
+                    <TableCell style={{  maxWidth: '50px'}} className={classes.tablecell}>{row.giftMessages && <EmailIcon />}</TableCell>
+                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} className={row.processing=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.processing}</Button></TableCell>
+                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} className={row.printed=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.printed}</Button></TableCell>
+                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
+                    <TableCell className={classes.tablecell}>{row.productAvailability}</TableCell>
+                    <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{row.sfmNotes}</TableCell>
                   </TableRow>);
                   })
                 }                

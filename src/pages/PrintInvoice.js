@@ -4,6 +4,13 @@ import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
 import companylogo from '../components/logo.png';
 
+const formatDate = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  return mm + '/' + dd + '/' + yy;
+}
+
 export default function Invoices(props){
 
   const [token] = useCookies(['mr-token']);
@@ -11,7 +18,7 @@ export default function Invoices(props){
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const currentDate = new Date().toLocaleDateString('en-US');
+  const currentDate = formatDate(new Date());
   
   useEffect(() => {
     (async () => {
@@ -29,6 +36,7 @@ export default function Invoices(props){
         
         const invoice = await resp.json();
         console.log(invoice);
+        sortInvoiceItems(invoice.items);
         setInvoiceDetails(invoice);
         setLoading(false);
       }
@@ -39,6 +47,22 @@ export default function Invoices(props){
       }
     })();
   }, []);
+
+  const sortInvoiceItems = (items) => {
+    const sortBy = [ 
+      {prop:'orderNo', direction: 1},
+      {prop:'description', direction: 1}
+    ];
+
+    items.sort(function(a,b){
+      let i = 0, result = 0;
+      while(i < sortBy.length && result === 0) {
+        result = sortBy[i].direction*(a[ sortBy[i].prop ].toString() < b[ sortBy[i].prop ].toString() ? -1 : (a[ sortBy[i].prop ].toString() > b[ sortBy[i].prop ].toString() ? 1 : 0));
+        i++;
+      }
+      return result;
+    })
+  }
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -95,11 +119,11 @@ export default function Invoices(props){
               <table>
               <tr>
                 <td>Start Date</td>
-                <td>{new Date(invoiceDetails.startDate).toLocaleDateString('en-US')}</td>
+                <td>{formatDate(new Date(invoiceDetails.startDate))}</td>
               </tr>
               <tr>
                 <td>End Date</td>
-                <td>{new Date(invoiceDetails.endDate).toLocaleDateString('en-US')}</td>
+                <td>{formatDate(new Date(invoiceDetails.endDate))}</td>
               </tr>
               <tr>
                 <td>Order Count</td>
@@ -130,8 +154,8 @@ export default function Invoices(props){
         </tr>
         {invoiceDetails.items.map(i => (
           <tr key={i.id}>
-            <td>{new Date(i.shipDate).toLocaleDateString('en-US')}</td>
-            <td>{new Date(i.orderDate).toLocaleDateString('en-US')}</td>
+            <td>{formatDate(new Date(i.shipDate))}</td>
+            <td>{formatDate(new Date(i.orderDate))}</td>
             <td>{i.orderNo}</td>
             <td>{i.customer}</td>
             <td>{i.description}</td>

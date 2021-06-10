@@ -36,6 +36,7 @@ export default function PurchaseForm(props){
 
   useEffect(() => {
     API.getProductList(token['mr-token'])
+    .then(resp => resp.json())
     .then(data => {
       const styles = data.map( d => d.style);
       setAvailableStyles([...new Set(styles)]);
@@ -136,7 +137,7 @@ export default function PurchaseForm(props){
         name="status"
         helperText = {errormsg['status'] ? errormsg['status'][0]:''}
         error = {errormsg['status'] ? true: false}
-        defaultValue = {props.mode=='update' ? props.data['status']:''}
+        defaultValue = {props.mode=='update' ? props.data['status']:'In Transit'}
       >
         <MenuItem key={0} value={'In Transit'}>In Transit</MenuItem>
         <MenuItem key={1} value={'Received'}>Received</MenuItem>

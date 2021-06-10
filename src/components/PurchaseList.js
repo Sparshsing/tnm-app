@@ -17,7 +17,8 @@ function PurchaseList(props){
   //{ id: 1, sfmId: 'dummy1', style: 'dummy style' },
   //{ id: 2,  sfmId: 'dummy2', style: 'dummy style' }
   const [purchases, setPurchases] = useState([]);
-  
+  const [searchFilteredPurchases, setSearchFilteredPurchases] = useState([]);
+  const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
@@ -197,6 +198,27 @@ function PurchaseList(props){
   }, [token, mode]
   );
 
+  useEffect(() => {
+    updateSearchFilteredPurchases(searchString);
+  }, [purchases]
+  );
+
+  const updateSearchFilteredPurchases = (theSearchString) =>{
+    let rows = [...purchases];
+    if(theSearchString!='')
+        rows = rows.filter(r => {
+          const str = theSearchString.toLowerCase()
+          return r.style.toLowerCase().search(str)>=0 ||
+          r.size.toLowerCase().search(str)>=0 ||
+          r.color.toLowerCase().search(str)>=0 ||
+          r.warehouse.toLowerCase().search(str)>=0 ||
+          r.company.toLowerCase().search(str)>=0;
+          
+        })
+    setMySelectedRows([]);
+    setSearchFilteredPurchases(rows);
+  }
+
   function fetchList(){
       console.log("fetching data");
       API.getPurchasesList(token['mr-token'])
@@ -215,9 +237,6 @@ function PurchaseList(props){
       .catch(e => {console.log("api error"); console.error(e); setMessage(String(e))});    
   }
 
-  useEffect( () => {    
-    console.log(token);    
-  }, [mode]);
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -246,9 +265,13 @@ function PurchaseList(props){
             </Dialog>
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
+            <div>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredPurchases(e.target.value)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredPurchases(searchString)}>Search</Button>
+            </div>
           </div>
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
-            <DataGrid rows={purchases} columns={columns} checkboxSelection autoHeight={true} components={{
+            <DataGrid rows={searchFilteredPurchases} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,
             }} onSelectionModelChange={handleSelection} disableSelectionOnClick={true}/>
           </div>

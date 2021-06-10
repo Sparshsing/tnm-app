@@ -12,6 +12,22 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import OrderForm from './OrderForm';
 import OrderUpdateForm from './OrderUpdateForm';
 
+const formatDate = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  return mm + '/' + dd + '/' + yy;
+}
+
+const formatDateTime = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  const hh = String(dt.getHours()).padStart(2, '0');
+  const minutes = String(dt.getMinutes()).padStart(2, '0');
+  return mm + '/' + dd + '/' + yy + ' ' + hh + ':' + minutes;
+}
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -35,7 +51,8 @@ const columns = [
   { field: 'orderId', headerName: 'Id', width: 80 },
   { field: 'storeName', headerName: 'Store Name', width: 150 },
   { field: 'orderStatus', headerName: 'Status', width: 110 },
-  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 120 },
+  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 120,
+      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}},
   { field: 'orderNo', headerName: 'Order No', width: 150 },
   { field: 'orderCount', headerName: 'Order Cnt', width: 110 },
   { field: 'recipientName', headerName: 'Recipent Name', editable:true, width: 200 },
@@ -53,7 +70,8 @@ const columns = [
   { field: 'giftMessages', headerName: 'Gift Messages', width: 150 },
   { field: 'sfmId', headerName: 'SFM ID', width: 300 },
   { field: 'sku', headerName: 'SKU', width: 200 },
-  { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150 },
+  { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150,
+    valueFormatter: (params) => { if(params.value) return formatDateTime(new Date(params.value))} },
   { field: 'priorityShip', headerName: 'Priority Ship', width: 110, editable:true  },
   { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number',
     editable:true,
@@ -69,7 +87,8 @@ function OrderList(props){
   // { id: 1, style: 'dummy1', size: 'dummy ' },
   // { id: 2, style: 'dummy2', size: 'dummy ' }
   const [orders, setOrders] = useState([]);
-  
+  const [searchFilteredOrders, setSearchFilteredOrders] = useState([]);
+  const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
@@ -267,6 +286,11 @@ function OrderList(props){
   }, [mode, token]
   );
 
+  useEffect(() => {
+    updateSearchFilteredOrders(searchString);      
+  }, [orders]
+  );
+
   function fetchlist(){
     console.log('fetching details');
     API.getOrderList(token['mr-token'])
@@ -306,6 +330,25 @@ function OrderList(props){
     .catch(e => {console.log("api error"); console.error(e)});
   }
 
+  const updateSearchFilteredOrders = (theSearchString) =>{
+    let rows = [...orders];
+    if(theSearchString!='')
+        rows = rows.filter(r => {
+          const str = theSearchString.toLowerCase()
+          return r.orderStatus.toLowerCase().search(str)>=0 ||
+          r.style.toLowerCase().search(str)>=0 ||
+          r.orderNo.toLowerCase().search(str)>=0 ||
+          r.storeName.toLowerCase().search(str)>=0 ||
+          r.recipientName.toLowerCase().search(str)>=0 ||
+          r.design.toLowerCase().search(str)>=0 ||
+          r.size.toLowerCase().search(str)>=0 ||
+          r.color.toLowerCase().search(str)>=0;
+        })
+    setMySelectedRows([]);
+    setMyEditedRows([]);
+    setSearchFilteredOrders(rows);
+  }
+
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   else
@@ -335,10 +378,14 @@ function OrderList(props){
             <Button variant="contained" color="primary" disabled={myEditedRows.length>0 ? false:true} onClick={handleMassUpdate}>Mass Update</Button>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Order Details</Button></form>
             <form ><input type="file" name="myShippingfile" id="myShippingfile" onChange={shippingFileChangeHandler} hidden></input><label htmlFor="myShippingfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Details</Button></form>
-          </div>}
+            <div>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredOrders(searchString)}>Search</Button>
+            </div>
+            </div>}
           <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 100px)", minWidth:'600px'}} className={classes.root}>        
             <DataGrid
-              rows={orders} columns={columns}
+              rows={searchFilteredOrders} columns={columns}
               checkboxSelection 
               components={{ Toolbar: GridToolbar,}}
               disableSelectionOnClick={true}
