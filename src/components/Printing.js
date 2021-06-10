@@ -290,8 +290,6 @@ function Printing(props){
   
   const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
-  if(loading)
-    return (<h2>Loading...  Please wait</h2>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
@@ -331,6 +329,8 @@ function Printing(props){
               Toolbar: GridToolbar,
             }} disableSelectionOnClick={true} onSelectionModelChange={handleSelection} onRowSelected={handleRowSelected} onEditCellChangeCommitted={handleEditCellChangeCommitted} />
           </div>*/}
+          {loading ? <h2>Loading...  Please wait</h2>
+          :
           <TableContainer component={Paper} style={{height: 'calc(100vh - 140px)'}}>
             <Table className={classes.table} size="small" aria-label="spanning table">
               <TableHead>                
@@ -395,7 +395,8 @@ function Printing(props){
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
+          }
+          </div>
         :
         (mode=="add" ?
           <OrderForm mode={mode} setMode={setMode}></OrderForm>

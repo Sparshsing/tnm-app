@@ -122,7 +122,8 @@ function OrderList(props){
   const shippingFileChangeHandler = (event) => {
     if(event.target.files.length==1){
       setSelectedShippingFile(event.target.files[0]);
-      console.log("ship file is: ", event.target.files[0])
+      console.log("ship file is: ", event.target.files[0]);
+      event.target.labels[0].textContent = event.target.files[0].name
       setIsShippingFilePicked(true);
     }
     else{
@@ -240,12 +241,19 @@ function OrderList(props){
           }
         }
 				else setMessage('Failed import due to unknown reason');
-        setIsFilePicked('fasle');
+        setIsFilePicked(false);
+        setSelectedFile(null);
+        setIsShippingFilePicked(false);
+        setSelectedShippingFile(null);
         fetchlist();
         setMode('none');
 			})
 			.catch((error) => {
 				console.error('Error:', error);
+        setIsFilePicked(false);
+        setSelectedFile(null);
+        setIsShippingFilePicked(false);
+        setSelectedShippingFile(null);
         setMessage('Failed import due to unknown reasons');
 			});
 	};
