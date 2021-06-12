@@ -109,6 +109,8 @@ export default function OrderForm(props){
       dataObject['saleDate'] = null;
     if(dataObject['shipDate'] == "")
       dataObject['shipDate'] = null;
+    else
+      dataObject['shipDate'] = new Date(dataObject['shipDate']).toJSON();
     console.log("sending data");
     console.log(dataObject);
 

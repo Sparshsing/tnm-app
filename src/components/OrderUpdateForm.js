@@ -101,6 +101,8 @@ export default function OrderUpdateForm(props){
       setErrormsg({'style': ['The style size color combination does not exist']});
       return;
     }
+    if(dataObject['shipDate']!='')
+      dataObject['shipDate'] = new Date(dataObject['shipDate']).toJSON();
     dataObject = {...data, ...dataObject}
     console.log(dataObject);
     API.updateOrder(token['mr-token'], props.id, dataObject)
@@ -131,6 +133,8 @@ export default function OrderUpdateForm(props){
       dataObject['saleDate'] = null;
     if(dataObject['shipDate'] == "")
       dataObject['shipDate'] = null;
+    else
+      dataObject['shipDate'] = new Date(dataObject['shipDate']).toJSON();// tojson converts to utc string
     console.log("sending data");
     console.log(dataObject);
 
@@ -169,6 +173,13 @@ export default function OrderUpdateForm(props){
     console.log('size changed', newsize);
     setavailableColors([...new Set(availableProducts.filter(p => p.style==newstyle && p.size==newsize).map(x => x.color))]);
   }
+
+  let dt
+  if(data['shipDate']!=null){
+    dt = new Date(data['shipDate']);
+    dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+  }    
+  const defaultShipDate = data['shipDate']==null ? '': dt.toISOString().substr(0,16);
 
   console.log('rendering');
 
@@ -500,7 +511,7 @@ export default function OrderUpdateForm(props){
             }}
             helperText = {errormsg['shipDate'] ? errormsg['shipDate'][0]:''}
             error = {errormsg['shipDate'] ? true: false}
-            defaultValue = {data['shipDate']}
+            defaultValue = {defaultShipDate}
           />
           <TextField
             variant="outlined"

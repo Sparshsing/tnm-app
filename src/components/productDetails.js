@@ -92,11 +92,14 @@ function ProductDetails(props){
 				else setMessage('Failed import due to unknown reason');
         console.log('setting mode');
         setIsFilePicked(false);
+        setSelectedFile(null);
         fetchlist();
         setMode('none');
 			})
 			.catch((error) => {
 				console.error('Error:', error);
+        setIsFilePicked(false);
+        setSelectedFile(null);
         setMessage('Failed import due to unknown reasons');
 			});
 	};
@@ -195,7 +198,7 @@ function ProductDetails(props){
   else
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
+      {message && <div style={{color:"red"}}>{message}</div>}
       { mode=='none' ?
         <div>
           { usertype==1 && 

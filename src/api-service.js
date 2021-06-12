@@ -282,6 +282,19 @@ export default class API{
 		)
   }
 
+  static uploadInventoryFile(token, data){
+    return fetch(APIROOT + '/api/inventory/import_file/',
+			{
+				method: 'POST',
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          'Authorization': `Token ${token}`
+        },
+				body: data,
+			}
+		)
+  }
+
   static getOverview(token, data){
     return fetch(APIROOT + '/api/orders/get_overview/',
     {

@@ -30,13 +30,20 @@ function InventoryList(props){
   const [productInventory, setproductInventory] = useState([]);
   const [searchFilteredInventory, setSearchFilteredInventory] = useState([]);
   const [searchString, setSearchString] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [message, setMessage] = useState('');
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
 
   useEffect(() => {
     props.setTitle('Inventory');
+    fetchlist();
+    
+  }, [token]
+  );
 
-    console.log({...productInventory[0]});
+  const fetchlist = () => {
     API.getInventoryList(token['mr-token'])
     .then(data => {
       console.log(data); 
@@ -44,9 +51,8 @@ function InventoryList(props){
       
       return setproductInventory(data);
     })
-    .catch(e => {console.log("api error"); console.error(e)});
-  }, [token]
-  );
+    .catch(e => {console.log("api error"); setMessage('Something went wrong');console.error(e)});
+  }
 
   useEffect(() => {
     updateSearchFilteredInventory(searchString);
@@ -66,13 +72,66 @@ function InventoryList(props){
     setSearchFilteredInventory(rows);
   }
 
+  const fileChangeHandler = (event) => {
+    if(event.target.files.length==1){
+      setSelectedFile(event.target.files[0]);
+      console.log("file is: ", event.target.files[0])
+      setIsFilePicked(true);
+    }
+    else{
+      setSelectedFile(null);
+      setIsFilePicked(false);
+    }
+	};
+
+  const handleUpload = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+		formData.append('inventoryFile', selectedFile);
+
+    if(isFilePicked && selectedFile.name.search(/inventory/i) == -1){
+      setMessage('Please make sure you have selected inventory file. File name should contain the word inventory');
+      return;
+    }
+
+		API.uploadInventoryFile(token['mr-token'], formData)
+			.then((response) => response.json())
+			.then((result) => {
+        if(result['errors']){          
+          if(result['errors'].length==0){
+            setMessage('Successfully imported all records');
+            console.log('Successfully imported all records');
+          }
+          else{
+            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            console.log('Following rows were not imported: ');
+            console.log(result['errors']);
+          }
+        }
+				else setMessage('Failed import due to unknown reason');
+        setIsFilePicked(false);
+        setSelectedFile(null);
+        fetchlist();
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+        setIsFilePicked(false);
+        setSelectedFile(null);
+        setMessage('Failed import due to unknown reasons');
+			});
+	};
+
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   if(parseInt(userInfo['mr-user'].split('-')[1])==0)
     return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row', marginBottom: "5px"}}>
+      {message && <div style={{color:"red"}}>{message}</div>}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row', marginBottom: "5px"}}>
+        <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Inventory</Button></form>
         <div>
             <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredInventory(e.target.value)}></TextField>
             <Button color="primary" variant="contained" onClick={e => updateSearchFilteredInventory(searchString)}>Search</Button>
