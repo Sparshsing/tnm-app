@@ -15,31 +15,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ProductForm(props){
+export default function StoreForm(props){
 
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-userInfo']);
 
   const [errormsg, setErrormsg] = useState({});
   const [data, setData] = useState({});
-  const [saved, setSaved, getSaved] = useState(false);
-  let badData = false;
-  console.log("opened form");
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if(props.mode!='update')
       return;
 
-    const getproduct = async () => {      
+    const getStore = async () => {      
       try{
-        const resp = await API.getProduct(token['mr-token'], props.id)
+        const resp = await API.getStore(token['mr-token'], props.id)
         if(resp.status==200){
-          const product = await resp.json();
+          const store = await resp.json();
           console.log("retreiving data");
-          setData(product);
+          setData(store);
         }
-        else throw 'Could not get the product details';        
+        else throw 'Could not get the store details';        
       }
       catch(e){
         console.log("api error");
@@ -47,17 +44,17 @@ export default function ProductForm(props){
         setErrormsg({'form': String(e)});
       }
     }
-    getproduct();
+    getStore();
 
   }, []);
 
-  const updateProduct = async (id, dataObject) => {
+  const updateStore = async (id, dataObject) => {
     try{
-      const resp = await API.updateProduct(token['mr-token'], id, dataObject);
+      const resp = await API.updateStore(token['mr-token'], id, dataObject);
       console.log("response status ", resp.status);
       if(resp.status==200){
         setSaved(true);
-        alert('Saved Successfully');
+        alert("Saved Succesfully");
         props.setMode('none');
       }
         
@@ -75,29 +72,7 @@ export default function ProductForm(props){
     }
   }
 
-  const addProduct = async (dataObject) => {    
-    try{
-      const resp = await API.addProduct(token['mr-token'], dataObject);
-      console.log("response status ", resp.status);
-      if(resp.status==201){
-        setSaved(true);
-        alert('Saved Successfully');
-        props.setMode('none');
-      }
-      else if(resp.status==400){
-        console.log(resp);
-        const errors = await resp.json();
-        setErrormsg(errors);
-      }
-      else throw 'Failed due to unknown reasons';
-    }
-    catch(error){
-      console.log("api error");
-      console.error(error);
-      setErrormsg({'form': String(error)});
-    }
-  }
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);    
@@ -107,9 +82,9 @@ export default function ProductForm(props){
     dataObject = {...data, ...dataObject};
     console.log(dataObject);
     if(props.mode=='update')
-      updateProduct(props.id, dataObject);
+      updateStore(props.id, dataObject);
     else
-      addProduct(dataObject);
+      console.error("only update available");
   };
 
   const handleGoBack = (e) => {
@@ -118,10 +93,8 @@ export default function ProductForm(props){
   
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(parseInt(userInfo['mr-user'].split('-')[1])!=1)
-    return (<Redirect to='/'></Redirect>);
   if(saved)
-    return (<Redirect to='/products'></Redirect>);
+    return (<Redirect to='/stores'></Redirect>);
   if(props.mode=='update' && Object.keys(data).length === 0)
     return (<div>Loading...</div>);
   return(
@@ -137,79 +110,89 @@ export default function ProductForm(props){
         margin="normal"
         required
         fullWidth
-        id="style"
-        label="Style"
-        name="style"
+        id="storeName"
+        label="Store Name"
+        name="storeName"
         disabled = {props.mode=='update' ? true:false}
-        helperText = {errormsg['style'] ? errormsg['style'][0]:''}
-        error = {errormsg['style'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['style']:''}
+        helperText = {errormsg['storeName'] ? errormsg['storeName'][0]:''}
+        error = {errormsg['storeName'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['storeName']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
-        id="size"
-        label="Size"
-        name="size"
-        disabled = {props.mode=='update' ? true:false}
-        helperText = {errormsg['size'] ? errormsg['size'][0]:''}
-        error = {errormsg['size'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['size']:''}
+        type="email"
+        id="emailAddress"
+        label="Email Address"
+        name="emailAddress"
+        helperText = {errormsg['emailAddress'] ? errormsg['emailAddress'][0]:''}
+        error = {errormsg['emailAddress'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['emailAddress']:''}
       />
       <TextField
       variant="outlined"
       margin="normal"
       required
       fullWidth
-      id="color"
-      label="Color"
-      name="color"
-      disabled = {props.mode=='update' ? true:false}
-      helperText = {errormsg['color'] ? errormsg['color'][0]:''}
-      error = {errormsg['color'] ? true: false}
-      defaultValue = {props.mode=='update' ? data['color']:''}
+      id="addressLine1"
+      label="Address Line 1"
+      name="addressLine1"
+      inputProps={{maxLength:50}}
+      helperText = {errormsg['addressLine1'] ? errormsg['addressLine1'][0]:''}
+      error = {errormsg['addressLine1'] ? true: false}
+      defaultValue = {props.mode=='update' ? data['addressLine1']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"        
         fullWidth
-        id="sku"
-        label="SKU"
-        name="sku"
-        disabled = {props.mode=='update' ? true:false}
-        helperText = {errormsg['sku'] ? errormsg['sku'][0]:''}
-        error = {errormsg['sku'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['sku']:''}
+        id="addressLine2"
+        label="addressLine2"
+        name="addressLine2"
+        helperText = {errormsg['addressLine2'] ? errormsg['addressLine2'][0]:''}
+        error = {errormsg['addressLine2'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['addressLine2']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
-        id="cost"
-        label="Cost"
-        name="cost"
-        type="number"
-        inputProps={{step:0.01}}
-        helperText = {errormsg['cost'] ? errormsg['cost'][0]:''}
-        error = {errormsg['cost'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['cost']:''}
+        id="city"
+        label="City"
+        name="city"
+        helperText = {errormsg['city'] ? errormsg['city'][0]:''}
+        error = {errormsg['city'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['city']:''}
       />
       <TextField
         variant="outlined"
         margin="normal"
         required
         fullWidth
-        id="price"
-        label="Price"
-        name="price"
+        id="state"
+        label="State"
+        name="state"
+        inputProps={{maxLength:2}}
+        helperText = {errormsg['state'] ? errormsg['state'][0]:''}
+        error = {errormsg['state'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['state']:''}
+      />
+      <TextField
+        variant="outlined"
+        margin="normal"
+        required
+        fullWidth
+        id="zipCode"
+        label="Zip Code"
+        name="zipCode"
         type="number"
-        inputProps={{step:0.01}}
-        helperText = {errormsg['price'] ? errormsg['price'][0]:''}
-        error = {errormsg['price'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['price']:''}
+        inputProps={{step:1, max:99999}}
+        helperText = {errormsg['zipCode'] ? errormsg['zipCode'][0]:''}
+        error = {errormsg['zipCode'] ? true: false}
+        defaultValue = {props.mode=='update' ? data['zipCode']:''}
       />
       
       <Button

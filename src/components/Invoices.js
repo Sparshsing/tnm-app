@@ -4,6 +4,7 @@ import { DataGrid, GridToolbar} from '@material-ui/data-grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Link from '@material-ui/core/Link';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
 
@@ -51,18 +52,31 @@ export default function Invoices(props){
 
   const columns = [
     { field: 'id', headerName: 'Id', width: 150, hide: true },
-    { field: 'receipt', headerName: 'Receipt', width: 110,
+    // { field: 'receipt', headerName: 'Receipt', width: 110,
+    //     renderCell: (params) => {
+    //         return(
+    //         <Button
+    //           variant="contained"
+    //           color="primary"
+    //           size="small"
+    //           data-pid={params.id}
+    //           onClick={handleOpenReceipt}
+    //         >
+    //           Open
+    //         </Button>);
+    //     },
+    // },
+    { field: 'attachment', headerName: 'Receipt', width: 110,
         renderCell: (params) => {
             return(
-            <Button
-              variant="contained"
-              color="primary"
+            <Link
               size="small"
-              data-pid={params.id}
-              onClick={handleOpenReceipt}
+              href={params.value}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Open
-            </Button>);
+            </Link>);
         },
     },
     { field: 'startDate', headerName: 'Start Date', width: 130 },

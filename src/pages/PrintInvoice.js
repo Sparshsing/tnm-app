@@ -131,7 +131,7 @@ export default function Invoices(props){
               </tr>
               <tr>
                 <td>Item Count</td>
-                <td>{invoiceDetails.items.length}</td>
+                <td>{invoiceDetails.items.filter(i => i.description.trim().toLowerCase() != "shipping" ).length}</td>
               </tr>
               <tr>
                 <td>Invoice Total</td>

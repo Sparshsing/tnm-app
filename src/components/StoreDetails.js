@@ -1,10 +1,12 @@
 import '../App.css';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
-import API from '../api-service'
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
-import { Divider } from '@material-ui/core';
+import API from '../api-service';
+import { useCookies } from 'react-cookie';
+import { Redirect } from 'react-router-dom';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
+import StoreForm from './StoreForm';
 
 const columns = [
   { field: 'storeName', headerName: 'Store Name', width: 200 },
@@ -19,7 +21,6 @@ const columns = [
 
 function StoreDetails(props){
 
-  props.setTitle('Stores');
 
   //{ id: 1, storeCode: 'dummy1', storeName: 'dummy store' },
   //{ id: 2, storeCode: 'dummy2', storeName: 'dummy store2' }
@@ -27,8 +28,27 @@ function StoreDetails(props){
   
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
+  const [mode, setMode] = useState('none');
+  const [selectedStore, setSelectedStore] = useState('');
+  const [mySelectedRows, setMySelectedRows] = useState([]);
+
+  const updatebtnClicked = (e) => {
+    console.log("update clicked");
+    if(mySelectedRows.length==1){
+      setSelectedStore(stores.find(s => s.id==mySelectedRows[0]).storeCode);
+      setMode('update');
+    }
+      
+  };
+
+  const handleSelection = (items) => {
+    console.log(items);    
+    setMySelectedRows(items.selectionModel);    
+  }
 
   useEffect(() => {
+    props.setTitle('Stores');
+
     API.getStoreList(token['mr-token'])
     .then(resp => resp.json())
     .then(data => {
@@ -39,21 +59,32 @@ function StoreDetails(props){
       return setStores(data);
     })
     .catch(e => {console.log("api error"); console.error(e)});
-  }, []
+  }, [mode]
   );
+
+  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(parseInt(userInfo['mr-user'].split('-')[1])==2)
+  if(usertype==2)
     return (<Redirect to='/'></Redirect>);
-  return(
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
-      <div style={{  width: '100%', minWidth:'600px', height: "calc(100vh - 100px"}}>
-        <DataGrid rows={stores} columns={columns} components={{
-          Toolbar: GridToolbar,
-        }} disableColumnMenu/>
+  return(    
+    <div>
+    { mode=='none' ?
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
+        {usertype==1 && <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
+          <IconButton disabled={mySelectedRows.length == 1 ? false:true} onClick={updatebtnClicked} color='primary' variant='contained' ><EditIcon /></IconButton>
+        </div>}
+        <div style={{  width: '100%', minWidth:'600px', height: "calc(100vh - 100px"}}>
+          <DataGrid rows={stores} columns={columns} components={{
+            Toolbar: GridToolbar,
+          }} checkboxSelection onSelectionModelChange={handleSelection} disableColumnMenu/>
+        </div>
       </div>
-    </div>      
+      :
+      <StoreForm id={ mode=='update' ? selectedStore : null } mode={mode} setMode={setMode}></StoreForm>
+    }
+    </div>
   );
 }
 

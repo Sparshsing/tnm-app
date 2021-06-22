@@ -399,9 +399,9 @@ function Printing(props){
           </div>
         :
         (mode=="add" ?
-          <OrderForm mode={mode} setMode={setMode}></OrderForm>
+          <OrderForm mode={mode} setMode={setMode} fromPrinting={true}></OrderForm>
           :
-          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode}></OrderUpdateForm>
+          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode} fromPrinting={true}></OrderUpdateForm>
         )
       }
     </div>

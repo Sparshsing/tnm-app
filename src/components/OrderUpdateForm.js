@@ -108,7 +108,7 @@ export default function OrderUpdateForm(props){
     API.updateOrder(token['mr-token'], props.id, dataObject)
     .then(resp => {
       if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
-      if(resp.status==200) { setSaved(true); }
+      if(resp.status==200) { setSaved(true); alert("Saved Successfully"); props.setMode('none');}
       return resp.json()
     })
     .then(data => {if(badData) setErrormsg(data)})
@@ -141,7 +141,7 @@ export default function OrderUpdateForm(props){
     API.updateOrder(token['mr-token'], props.id, dataObject)
     .then(resp => {
       if(resp.status==400) {console.log(resp); setSaved(false); badData=true; } 
-      if(resp.status==200) { setSaved(true); }
+      if(resp.status==200) { setSaved(true); alert("Saved Successfully"); props.setMode('none');}
       return resp.json()
     })
     .then(data => {if(badData) setErrormsg(data)})
@@ -186,7 +186,7 @@ export default function OrderUpdateForm(props){
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   if(saved)
-    return(<Typography variant="h6">Saved Succcesfully <Button variant="contained" color="primary" onClick={handleGoBack}>Go back</Button></Typography>);
+    return(props.fromPrinting ? <Redirect to='/printing'></Redirect> : <Redirect to='/orders'></Redirect>);
   if(!dataReturned)
     return (<div>Loading</div>)
   return(
