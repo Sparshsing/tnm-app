@@ -107,10 +107,16 @@ export default function OrderForm(props){
     }
     if(dataObject['saleDate'] == "")
       dataObject['saleDate'] = null;
-    if(dataObject['shipDate'] == "")
-      dataObject['shipDate'] = null;
-    else
-      dataObject['shipDate'] = new Date(dataObject['shipDate']).toJSON();
+    // if(dataObject['shipDate'] == "")
+    //   dataObject['shipDate'] = null;
+    // else
+    //   dataObject['shipDate'] = new Date(dataObject['shipDate']).toJSON();
+
+    // removed shipping fields from add order, providing defaults
+    dataObject['shipDate'] = null;
+    dataObject['customerPaidShipping'] = 0.0;
+    dataObject['trackingNumber'] = '';
+
     console.log("sending data");
     console.log(dataObject);
 
@@ -183,6 +189,7 @@ export default function OrderForm(props){
         helperText = {errormsg['orderStatus'] ? errormsg['orderStatus'][0]:''}
         error = {errormsg['orderStatus'] ? true: false}
         defaultValue = 'Unfulfilled'
+        disabled = {true}
       >
       {statuses.map((option) => (
         <MenuItem key={option} value={option}>
@@ -444,6 +451,17 @@ export default function OrderForm(props){
         variant="outlined"
         margin="normal"        
         fullWidth
+        id="priorityShip"
+        label="Priority Ship"
+        name="priorityShip"
+        inputProps={{maxLength:50}}
+        helperText = {errormsg['priorityShip'] ? errormsg['priorityShip'][0]:''}
+        error = {errormsg['priorityShip'] ? true: false}
+      />
+      {/*<TextField
+        variant="outlined"
+        margin="normal"        
+        fullWidth
         id="shipDate"
         label="shipDate"
         name="shipDate"
@@ -454,17 +472,7 @@ export default function OrderForm(props){
         helperText = {errormsg['shipDate'] ? errormsg['shipDate'][0]:''}
         error = {errormsg['shipDate'] ? true: false}
       />
-      <TextField
-        variant="outlined"
-        margin="normal"        
-        fullWidth
-        id="priorityShip"
-        label="priorityShip"
-        name="priorityShip"
-        inputProps={{maxLength:50}}
-        helperText = {errormsg['priorityShip'] ? errormsg['priorityShip'][0]:''}
-        error = {errormsg['priorityShip'] ? true: false}
-      />
+      
       <TextField
         variant="outlined"
         margin="normal"        
@@ -487,7 +495,7 @@ export default function OrderForm(props){
         inputProps={{maxLength:30}}
         helperText = {errormsg['trackingNumber'] ? errormsg['trackingNumber'][0]:''}
         error = {errormsg['trackingNumber'] ? true: false}
-      />
+      />*/}
       {/*<TextField
         variant="outlined"
         margin="normal"        

@@ -1,6 +1,6 @@
 {
   "name": "tnm-app",
-  "homepage": "https://sparshsing.github.io/tnm-app/",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

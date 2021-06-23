@@ -183,20 +183,7 @@ export default function ProductForm(props){
         error = {errormsg['sku'] ? true: false}
         defaultValue = {props.mode=='update' ? data['sku']:''}
       />
-      <TextField
-        variant="outlined"
-        margin="normal"
-        required
-        fullWidth
-        id="cost"
-        label="Cost"
-        name="cost"
-        type="number"
-        inputProps={{step:0.01}}
-        helperText = {errormsg['cost'] ? errormsg['cost'][0]:''}
-        error = {errormsg['cost'] ? true: false}
-        defaultValue = {props.mode=='update' ? data['cost']:''}
-      />
+      
       <TextField
         variant="outlined"
         margin="normal"

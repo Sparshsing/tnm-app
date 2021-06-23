@@ -17,7 +17,6 @@ const columns = [
   { field: 'size', headerName: 'Size', width: 100},
   { field: 'color', headerName: 'Color', width: 150},
   { field: 'sku', headerName: 'SKU', width: 150 },
-  { field: 'cost', headerName: 'Cost', width: 100, type: 'number'},
   { field: 'price', headerName: 'Price', width: 100, type: 'number'},
   { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, type: 'number'}
 ];
