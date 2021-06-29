@@ -388,7 +388,7 @@ function Printing(props){
                     <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} className={row.printed=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.printed}</Button></TableCell>
                     <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
                     <TableCell className={classes.tablecell}>{row.productAvailability}</TableCell>
-                    <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>{row.sfmNotes}</TableCell>
+                    <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}><GridCellExpand limit={40} value={row.sfmNotes} width={500}></GridCellExpand></TableCell>
                   </TableRow>);
                   })
                 }                

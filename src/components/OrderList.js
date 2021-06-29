@@ -11,6 +11,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import OrderForm from './OrderForm';
 import OrderUpdateForm from './OrderUpdateForm';
+import GridCellExpand from './GridCellExpand';
+
 
 const formatDate = (dt) => {
   const dd = String(dt.getDate()).padStart(2, '0');
@@ -43,42 +45,54 @@ const useStyles = makeStyles({
       backgroundColor: '#ff943975',
       color: '#1a3e72',
     },
+    '& .compactcell': {
+      padding: '0px 8px'
+    },
   },
 });
 
+// function renderCellExpand(params) {
+//   return (
+//     <GridCellExpand
+//       value={params.value ? params.value.toString() : ''}
+//       width={300}
+//     />
+//   );
+// }
 
 const columns = [
-  { field: 'orderId', headerName: 'Id', width: 80 },
-  { field: 'storeName', headerName: 'Store Name', width: 150 },
-  { field: 'orderStatus', headerName: 'Status', width: 110 },
-  { field: 'saleDate', headerName: 'Sale Date', type: 'date', editable:true, width: 120,
+  { field: 'orderId', headerName: 'Id', width: 60, cellClassName: 'compactcell', },
+  { field: 'storeName', headerName: 'Store Name', width: 150, cellClassName: 'compactcell',
+    renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />)},
+  { field: 'orderStatus', headerName: 'Status', cellClassName: 'compactcell', width: 110 },
+  { field: 'saleDate', headerName: 'Sale Date', cellClassName: 'compactcell', type: 'date', editable:true, width: 120,
       valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}},
-  { field: 'orderNo', headerName: 'Order No', width: 150 },
-  { field: 'orderCount', headerName: 'Order Cnt', width: 110 },
-  { field: 'recipientName', headerName: 'Recipent Name', editable:true, width: 200 },
-  { field: 'style', headerName: 'Style', width: 150 },
-  { field: 'size', headerName: 'Size', width: 80 },
-  { field: 'color', headerName: 'Color', width: 110 },
-  { field: 'design', headerName: 'Design', width: 150 },
-  { field: 'processing', headerName: 'Processing'},
-  { field: 'printed', headerName: 'Printed', width: 80 },
-  { field: 'shipped', headerName: 'Shipped', width: 90 },
-  { field: 'sfmNotes', headerName: 'SFM Notes', width: 150 },
-  { field: 'buyerName', headerName: 'Buyer Name', width: 200 },
-  { field: 'buyerEmail', headerName: 'Buyer Email', width: 200 },
-  { field: 'buyerComments', headerName: 'Buyer Comments', width: 150 },
-  { field: 'giftMessages', headerName: 'Gift Messages', width: 150 },
-  { field: 'sfmId', headerName: 'SFM ID', width: 300 },
-  { field: 'sku', headerName: 'SKU', width: 200 },
-  { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150,
+  { field: 'orderNo', headerName: 'Order No', cellClassName: 'compactcell', width: 150 },
+  { field: 'orderCount', headerName: 'Count', cellClassName: 'compactcell', width: 60, headerClassName: 'compactcell', },
+  { field: 'recipientName', headerName: 'Recipient Name', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell' },
+  { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell'},
+  { field: 'size', headerName: 'Size', width: 80, cellClassName: 'compactcell' },
+  { field: 'color', headerName: 'Color', width: 110, renderCell: (params) => (<GridCellExpand limit={10} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell' },
+  { field: 'design', headerName: 'Design', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell' },
+  { field: 'productAvailability', headerName: 'Product Availability', width: 120, cellClassName: 'compactcell' },
+  { field: 'processing', headerName: 'Processing', width: 80 , cellClassName: 'compactcell'},
+  { field: 'printed', headerName: 'Printed', width: 80, cellClassName: 'compactcell' },
+  { field: 'shipped', headerName: 'Shipped', width: 90, cellClassName: 'compactcell' },
+  { field: 'sfmNotes', headerName: 'SFM Notes', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={500} />), cellClassName: 'compactcell' },
+  { field: 'buyerName', headerName: 'Buyer Name', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell'},
+  { field: 'buyerEmail', headerName: 'Buyer Email', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={500} />), cellClassName: 'compactcell' },
+  { field: 'buyerComments', headerName: 'Buyer Comments', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={500} />), cellClassName: 'compactcell' },
+  { field: 'giftMessages', headerName: 'Gift Messages', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell' },
+  { field: 'sfmId', headerName: 'SFM ID', width: 300, renderCell: (params) => (<GridCellExpand limit={28} value={params.value ? params.value.toString() : ''} width={400} />), cellClassName: 'compactcell' },
+  { field: 'sku', headerName: 'SKU', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />), cellClassName: 'compactcell' },
+  { field: 'shipDate', headerName: 'Ship Date', type: 'datetime', editable:true, width: 150, cellClassName: 'compactcell',
     valueFormatter: (params) => { if(params.value) return formatDateTime(new Date(params.value))} },
-  { field: 'priorityShip', headerName: 'Priority Ship', width: 110, editable:true  },
-  { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number',
+  { field: 'priorityShip', headerName: 'Priority Ship', width: 110, editable:true, cellClassName: 'compactcell'  },
+  { field: 'customerPaidShipping', headerName: 'Customer Paid Shipping', width: 150, type: 'number', cellClassName: 'compactcell',
     editable:true,
     valueFormatter: ({ value }) => currencyFormatter.format(Number(value))
   },
-  { field: 'trackingNumber', headerName: 'Tracking Number', width: 150, editable:true },
-  { field: 'productAvailability', headerName: 'Product Availability', width: 120 }
+  { field: 'trackingNumber', headerName: 'Tracking Number', width: 200, editable:true, cellClassName: 'compactcell'}
 ];
 
 function OrderList(props){
@@ -231,11 +245,11 @@ function OrderList(props){
 			.then((result) => {
         if(result['errors']){          
           if(result['errors'].length==0){
-            setMessage('Successfully imported all records');
-            console.log('Successfully imported all records');
+            setMessage(result['msg']);
+            console.log(result['msg']);
           }
           else{
-            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            setMessage(result['msg'] + ' (see error records in console (hit Ctrl+Shift+i)');
             console.log('Following rows were not imported: ');
             console.log(result['errors']);
           }

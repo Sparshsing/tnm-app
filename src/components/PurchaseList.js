@@ -9,7 +9,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PurchaseForm from './PurchaseForm';
-
+import GridCellExpand from './GridCellExpand';
 
 
 function PurchaseList(props){
@@ -78,7 +78,7 @@ function PurchaseList(props){
   }
 
   const columns = [
-    { field: 'id', headerName: 'Purchase Id', width: 150, hide:true },
+    { field: 'id', headerName: 'Purchase Id', width: 70, hide:true },
     { field: 'status', headerName: 'Status', width: 150,
       renderCell: (params) => {
           return(
@@ -94,15 +94,15 @@ function PurchaseList(props){
           </Button>);
       },
       },
-    { field: 'style', headerName: 'Style', width: 150 },
-    { field: 'size', headerName: 'Size', width: 150 },
-    { field: 'color', headerName: 'Color', width: 150 },
-    { field: 'company', headerName: 'Company' },
+    { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)  },
+    { field: 'size', headerName: 'Size', width: 80 },
+    { field: 'color', headerName: 'Color', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />)  },
+    { field: 'company', headerName: 'Company', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)  },
     { field: 'warehouse', headerName: 'Warehouse', width: 150 },
     { field: 'ordered', headerName: 'Ordered', width: 150 },
     { field: 'orderDate', headerName: 'Order Date', width: 150},
     { field: 'arrivalDate', headerName: 'Arrival Date', width: 150 },
-    { field: 'sfmId', headerName: 'SFM ID', width: 150 }
+    { field: 'sfmId', headerName: 'SFM ID', hide: true, width: 300, renderCell: (params) => (<GridCellExpand limit={28} value={params.value ? params.value.toString() : ''} width={400} />)  }
   ];
 
   const handleStatusChange = (e) => {
@@ -273,7 +273,7 @@ function PurchaseList(props){
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
             <DataGrid rows={searchFilteredPurchases} columns={columns} checkboxSelection autoHeight={true} components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} disableSelectionOnClick={true}/>
+            }} onSelectionModelChange={handleSelection} disableSelectionOnClick={true} disableColumnMenu/>
           </div>
         </div>
         :

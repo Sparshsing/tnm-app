@@ -7,15 +7,17 @@ import { Redirect } from 'react-router-dom';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import StoreForm from './StoreForm';
+import GridCellExpand from './GridCellExpand';
+
 
 const columns = [
-  { field: 'storeName', headerName: 'Store Name', width: 200 },
+  { field: 'storeName', headerName: 'Store Name', width: 200,  renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)},
   { field: 'storeCode', headerName: 'Store Code', width: 110 },
-  { field: 'emailAddress', headerName: 'Email Address', width: 250 },
-  { field: 'addressLine1', headerName: 'Addres Line 1', width: 200 },
-  { field: 'addressLine2', headerName: 'Adress Line 2', width: 200 },
-  { field: 'city', headerName: 'City', width: 150 },
-  { field: 'state', headerName: 'State', width: 150 },
+  { field: 'emailAddress', headerName: 'Email Address', width: 250,  renderCell: (params) => (<GridCellExpand limit={23} value={params.value ? params.value.toString() : ''} width={300} />) },
+  { field: 'addressLine1', headerName: 'Addres Line 1', width: 200,  renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
+  { field: 'addressLine2', headerName: 'Adress Line 2', width: 200,  renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
+  { field: 'city', headerName: 'City', width: 150,  renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />) },
+  { field: 'state', headerName: 'State', width: 80 },
   { field: 'zipCode', headerName: 'Zip Code', width: 100 }
 ];
 

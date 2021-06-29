@@ -22,14 +22,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function isOverflown(element){
-  if(String(element.innerHTML).length > 10)
+function isOverflown(element, limit){
+  if(String(element.innerHTML).length > limit)
     return true;
   else return false;
 }
 
 export default function GridCellExpand(props) {
-  const { width, value } = props;
+  const { width, value, limit } = props;
   const wrapper = useRef(null);
   const cellDiv = useRef(null);
   const cellValue = useRef(null);
@@ -39,7 +39,7 @@ export default function GridCellExpand(props) {
   const [showPopper, setShowPopper] = useState(false);
 
   const handleMouseEnter = () => {
-    const isCurrentlyOverflown = isOverflown(cellValue.current);
+    const isCurrentlyOverflown = isOverflown(cellValue.current, limit);
     setShowPopper(isCurrentlyOverflown);
     setAnchorEl(cellDiv.current);
     setShowFullCell(true);

@@ -6,11 +6,12 @@ import API from '../api-service'
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import { Divider } from '@material-ui/core';
+import GridCellExpand from './GridCellExpand';
 
 const columns = [
-  { field: 'style', headerName: 'Style', width: 250 },
+  { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={20} value={params.value ? params.value.toString() : ''} width={300} />) },
   { field: 'size', headerName: 'Size', width: 80 },
-  { field: 'color', headerName: 'Color', width: 150 },
+  { field: 'color', headerName: 'Color', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />) },
   { field: 'productAvailability', headerName: 'Product Availabity', width: 150 },
   { field: 'inStock', headerName: 'In Stock', width: 80 },
   { field: 'unfulfilledCount', headerName: 'Unfulfilled Count', width: 80 },

@@ -7,6 +7,8 @@ import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
+import GridCellExpand from './GridCellExpand';
+
 
 const getDeafultStartDate = () => {
   const d = new Date();
@@ -81,14 +83,14 @@ export default function Invoices(props){
     },
     { field: 'startDate', headerName: 'Start Date', width: 130 },
     { field: 'endDate', headerName: 'End Date', width: 130 },
-    { field: 'storeName', headerName: 'Store', width: 150 },
+    { field: 'storeName', headerName: 'Store', width: 170, renderCell: (params) => (<GridCellExpand limit={16} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
     { field: 'status', headerName: 'Status', width: 110,
       renderCell: (params) => {
           return(
           <Button
             variant="contained"
-            className={params.value=="Paid"?classes.greencolor:classes.redcolor}
+            className={params.value=="Paid" ? classes.greencolor : classes.redcolor}
             size="small"
             data-pid={params.id}
             onClick={handleStatusChange}
@@ -98,7 +100,7 @@ export default function Invoices(props){
       },
     },
     { field: 'total', headerName: 'Total', width: 110 },    
-    { field: 'notes', headerName: 'Notes', width: 150 }  
+    { field: 'notes', headerName: 'Notes', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) }  
   ];
 
   const handleStatusChange = (e) => {
@@ -146,7 +148,7 @@ export default function Invoices(props){
       catch(e){
         console.log("api error");
         console.error(e);
-        setMessage('Something went wrong. Please refresh.');
+        setMessage('Something went wrong. See logs in admin panel. Please refresh.');
       }
     })();
   }

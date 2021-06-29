@@ -73,7 +73,7 @@ export default function SignIn() {
       if(resp.status==200)
         return resp.json();
       if(resp.status==400)
-        throw 'Invalid username or passord';
+        throw 'Invalid username or password';
       else
         throw 'Something went wrong';
     } )

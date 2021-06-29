@@ -9,14 +9,15 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ProductForm from './ProductForm';
+import GridCellExpand from './GridCellExpand';
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 50},
-  { field: 'sfmId', headerName: 'SFM ID', width: 300, hide:true},
-  { field: 'style', headerName: 'Style', width: 250},
+  { field: 'sfmId', headerName: 'SFM ID', width: 300, hide: true},
+  { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)},
   { field: 'size', headerName: 'Size', width: 100},
-  { field: 'color', headerName: 'Color', width: 150},
-  { field: 'sku', headerName: 'SKU', width: 150 },
+  { field: 'color', headerName: 'Color', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />)},
+  { field: 'sku', headerName: 'SKU', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />)},
   { field: 'price', headerName: 'Price', width: 100, type: 'number'},
   { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, type: 'number'}
 ];
