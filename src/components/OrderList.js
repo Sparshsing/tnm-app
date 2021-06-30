@@ -249,7 +249,7 @@ function OrderList(props){
             console.log(result['msg']);
           }
           else{
-            setMessage(result['msg'] + ' (see error records in console (hit Ctrl+Shift+i)');
+            setMessage(result['msg'] + ' (see error records in admin panel logs, or in console (hit Ctrl+Shift+i)');
             console.log('Following rows were not imported: ');
             console.log(result['errors']);
           }
@@ -410,6 +410,7 @@ function OrderList(props){
               rows={searchFilteredOrders} columns={columns}
               checkboxSelection 
               components={{ Toolbar: GridToolbar,}}
+              density='compact'
               disableSelectionOnClick={true}
               onSelectionModelChange={handleSelection}
               onRowSelected={handleRowSelected}

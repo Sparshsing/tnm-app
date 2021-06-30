@@ -7,7 +7,7 @@ import React, {useState, useEffect} from 'react';
 import {isOverflown, DataGrid, GridToolbar, GridRowsProp, GridColDef, useGridContainerProps } from '@material-ui/data-grid';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
-import { Divider, Button, Checkbox, Dialog, DialogActions, DialogTitle, TextField, IconButton } from '@material-ui/core';
+import { Divider, Button, Checkbox, Dialog, DialogActions, DialogTitle, TextField, IconButton, DialogContent } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -85,6 +85,9 @@ function Printing(props){
   const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [notesText, setNotesText] = useState('');
+  const [notesOrderId, setNotesOrderId] = useState(null);
   const [searchString, setSearchString] = useState('');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -179,7 +182,7 @@ function Printing(props){
   const handleAddClick = (e) => {setMode('add')}
   const handleEditClick = (e) => {setMode('update')}
   const handleDeleteClick = (e) => {setOpen(true)}
-  const handleClose = (e) => {setOpen(false)}
+  const handleClose = (e) => {setOpen(false)}  
 
   const handleDeleteConfirm = (e) => {
     console.log('u confirmed delete');
@@ -211,6 +214,40 @@ function Printing(props){
     setOpen(false);
     deleteRows();
 
+  }
+
+  const handleNotesClose = (e) => {setNotesOpen(false)};
+
+  const handleNotesClick = (e) => {
+    const oid = parseInt(e.currentTarget.dataset.oid);
+    setNotesOrderId(oid);
+    const rowdata = orders.find(o => o.orderId == oid);
+    setNotesText(rowdata.sfmNotes);
+    setNotesOpen(true);
+  }
+
+  const handleNotesSave = (e) => {
+    const oid = notesOrderId;
+    const rowdata = orders.find(o => o.orderId == oid);
+    const sfmNotes = notesText;
+    const newRow = {...rowdata, sfmNotes}
+    API.updateOrder(token['mr-token'], oid, newRow)
+      .then(resp => {
+        if(resp.status==200) return resp.json()
+        else throw 'Something went wrong';
+      })
+      .then(data => {
+        const updatedRows = orders.map((row) => {
+          if (row.orderId == data.orderId)
+            return data;          
+          return row;
+        });
+        setMessage('updated Order');
+        setOrders(updatedRows)
+      })
+      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong')})
+    
+      setNotesOpen(false);
   }
 
   // const handleSelection = (items) => {
@@ -317,6 +354,23 @@ function Printing(props){
                   <Button onClick={handleDeleteConfirm} color="primary" autoFocus>Confirm</Button>
                 </DialogActions>
               </Dialog>
+              
+              <Dialog
+                open={notesOpen}
+                maxWidth='lg'
+                fullWidth={true}
+                onClose={handleNotesClose}
+              >
+                <DialogTitle>Notes</DialogTitle>
+                <DialogContent>
+                <TextField multiline value={notesText} text='Notes' variant='outlined' rows={4} fullWidth={true}
+                  onChange={(e) => setNotesText(e.target.value)}></TextField>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleNotesClose} color="primary">Cancel</Button>
+                  <Button onClick={handleNotesSave} color="primary" autoFocus>Save</Button>
+                </DialogActions>
+              </Dialog>
             </div>
             <div>
                 <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
@@ -388,7 +442,12 @@ function Printing(props){
                     <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} className={row.printed=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.printed}</Button></TableCell>
                     <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
                     <TableCell className={classes.tablecell}>{row.productAvailability}</TableCell>
-                    <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}><GridCellExpand limit={40} value={row.sfmNotes} width={500}></GridCellExpand></TableCell>
+                    <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                      {row.sfmNotes ? <Button onClick={handleNotesClick} data-oid={row.orderId}>{row.sfmNotes.substring(0,14)}</Button>
+                      :
+                      <IconButton color='primary' variant='contained' onClick={handleNotesClick} data-oid={row.orderId}><AddCircleIcon /></IconButton>
+                      }
+                    </TableCell>
                   </TableRow>);
                   })
                 }                

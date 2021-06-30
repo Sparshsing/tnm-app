@@ -102,11 +102,11 @@ function InventoryList(props){
 			.then((result) => {
         if(result['errors']){          
           if(result['errors'].length==0){
-            setMessage('Successfully imported all records');
-            console.log('Successfully imported all records');
+            setMessage(result['msg']);
+            console.log(result['msg']);
           }
           else{
-            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            setMessage(result['msg'] + ' (see error records in admin panel logs, or in console (hit Ctrl+Shift+i)');
             console.log('Following rows were not imported: ');
             console.log(result['errors']);
           }

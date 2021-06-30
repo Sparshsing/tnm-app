@@ -12,8 +12,8 @@ import ProductForm from './ProductForm';
 import GridCellExpand from './GridCellExpand';
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 50},
-  { field: 'sfmId', headerName: 'SFM ID', width: 300, hide: true},
+  { field: 'id', headerName: 'ID', width: 80},
+  { field: 'sfmId', headerName: 'SFM ID', width: 300, renderCell: (params) => (<GridCellExpand limit={29} value={params.value ? params.value.toString() : ''} width={300} />), hide: true},
   { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)},
   { field: 'size', headerName: 'Size', width: 100},
   { field: 'color', headerName: 'Color', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />)},
@@ -80,11 +80,11 @@ function ProductDetails(props){
 			.then((result) => {
         if(result['errors']){          
           if(result['errors'].length==0){
-            setMessage('Successfully imported all records');
-            console.log('Successfully imported all records');
+            setMessage(result['msg']);
+            console.log(result['msg']);
           }
           else{
-            setMessage('Partial Success (see error records in console (hit Ctrl+Shift+i)');
+            setMessage(result['msg'] + ' (see error records in admin panel logs, or in console (hit Ctrl+Shift+i)');
             console.log('Following rows were not imported: ');
             console.log(result['errors']);
           }
