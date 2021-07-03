@@ -10,6 +10,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ProductForm from './ProductForm';
 import GridCellExpand from './GridCellExpand';
+import AuthenticationService from '../authentication-service';
+
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 80},
@@ -106,11 +108,9 @@ function ProductDetails(props){
   function fetchlist(){
     API.getProductList(token['mr-token'])
     .then(resp => {
-      console.log(resp);
-      if(resp.status==200)
-        return resp.json();
-      else
-        throw 'Something went wrong'
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';    
     })
     .then(data => {
       console.log(data); 

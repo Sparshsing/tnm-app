@@ -2,7 +2,8 @@ import '../App.css';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar, GridRowsProp, GridColDef } from '@material-ui/data-grid';
 import { Button, TextField} from '@material-ui/core';
-import API from '../api-service'
+import API from '../api-service';
+import AuthenticationService from '../authentication-service';
 import { useCookies } from 'react-cookie'
 import { Redirect } from 'react-router-dom'
 import { Divider } from '@material-ui/core';
@@ -45,6 +46,11 @@ function InventoryList(props){
 
   const fetchlist = () => {
     API.getInventoryList(token['mr-token'])
+    .then(resp => {
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';
+    })
     .then(data => {
       console.log(data); 
       // data.forEach((item, i) => item.id = item.sfmId);

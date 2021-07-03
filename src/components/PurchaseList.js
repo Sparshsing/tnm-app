@@ -10,6 +10,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PurchaseForm from './PurchaseForm';
 import GridCellExpand from './GridCellExpand';
+import AuthenticationService from '../authentication-service';
+
 
 
 function PurchaseList(props){
@@ -236,9 +238,9 @@ function PurchaseList(props){
     
     API.getPurchasesList(token['mr-token'], urlparams)
     .then(resp => {
-      if(resp.status==200)
-        return resp.json()
-      else throw 'Something went wrong';
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';    
     })
     .then(data => {
       console.log(data);

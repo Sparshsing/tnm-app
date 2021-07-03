@@ -8,6 +8,8 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import StoreForm from './StoreForm';
 import GridCellExpand from './GridCellExpand';
+import AuthenticationService from '../authentication-service';
+
 
 
 const columns = [
@@ -51,7 +53,11 @@ function StoreDetails(props){
     props.setTitle('Stores');
 
     API.getStoreList(token['mr-token'])
-    .then(resp => resp.json())
+    .then(resp => {
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';    
+    })
     .then(data => {
       console.log(data);
       // client permission to filter only his store, is handled in api

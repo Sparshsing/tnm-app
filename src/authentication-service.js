@@ -13,7 +13,7 @@ export default class AuthenticationService{
 
   static handleUnauthorized(){
     console.log('User is not authorized. Logging out');
-    this.signout();
+    AuthenticationService.signout();
   }
 
   static login(username, password){

@@ -12,6 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import OrderForm from './OrderForm';
 import OrderUpdateForm from './OrderUpdateForm';
 import GridCellExpand from './GridCellExpand';
+import AuthenticationService from '../authentication-service';
 
 
 const formatDate = (dt) => {
@@ -315,6 +316,11 @@ function OrderList(props){
   function fetchlist(){
     console.log('fetching details');
     API.getOrderList(token['mr-token'])
+    .then(resp => {
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';    
+    })
     .then(data => {
       //console.log(data); 
       data.forEach((item, i) => item.id = item.orderId);

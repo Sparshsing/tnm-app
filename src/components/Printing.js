@@ -257,11 +257,6 @@ function Printing(props){
 
   useEffect(() => {
     console.log('cookies');
-    console.log(document.cookie);
-    AuthenticationService.signout();
-    //window.location.reload();
-    //setUnauthorized(true);
-    return;
     props.setTitle('Printing');
     if(mode=='none')
       fetchlist()
@@ -276,6 +271,11 @@ function Printing(props){
     setLoading(true);
     setMySelectedRows([]);
     API.getPrintingList(token['mr-token'])
+    .then(resp => {
+      if(resp.status==200) return resp.json();
+      if(resp.status==401) AuthenticationService.handleUnauthorized();
+      throw 'Something went wrong';    
+    })
     .then(data => {
       let rows = data;
       console.log('fetching orders');

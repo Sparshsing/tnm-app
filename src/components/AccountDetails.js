@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {Button, TextField} from '@material-ui/core';
 import { useCookies } from 'react-cookie';
 import {Redirect} from 'react-router-dom';
+import AuthenticationService from '../authentication-service';
 
 export default function AccountDetails(props){
 
@@ -26,15 +27,21 @@ export default function AccountDetails(props){
       props.setTitle('My Account');
       try{
         const resp = await API.getAccountDetails(token['mr-token'], userId)
-        const data = await resp.json();
-        setUsername(data['username']);
-        setEmail(data['email']);
-        setLastName(data['last_name']);
-        setFirstName(data['first_name']);
+        if(resp.status==200){
+          const data = await resp.json();
+          console.log('got data', data)
+          setUsername(data['username']);
+          setEmail(data['email']);
+          setLastName(data['last_name']);
+          setFirstName(data['first_name']);
+        }
+        else if(resp.status==401) AuthenticationService.handleUnauthorized();
+        else throw 'Something went wrong';
+        
       }
       catch(e){
         console.log("api error");
-        console.error(e);
+        console.log('ee', e);
       }
     })();
   }, [])

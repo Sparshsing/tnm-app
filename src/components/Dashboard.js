@@ -1,8 +1,10 @@
-import API from '../api-service'
+import API from '../api-service';
+import AuthenticationService from '../authentication-service';
 import React, {useState, useEffect} from 'react';
 import {Button, TextField, MenuItem, Typography, Divider, Paper } from '@material-ui/core';
-import { useCookies } from 'react-cookie'
-import { Redirect } from 'react-router-dom'
+import { useCookies } from 'react-cookie';
+import { Redirect } from 'react-router-dom';
+
 
 const getDeafultStartDate = () => {
   const d = new Date();
@@ -34,22 +36,26 @@ function Dashboard(props){
       props.setTitle('Dashboard');
       try{
         const resp = await API.getStoreList(token['mr-token']);
-        let stores = await resp.json();
-        if(stores.length==0){
-          throw 'No stores available';
+        if(resp.status==200){
+          let stores = await resp.json();
+          if(stores.length==0){
+            throw 'No stores available';
+          }
+          if(usertype==0){
+            const userid = userInfo['mr-user'].split('-')[0];
+            stores = stores.filter(s => s.user==userid);
+          }
+          else
+            stores.unshift({storeName:'All', storeCode:'All'});
+          setAvailableStores(stores);
+          let defaultStore = stores[0].storeCode;
+          if(usertype==1)
+            defaultStore = 'All';
+          setSelectedStore(defaultStore);
+          displaysummary(defaultStore, startDate, endDate);
         }
-        if(usertype==0){
-          const userid = userInfo['mr-user'].split('-')[0];
-          stores = stores.filter(s => s.user==userid);
-        }
-        else
-          stores.unshift({storeName:'All', storeCode:'All'});
-        setAvailableStores(stores);
-        let defaultStore = stores[0].storeCode;
-        if(usertype==1)
-          defaultStore = 'All';
-        setSelectedStore(defaultStore);
-        displaysummary(defaultStore, startDate, endDate);
+        else if(resp.status==401) AuthenticationService.handleUnauthorized();
+        else throw 'Something went wrong';
       }catch(e){
         console.log("api error");
         console.error(e);
@@ -58,9 +64,11 @@ function Dashboard(props){
 
       if(usertype==1){
         try{
-          const invdata = await API.getInventoryList(token['mr-token']);
-          //console.log(invdata);
-          setInventory(invdata);
+          const resp = await API.getInventoryList(token['mr-token']);
+          console.log('fetch inventory list status', resp.status);
+          if(resp.status==200) setInventory(await resp.json());
+          else if(resp.status==401) AuthenticationService.handleUnauthorized();
+          else throw 'Something went wrong';          
         }      
         catch(e){
           console.log("api error");

@@ -145,7 +145,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getOrderList(token){
@@ -155,7 +155,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getPrintingList(token){
@@ -165,7 +165,7 @@ export default class API{
         'Content-Type': 'application/json',
         'Authorization': `Token ${token}`
       }
-    }).then(resp => resp.json())
+    })
   }
 
   static getOrder(token, id){

@@ -8,6 +8,8 @@ import Link from '@material-ui/core/Link';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
 import GridCellExpand from './GridCellExpand';
+import AuthenticationService from '../authentication-service';
+
 
 
 const getDeafultStartDate = () => {
@@ -150,10 +152,10 @@ export default function Invoices(props){
       props.setTitle('Invoices');
       try{
         const resp = await API.getInvoiceList(token['mr-token'])
-        if(resp.status!=200)
-          throw `invalid status ${resp.status} ${resp.statusText}`;
-        const data = await resp.json();
-        setInvoices(data);
+        if(resp.status==200)
+          setInvoices(await resp.json());
+        else if(resp.status==401) AuthenticationService.handleUnauthorized();
+        else throw 'Something went wrong';  
       }
       catch(e){
         console.log("api error");
