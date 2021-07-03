@@ -24,6 +24,8 @@ function PurchaseList(props){
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [recordDetails, setRecordDetails] = useState({});
+  const [totalcount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
 
   const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
@@ -78,7 +80,7 @@ function PurchaseList(props){
   }
 
   const columns = [
-    { field: 'id', headerName: 'Purchase Id', width: 70, hide:true },
+    { field: 'id', headerName: 'Id', width: 70, hide:true },
     { field: 'status', headerName: 'Status', width: 150,
       renderCell: (params) => {
           return(
@@ -188,55 +190,83 @@ function PurchaseList(props){
     console.log(items);    
     setMySelectedRows(items.selectionModel);    
   }
-  
 
   useEffect(() => {
     props.setTitle('Purchases');
     console.log('useeffect called');
     if(mode=='none')
       fetchList();    
-  }, [token, mode]
+  }, [token, mode, page]
   );
 
-  useEffect(() => {
-    updateSearchFilteredPurchases(searchString);
-  }, [purchases]
-  );
+  // useEffect(() => {
+  //   updateSearchFilteredPurchases(searchString);
+  // }, [purchases]
+  // );
 
-  const updateSearchFilteredPurchases = (theSearchString) =>{
-    let rows = [...purchases];
-    if(theSearchString!='')
-        rows = rows.filter(r => {
-          const str = theSearchString.toLowerCase()
-          return r.style.toLowerCase().search(str)>=0 ||
-          r.size.toLowerCase().search(str)>=0 ||
-          r.color.toLowerCase().search(str)>=0 ||
-          r.warehouse.toLowerCase().search(str)>=0 ||
-          r.company.toLowerCase().search(str)>=0;
+  // const updateSearchFilteredPurchases = (theSearchString) =>{
+  //   let rows = [...purchases];
+  //   if(theSearchString!='')
+  //       rows = rows.filter(r => {
+  //         const str = theSearchString.toLowerCase()
+  //         return r.style.toLowerCase().search(str)>=0 ||
+  //         r.size.toLowerCase().search(str)>=0 ||
+  //         r.color.toLowerCase().search(str)>=0 ||
+  //         r.warehouse.toLowerCase().search(str)>=0 ||
+  //         r.company.toLowerCase().search(str)>=0;
           
-        })
-    setMySelectedRows([]);
-    setSearchFilteredPurchases(rows);
-  }
+  //       })
+  //   setMySelectedRows([]);
+  //   console.log('filtered rows');
+  //   console.log(rows);
+  //   setSearchFilteredPurchases(rows);
+  // }
 
-  function fetchList(){
-      console.log("fetching data");
-      API.getPurchasesList(token['mr-token'])
-      .then(resp => {
-        if(resp.status==200)
-          return resp.json()
-        else throw 'Something went wrong';
-      })
-      .then(data => {
-        console.log(data);
-        // not needed as purchases object already contains field called id
-        // data.forEach((item, i) => item.id = i+1);
-        setMySelectedRows([]);
-        setPurchases(data);
-      })
-      .catch(e => {console.log("api error"); console.error(e); setMessage(String(e))});    
+  function fetchList(fromSearchBar=false){
+    if(fromSearchBar && page!=0){
+      setPage(0);
+      return;
+    }      
+    console.log("fetching data");
+    let urlparams;
+    if(searchString){
+      urlparams = new URLSearchParams({page: page+1, search: searchString});
+    }        
+    else
+      urlparams = new URLSearchParams({page: page+1});
+    
+    API.getPurchasesList(token['mr-token'], urlparams)
+    .then(resp => {
+      if(resp.status==200)
+        return resp.json()
+      else throw 'Something went wrong';
+    })
+    .then(data => {
+      console.log(data);
+      // not needed as purchases object already contains field called id
+      // data.forEach((item, i) => item.id = i+1);
+      setMySelectedRows([]);
+      
+      if(data['results']){
+        if(totalcount != data['count'])
+          setPage(0);
+        console.log('setting count', data['count'])
+        setTotalCount(data['count']);
+        setPurchases(data['results']);    
+      }
+      else{
+        console.error('error getting data')
+        console.error(data['detail'])
+        console.log('setting count', data['count'])
+        setPage(0);
+        setTotalCount(0);
+        setPurchases([]);
+      }
+      
+      
+    })
+    .catch(e => {console.log("api error"); console.error(e); setMessage(String(e))});    
   }
-
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -266,14 +296,24 @@ function PurchaseList(props){
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredPurchases(e.target.value)}></TextField>
-                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredPurchases(searchString)}>Search</Button>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchList(true)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => fetchList(true)}>Search</Button>
             </div>
           </div>
           <div style={{  width: '100%', minWidth:'600px', flexGrow: 1}}>
-            <DataGrid rows={searchFilteredPurchases} columns={columns} checkboxSelection autoHeight={true} components={{
-              Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} disableSelectionOnClick={true} disableColumnMenu/>
+            <DataGrid rows={purchases} columns={columns} checkboxSelection onSelectionModelChange={handleSelection} disableSelectionOnClick={true} disableColumnMenu
+            autoHeight
+            components={{ Toolbar: GridToolbar}}
+            pagination
+            page={page}
+            pageSize = {50}
+            rowsPerPageOptions={[]}
+            rowCount = {totalcount}
+            paginationMode="server"
+            onPageChange={(params) => {
+              setPage(params.page);
+
+            }}/>
           </div>
         </div>
         :

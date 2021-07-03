@@ -148,6 +148,7 @@ export default function TheLayout() {
   };
 
   const handleSignOut = (e) => {
+    console.log('signing out');
     removeToken('mr-token');
     removeUserInfo('mr-user');
   }
