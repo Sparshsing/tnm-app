@@ -86,8 +86,8 @@ export default class API{
     })
   }
 
-  static getPurchasesList(token){
-    return fetch(APIROOT + '/api/purchases/', {
+  static getPurchasesList(token, urlparams){
+    return fetch(APIROOT + '/api/purchases/?' + urlparams, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
