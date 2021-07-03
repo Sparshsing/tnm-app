@@ -61,9 +61,7 @@ export default function SignIn() {
 
   const [token, setToken] = useCookies(['mr-token']);
   const [userInfo, setUserInfo] = useCookies(['mr-user']);
-  useEffect( () => {    
-    
-  }, [token, userInfo]);
+
 
   const signinClicked = (e) => {
     e.preventDefault();
@@ -79,11 +77,11 @@ export default function SignIn() {
     } )
     .then(data => {
       setLoading(false);
-      let utype = 0;
+      let utype = 136;
       if(data.is_superuser)
-        utype = 1;
+        utype = 239;
       else if(data.is_staff)
-        utype = 2;
+        utype = 578;
 
       // userinfo needs to be set FirstPage, because async functions no batching, and we need userinfo
       // if token loads late, it will redirect for 1-2 times but it will work, but not with userinfo
@@ -93,7 +91,7 @@ export default function SignIn() {
     })
     .catch(error => {
       console.error(error);
-      setErrormsg(String(error));
+      setErrormsg('Server Error');
       setLoading(false);
     });
   }

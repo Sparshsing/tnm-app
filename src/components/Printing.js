@@ -2,6 +2,7 @@ import '../App.css';
 import API from '../api-service'
 import OrderForm from './OrderForm';
 import OrderUpdateForm from './OrderUpdateForm';
+import AuthenticationService from '../authentication-service';
 import GridCellExpand from './GridCellExpand';
 import React, {useState, useEffect} from 'react';
 import {isOverflown, DataGrid, GridToolbar, GridRowsProp, GridColDef, useGridContainerProps } from '@material-ui/data-grid';
@@ -82,7 +83,6 @@ function Printing(props){
   const [orders, setOrders] = useState([]);
   const [searchFilteredOrders, setSearchFilteredOrders] = useState([]);
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -256,6 +256,12 @@ function Printing(props){
   // }
 
   useEffect(() => {
+    console.log('cookies');
+    console.log(document.cookie);
+    AuthenticationService.signout();
+    //window.location.reload();
+    //setUnauthorized(true);
+    return;
     props.setTitle('Printing');
     if(mode=='none')
       fetchlist()
@@ -321,12 +327,7 @@ function Printing(props){
   }
 
   let nextGroup = 0;
-
-  if(!token['mr-token'])
-    return (<Redirect to='/signin'></Redirect>);
   
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
-
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline'}}>
@@ -424,7 +425,7 @@ function Printing(props){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    <TableCell className={classes.tablecell}>
+                    <TableCell className={classes.tablecell} style={{borderColor: 'white'}}>
                       <Checkbox
                         inputProps={{ 'data-oid' : row.orderId }}
                         onChange={handleCheckboxClick}

@@ -104,7 +104,6 @@ function OrderList(props){
   const [searchFilteredOrders, setSearchFilteredOrders] = useState([]);
   const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
   const [mySelectedRows, setMySelectedRows] = useState([]);
@@ -116,7 +115,7 @@ function OrderList(props){
   const [isShippingFilePicked, setIsShippingFilePicked] = useState(false);
   const [message, setMessage] = useState('');
 
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
 	const fileChangeHandler = (event) => {
     console.log(event);
@@ -428,7 +427,7 @@ function OrderList(props){
         (mode=='add' ? 
           <OrderForm mode={mode} setMode={setMode}></OrderForm>
           :
-          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode}></OrderUpdateForm>
+          <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode} usertype={usertype}></OrderUpdateForm>
         )
         
       }

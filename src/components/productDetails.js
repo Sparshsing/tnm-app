@@ -30,7 +30,6 @@ function ProductDetails(props){
   const [searchFilteredProducts, setSearchFilteredProducts] = useState([]);
   const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [open, setOpen] = useState(false);
@@ -39,7 +38,7 @@ function ProductDetails(props){
 	const [isFilePicked, setIsFilePicked] = useState(false);
   const [message, setMessage] = useState('');
 
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
   const restrictedColumns = [
     { field: 'style', headerName: 'Style', width: 150},

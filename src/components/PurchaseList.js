@@ -20,7 +20,6 @@ function PurchaseList(props){
   const [searchFilteredPurchases, setSearchFilteredPurchases] = useState([]);
   const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [recordDetails, setRecordDetails] = useState({});
@@ -270,8 +269,6 @@ function PurchaseList(props){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(parseInt(userInfo['mr-user'].split('-')[1])==0)
-    return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       {message=='' ? '' : <div style={{color:'red'}}>{message}</div>}

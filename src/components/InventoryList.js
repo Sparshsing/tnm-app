@@ -35,7 +35,6 @@ function InventoryList(props){
 	const [isFilePicked, setIsFilePicked] = useState(false);
   const [message, setMessage] = useState('');
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
 
   useEffect(() => {
     props.setTitle('Inventory');
@@ -126,8 +125,6 @@ function InventoryList(props){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(parseInt(userInfo['mr-user'].split('-')[1])==0)
-    return (<Redirect to='/'></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       {message && <div style={{color:"red"}}>{message}</div>}

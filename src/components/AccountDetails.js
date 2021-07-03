@@ -19,7 +19,8 @@ export default function AccountDetails(props){
   const [message, setMessage] = useState('');
   const [errormsg, setErrormsg] = useState({});
 
-  const userId = parseInt(userInfo['mr-user'].split('-')[0])
+  const userId = parseInt(userInfo['mr-user'].split('-')[0]);
+  
   useEffect(() => {
     (async () => {
       props.setTitle('My Account');

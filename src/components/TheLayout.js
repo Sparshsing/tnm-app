@@ -30,6 +30,7 @@ import companylogo from './logo.png';
 import {Route, BrowserRouter, Redirect} from 'react-router-dom';
 import {Link} from 'react-router-dom';
 import { useCookies } from 'react-cookie';
+import AuthenticationService from '../authentication-service';
 import TheContent from './TheContent';
 
 function Copyright() {
@@ -137,8 +138,8 @@ export default function TheLayout() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const [title, setTitle] = React.useState('Home');
-  const [token, setToken, removeToken] = useCookies(['mr-token']);
-  const [userInfo, setUserInfo, removeUserInfo] = useCookies(['mr-user']);
+  const [token] = useCookies(['mr-token']);
+  const [userInfo] = useCookies(['mr-user']);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -148,9 +149,8 @@ export default function TheLayout() {
   };
 
   const handleSignOut = (e) => {
-    console.log('signing out');
-    removeToken('mr-token');
-    removeUserInfo('mr-user');
+    console.log('sign out clicked');
+    AuthenticationService.signout();
   }
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -159,9 +159,25 @@ export default function TheLayout() {
     return (<Redirect to='/signin'></Redirect>);
 
   let usertype=0;
-  if(userInfo['mr-user'])
-    usertype = parseInt(userInfo['mr-user'].split('-')[1]);
-  
+  if(userInfo['mr-user']){
+    let usercode;
+    try{
+      usercode = parseInt(userInfo['mr-user'].split('-')[1]);
+    }catch(err){
+      console.log('unable to read user info from cookie');
+      handleSignOut();
+    }
+    if(usercode==136)
+      usertype=0;
+    else if(usercode==239)
+      usertype=1;
+    else if(usercode==578)
+      usertype=2;
+    else{
+      console.log('invalid usertype from cookie');
+      handleSignOut();
+    }
+  }
 
   return (
     <div className={classes.root}>
@@ -218,7 +234,7 @@ export default function TheLayout() {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth={false} className={classes.container}>
-          <TheContent setTitle={setTitle}/>
+          <TheContent setTitle={setTitle} usertype={usertype}/>
         </Container>
       </main>
     </div>

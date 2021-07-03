@@ -45,12 +45,10 @@ export default function Invoices(props){
   //{ id: 2, style: 'dummy2', size: 'dummy ' }
   const [invoices, setInvoices] = useState([]);
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
-  const [printInvoice, setPrintInvoice] = useState(-1);
   const [message, setMessage] = useState('');
   const [startDate, setStartDate] = useState(getDeafultStartDate());
   const [endDate, setEndDate] = useState(getDeafultEndDate());
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
   const columns = [
     { field: 'id', headerName: 'Id', width: 150, hide: true },
@@ -128,12 +126,6 @@ export default function Invoices(props){
     console.log(e.target.value);
   }
 
-  const handleOpenReceipt = (e) => {
-    const pid = parseInt(e.currentTarget.dataset.pid);
-    console.log(pid);
-    setPrintInvoice(pid);
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(startDate, endDate);
@@ -173,8 +165,6 @@ export default function Invoices(props){
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(printInvoice!=-1)
-    return (<Redirect to={{pathname:'/printinvoice', state: {invoiceid: printInvoice}}}></Redirect>);
   return(
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       {message!='' && <div style={{color:"red"}}>{message}</div>}

@@ -19,7 +19,6 @@ export default function ProductForm(props){
 
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-userInfo']);
 
   const [errormsg, setErrormsg] = useState({});
   const [data, setData] = useState({});
@@ -118,8 +117,6 @@ export default function ProductForm(props){
   
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(parseInt(userInfo['mr-user'].split('-')[1])!=1)
-    return (<Redirect to='/'></Redirect>);
   if(saved)
     return (<Redirect to='/products'></Redirect>);
   if(props.mode=='update' && Object.keys(data).length === 0)

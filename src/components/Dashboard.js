@@ -17,7 +17,7 @@ function Dashboard(props){
 
   const [token] = useCookies(['mr-token']);
   const [userInfo] = useCookies(['mr-user']);
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
   const [errormsg, setErrormsg] = useState('');
   const [loading, setLoading] = useState(true);
@@ -107,8 +107,6 @@ function Dashboard(props){
   }
 
   if(!token['mr-token'])
-    return (<Redirect to='/signin'></Redirect>);
-  if(usertype==2)
     return (<Redirect to='/signin'></Redirect>);
   if(loading)
     return (<div>Loading. Please wait</div>);

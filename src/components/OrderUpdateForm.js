@@ -20,7 +20,6 @@ export default function OrderUpdateForm(props){
 
   const classes = useStyles();
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [errormsg, setErrormsg] = useState({});
   const [saved, setSaved, getSaved] = useState(false);
   const [data, setData] = useState({});
@@ -38,7 +37,7 @@ export default function OrderUpdateForm(props){
 
   let badData = false;
   console.log("opened form");
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
   useEffect(() => {
     API.getOrder(token['mr-token'], props.id)

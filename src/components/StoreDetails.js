@@ -29,7 +29,6 @@ function StoreDetails(props){
   const [stores, setStores] = useState([]);
   
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const [mode, setMode] = useState('none');
   const [selectedStore, setSelectedStore] = useState('');
   const [mySelectedRows, setMySelectedRows] = useState([]);
@@ -64,12 +63,10 @@ function StoreDetails(props){
   }, [mode]
   );
 
-  const usertype = parseInt(userInfo['mr-user'].split('-')[1]);
+  const usertype = props.usertype;
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
-  if(usertype==2)
-    return (<Redirect to='/'></Redirect>);
   return(    
     <div>
     { mode=='none' ?

@@ -12,18 +12,20 @@ import Invoices from './Invoices';
 
 function TheContent(props){
   const setTitle = props.setTitle;
+  const usertype = props.usertype;
+
   return (    
         <Switch>
-        <Route exact path='/' render={ props => <div {...props}>Welcome To SFM Dropshipping</div>} />
-        <Route exact path='/dashboard' render={(props) => (<Dashboard {...props} setTitle={setTitle} />)} />
-        <Route exact path='/products' render={(props) => (<ProductDetails {...props} setTitle={setTitle} />)} />
-        <Route exact path='/stores' render={(props) => (<StoreDetails {...props} setTitle={setTitle} />)} />
-        <Route exact path='/purchases' render={(props) => (<PurchaseList {...props} setTitle={setTitle} />)} />
-        <Route exact path='/inventory' render={(props) => (<InventoryList {...props} setTitle={setTitle} />)} />
-        <Route exact path='/orders' render={(props) => (<OrderList {...props} setTitle={setTitle} />)} />
-        <Route exact path='/printing' render={(props) => (<Printing {...props} setTitle={setTitle} />)} />
-        <Route exact path='/accountdetails' render={(props) => (<AccountDetails {...props} setTitle={setTitle} />)} />
-        <Route exact path='/invoices' render={(props) => (<Invoices {...props} setTitle={setTitle} />)} />
+        <Route exact path='/' render={ props => <div >Welcome To SFM Dropshipping</div>} />
+        {usertype!=2 && <Route exact path='/dashboard' render={(props) => (<Dashboard  setTitle={setTitle} usertype={usertype}/>)} />}
+        <Route exact path='/products' render={(props) => (<ProductDetails  setTitle={setTitle} usertype={usertype}/>)} />
+        {usertype!=2 && <Route exact path='/stores' render={(props) => (<StoreDetails setTitle={setTitle} />)} usertype={usertype}/>}
+        {usertype!=0 && <Route exact path='/purchases' render={(props) => (<PurchaseList  setTitle={setTitle}/>)} />}
+        {usertype!=0 && <Route exact path='/inventory' render={(props) => (<InventoryList setTitle={setTitle}/>)} />}
+        <Route exact path='/orders' render={(props) => (<OrderList setTitle={setTitle} />)} usertype={usertype}/>
+        {usertype!=0 && <Route exact path='/printing' render={(props) => (<Printing setTitle={setTitle} />)} usertype={usertype}/>}
+        <Route exact path='/accountdetails' render={(props) => (<AccountDetails setTitle={setTitle} usertype={usertype}/>)} />
+        {usertype!=2 &&<Route exact path='/invoices' render={(props) => (<Invoices setTitle={setTitle} usertype={usertype}/>)} />}
           {/* <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
           <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
           <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />
