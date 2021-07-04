@@ -2,16 +2,17 @@ import API from '../api-service';
 import React, {useState, useEffect} from 'react'
 import { DataGrid, GridToolbar} from '@material-ui/data-grid';
 import { makeStyles } from '@material-ui/core/styles';
+import {Dialog, DialogActions, DialogTitle, DialogContent } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import IconButton from '@material-ui/core/IconButton';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import CloudUploadOutlinedIcon from '@material-ui/icons/CloudUploadOutlined';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
 import GridCellExpand from './GridCellExpand';
 import AuthenticationService from '../authentication-service';
-
 
 
 const getDeafultStartDate = () => {
@@ -59,6 +60,9 @@ export default function Invoices(props){
   const [invoices, setInvoices] = useState([]);
   const [token] = useCookies(['mr-token']);
   const [message, setMessage] = useState('');
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [notesText, setNotesText] = useState('');
+  const [notesRowId, setNotesRowId] = useState(null);
   const [startDate, setStartDate] = useState(getDeafultStartDate());
   const [endDate, setEndDate] = useState(getDeafultEndDate());
   const usertype = props.usertype;
@@ -107,7 +111,7 @@ export default function Invoices(props){
     },
     { field: 'startDate', headerName: 'Start Date', width: 110 },
     { field: 'endDate', headerName: 'End Date', width: 110 },
-    { field: 'storeName', headerName: 'Store', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
+    { field: 'storeName', headerName: 'Store', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
     { field: 'status', headerName: 'Status', width: 110,
       renderCell: (params) => {
@@ -124,7 +128,6 @@ export default function Invoices(props){
       },
     },
     { field: 'total', headerName: 'Total', width: 110 },
-    { field: 'notes', headerName: 'Notes', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'attachment', headerName: 'View PDF', width: 110,
         renderCell: (params) => {
             return(
@@ -138,6 +141,9 @@ export default function Invoices(props){
             </Link>);
         },
     },
+    { field: 'notes', headerName: 'Notes', width: 200,
+      renderCell: (params) => (<Button onClick={handleNotesClick} data-oid={params.id}>{params.value.substring(0,14) + '...'}</Button>)
+    },    
   ];
 
   const handleStatusChange = (e) => {
@@ -229,6 +235,44 @@ export default function Invoices(props){
     }
   }
 
+  const handleNotesClose = (e) => {setNotesOpen(false)};
+
+  const handleNotesClick = (e) => {
+    const oid = parseInt(e.currentTarget.dataset.oid);
+    setNotesRowId(oid);
+    const rowdata = invoices.find(o => o.id == oid);
+    setNotesText(rowdata.notes);
+    setNotesOpen(true);
+  }
+
+  const handleNotesSave = (e) => {
+
+    if(notesText=='')
+      return;
+    const notes = notesText;
+    const pid = notesRowId;
+    const rowdata = invoices.find(i => i.id == pid);
+    const newRow = {...rowdata, notes}
+    let badData = false;
+    API.updateInvoice(token['mr-token'], pid, newRow)
+      .then(resp => {
+        if(resp.status==200) return resp.json();
+        if(resp.status==400) { badData=true; return resp.json();}
+        else throw 'Unknown reason. Please refresh';
+      })
+      .then(data => {
+        if(badData)
+          throw JSON.stringify(data);
+        console.log(data);
+        alert("Notes Updated Successfully");
+        setMessage("Notes Updated Successfully");
+        fetchList();
+      })
+      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
+    
+      setNotesOpen(false);
+  }
+
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
   return(
@@ -236,7 +280,7 @@ export default function Invoices(props){
       {message!='' && <div style={{color:"red"}}>{message}</div>}
       {usertype==1 && 
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'baseline', flexWrap: 'wrap', flexDirection: 'row'}}>
-        <TextField
+          <TextField
             variant="outlined"
             margin="normal"
             label="Start Date"
@@ -261,8 +305,26 @@ export default function Invoices(props){
             InputLabelProps={{
               shrink: true,
             }}
-          /><Button color="primary" variant="contained" size="small" onClick={handleSubmit}>Generate Invoices</Button>
-      </div>}
+          />
+          <Button color="primary" variant="contained" size="small" onClick={handleSubmit}>Generate Invoices</Button>
+          <Dialog
+            open={notesOpen}
+            maxWidth='lg'
+            fullWidth={true}
+            onClose={handleNotesClose}
+          >
+            <DialogTitle>Notes</DialogTitle>
+            <DialogContent>
+            <TextField multiline value={notesText} text='Notes' variant='outlined' rows={4} fullWidth={true} helperText='Notes cannot be empty'
+              onChange={(e) => setNotesText(e.target.value)}></TextField>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleNotesClose} color="primary">Cancel</Button>
+              <Button onClick={handleNotesSave} color="primary" autoFocus>Save</Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      }
       <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}} className={classes.root}>
         <DataGrid rows={invoices} columns={columns} components={{
           Toolbar: GridToolbar,

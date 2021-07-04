@@ -417,7 +417,7 @@ function Printing(props){
                     showSpan = true;
                     for(let j=i+1;j<arr.length; j++){
                       if(row.orderNo!=arr[j].orderNo || row.storeName!=arr[j].storeName 
-                        || row.recipientName!=arr[j].recipientName || row.displayStatus!=arr[j].displayStatus){
+                        || row.recipientName!=arr[j].recipientName){
                           nextGroup = j;
                           break;
                         }                        
@@ -425,13 +425,13 @@ function Printing(props){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    <TableCell className={classes.tablecell} style={{borderColor: 'white'}}>
+                    <TableCell className={classes.tablecell} style={{borderColor: 'white', borderColor: 'white'}}>
                       <Checkbox
                         inputProps={{ 'data-oid' : row.orderId }}
                         onChange={handleCheckboxClick}
                       />
                     </TableCell>
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.displayStatus}</TableCell>}
+                    <TableCell style={{ whiteSpace : 'nowrap', borderColor: 'white'}} className={classes.tablecell}>{row.displayStatus}</TableCell>
                     {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.storeName}</TableCell>}
                     {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
                     <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.style}</TableCell>
@@ -444,7 +444,7 @@ function Printing(props){
                     <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
                     <TableCell className={classes.tablecell}>{row.productAvailability}</TableCell>
                     <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
-                      {row.sfmNotes ? <Button onClick={handleNotesClick} data-oid={row.orderId}>{row.sfmNotes.substring(0,14)}</Button>
+                      {row.sfmNotes ? <Button onClick={handleNotesClick} data-oid={row.orderId}>{row.sfmNotes.substring(0,13) + '...'}</Button>
                       :
                       <IconButton color='primary' variant='contained' onClick={handleNotesClick} data-oid={row.orderId}><AddCircleIcon /></IconButton>
                       }
