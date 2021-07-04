@@ -241,6 +241,17 @@ export default class API{
     })
   }
 
+  static uploadReceipt(token, id, data){
+    return fetch(APIROOT + '/api/invoices/' + id + '/upload_receipt/', {
+      method: 'POST',
+      headers: {
+        // 'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
+      },
+      body: data
+    })
+  }
+
   static generateInvoices(token, data){
     return fetch(APIROOT + '/api/invoices/generate_invoices/', {
       method: 'POST',

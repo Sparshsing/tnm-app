@@ -5,6 +5,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
+import IconButton from '@material-ui/core/IconButton';
+import CloudUploadOutlinedIcon from '@material-ui/icons/CloudUploadOutlined';
 import { useCookies } from 'react-cookie';
 import { Redirect } from 'react-router-dom';
 import GridCellExpand from './GridCellExpand';
@@ -29,6 +31,12 @@ const getDeafultEndDate = () => {
 }
 
 const useStyles = makeStyles({
+  root: {
+    '& .compactcell': {
+      padding: '0px 8px'
+    },
+  },
+  
   redcolor: {
     background: 'red',
     color: 'white'
@@ -36,6 +44,9 @@ const useStyles = makeStyles({
   greencolor: {
     background: 'green',
     color: 'white'
+  },
+  inputbtn: {
+    display: 'none',
   }
 
 });
@@ -53,7 +64,7 @@ export default function Invoices(props){
   const usertype = props.usertype;
 
   const columns = [
-    { field: 'id', headerName: 'Id', width: 150, hide: true },
+    { field: 'id', headerName: 'Id', width: 100, hide: true },
     // { field: 'receipt', headerName: 'Receipt', width: 110,
     //     renderCell: (params) => {
     //         return(
@@ -68,7 +79,7 @@ export default function Invoices(props){
     //         </Button>);
     //     },
     // },
-    { field: 'attachment', headerName: 'Receipt', width: 110,
+    { field: 'receipt', headerName: 'Receipt', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
         renderCell: (params) => {
             return(
             <Link
@@ -81,9 +92,22 @@ export default function Invoices(props){
             </Link>);
         },
     },
-    { field: 'startDate', headerName: 'Start Date', width: 130 },
-    { field: 'endDate', headerName: 'End Date', width: 130 },
-    { field: 'storeName', headerName: 'Store', width: 170, renderCell: (params) => (<GridCellExpand limit={16} value={params.value ? params.value.toString() : ''} width={300} />) },
+    { field: 'uploadbtn', headerName: 'Upload', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
+        renderCell: (params) => {
+          return(
+            <div>
+            <input type="file" name={"myfile"+params.id} id={"myfile"+params.id} onChange={handleReceiptUpload} className={classes.inputbtn} data-pid={params.id}/>
+            <label htmlFor={"myfile"+params.id}>
+              <IconButton color="primary" aria-label="upload file" component="span" >
+                <CloudUploadOutlinedIcon/>
+              </IconButton>
+            </label>
+            </div>);
+        },
+    },
+    { field: 'startDate', headerName: 'Start Date', width: 110 },
+    { field: 'endDate', headerName: 'End Date', width: 110 },
+    { field: 'storeName', headerName: 'Store', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
     { field: 'status', headerName: 'Status', width: 110,
       renderCell: (params) => {
@@ -99,8 +123,21 @@ export default function Invoices(props){
           </Button>);
       },
     },
-    { field: 'total', headerName: 'Total', width: 110 },    
-    { field: 'notes', headerName: 'Notes', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) }  
+    { field: 'total', headerName: 'Total', width: 110 },
+    { field: 'notes', headerName: 'Notes', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />) },
+    { field: 'attachment', headerName: 'View PDF', width: 110,
+        renderCell: (params) => {
+            return(
+            <Link
+              size="small"
+              href={params.value}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open
+            </Link>);
+        },
+    },
   ];
 
   const handleStatusChange = (e) => {
@@ -115,17 +152,41 @@ export default function Invoices(props){
         else throw 'Unknown reason. Please refresh';
       })
       .then(data => {
-        const updatedRows = invoices.map((row) => {
-          if (row.id == data.id)
-            return data;          
-          return row;
-        });
-        setMessage('Status Updated');
-        setInvoices(updatedRows);
+        console.log(data);
+        alert("Status Changed Successfully");
+        setMessage("Status Changed Successfully");
+        fetchList();
       })
       .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
 
     console.log(e.target.value);
+  }
+
+  const handleReceiptUpload = (e) => {
+    if(e.target.files.length==1){
+      const selectedFile = e.target.files[0];
+      console.log("file is: ", selectedFile)
+      
+      const pid = parseInt(e.currentTarget.dataset.pid);
+      const formData = new FormData();
+
+		  formData.append('receipt', selectedFile);
+
+      API.uploadReceipt(token['mr-token'], pid, formData)
+      .then(resp => {
+        if(resp.status==200) return resp.json();
+        if(resp.status==400) throw JSON.stringify(resp.json());
+        else throw 'Unknown reason. Please refresh';
+      })
+      .then(data => {
+        console.log(data);
+        alert("File Uploaded Successfully");
+        setMessage('File Uploaded Successfully');
+        fetchList();
+      })
+      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
+    }
+    
   }
 
   const handleSubmit = (e) => {
@@ -148,22 +209,25 @@ export default function Invoices(props){
   }
 
   useEffect(() => {
-    (async () => {
-      props.setTitle('Invoices');
-      try{
-        const resp = await API.getInvoiceList(token['mr-token'])
-        if(resp.status==200)
-          setInvoices(await resp.json());
-        else if(resp.status==401) AuthenticationService.handleUnauthorized();
-        else throw 'Something went wrong';  
-      }
-      catch(e){
-        console.log("api error");
-        console.error(e);
-        setMessage('Something went wrong. Please refresh.');
-      }
-    })();
+    props.setTitle('Invoices');
+    fetchList();
   }, []);
+
+  const fetchList = async () => {
+    
+    try{
+      const resp = await API.getInvoiceList(token['mr-token'])
+      if(resp.status==200)
+        setInvoices(await resp.json());
+      else if(resp.status==401) AuthenticationService.handleUnauthorized();
+      else throw 'Something went wrong';  
+    }
+    catch(e){
+      console.log("api error");
+      console.error(e);
+      setMessage('Something went wrong. Please refresh.');
+    }
+  }
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -172,7 +236,7 @@ export default function Invoices(props){
       {message!='' && <div style={{color:"red"}}>{message}</div>}
       {usertype==1 && 
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'baseline', flexWrap: 'wrap', flexDirection: 'row'}}>
-          <TextField
+        <TextField
             variant="outlined"
             margin="normal"
             label="Start Date"
@@ -199,7 +263,7 @@ export default function Invoices(props){
             }}
           /><Button color="primary" variant="contained" size="small" onClick={handleSubmit}>Generate Invoices</Button>
       </div>}
-      <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}}>
+      <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}} className={classes.root}>
         <DataGrid rows={invoices} columns={columns} components={{
           Toolbar: GridToolbar,
         }} disableColumnMenu/>
