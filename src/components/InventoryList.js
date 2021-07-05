@@ -9,6 +9,13 @@ import { Redirect } from 'react-router-dom'
 import { Divider } from '@material-ui/core';
 import GridCellExpand from './GridCellExpand';
 
+const formatDate = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  return mm + '/' + dd + '/' + yy;
+}
+
 const columns = [
   { field: 'style', headerName: 'Style', width: 200, renderCell: (params) => (<GridCellExpand limit={20} value={params.value ? params.value.toString() : ''} width={300} />) },
   { field: 'size', headerName: 'Size', width: 80 },
@@ -17,7 +24,9 @@ const columns = [
   { field: 'inStock', headerName: 'In Stock', width: 80 },
   { field: 'unfulfilledCount', headerName: 'Unfulfilled Count', width: 80 },
   { field: 'inTransit', headerName: 'In Transit', width: 90 },
-  { field: 'arrivalDate', headerName: 'ArrivaL Date', width: 120 },
+  { field: 'arrivalDate', headerName: 'ArrivaL Date', width: 120,
+    valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+  },
   { field: 'trueCount', headerName: 'True Count', width: 80 },
   { field: 'minimum', headerName: 'Minimum', width: 80 },
   { field: 'maximum', headerName: 'Maximum', width: 80 },
@@ -137,7 +146,7 @@ function InventoryList(props){
       <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row', marginBottom: "5px"}}>
         <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Inventory</Button></form>
         <div>
-            <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredInventory(e.target.value)}></TextField>
+            <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' style={{marginRight: '4px'}} onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredInventory(e.target.value)}></TextField>
             <Button color="primary" variant="contained" onClick={e => updateSearchFilteredInventory(searchString)}>Search</Button>
         </div>
       </div>

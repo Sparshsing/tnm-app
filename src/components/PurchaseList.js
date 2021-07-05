@@ -12,6 +12,12 @@ import PurchaseForm from './PurchaseForm';
 import GridCellExpand from './GridCellExpand';
 import AuthenticationService from '../authentication-service';
 
+const formatDate = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  return mm + '/' + dd + '/' + yy;
+}
 
 
 function PurchaseList(props){
@@ -103,8 +109,12 @@ function PurchaseList(props){
     { field: 'company', headerName: 'Company', width: 200, renderCell: (params) => (<GridCellExpand limit={19} value={params.value ? params.value.toString() : ''} width={300} />)  },
     { field: 'warehouse', headerName: 'Warehouse', width: 150 },
     { field: 'ordered', headerName: 'Ordered', width: 150 },
-    { field: 'orderDate', headerName: 'Order Date', width: 150},
-    { field: 'arrivalDate', headerName: 'Arrival Date', width: 150 },
+    { field: 'orderDate', headerName: 'Order Date', width: 150,
+      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+    },
+    { field: 'arrivalDate', headerName: 'Arrival Date', width: 150,
+      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+    },
     { field: 'sfmId', headerName: 'SFM ID', hide: true, width: 300, renderCell: (params) => (<GridCellExpand limit={28} value={params.value ? params.value.toString() : ''} width={400} />)  }
   ];
 
@@ -295,7 +305,7 @@ function PurchaseList(props){
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import</Button></form>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchList(true)}></TextField>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' style={{marginRight: '4px'}} onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchList(true)}></TextField>
                 <Button color="primary" variant="contained" onClick={e => fetchList(true)}>Search</Button>
             </div>
           </div>

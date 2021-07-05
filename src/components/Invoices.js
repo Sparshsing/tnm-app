@@ -14,6 +14,12 @@ import { Redirect } from 'react-router-dom';
 import GridCellExpand from './GridCellExpand';
 import AuthenticationService from '../authentication-service';
 
+const formatDate = (dt) => {
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const mm = String(dt.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yy = String(dt.getFullYear()).substr(2,2);
+  return mm + '/' + dd + '/' + yy;
+}
 
 const getDeafultStartDate = () => {
   const d = new Date();
@@ -109,8 +115,12 @@ export default function Invoices(props){
             </div>);
         },
     },
-    { field: 'startDate', headerName: 'Start Date', width: 110 },
-    { field: 'endDate', headerName: 'End Date', width: 110 },
+    { field: 'startDate', headerName: 'Start Date', width: 110,
+        valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+    },
+    { field: 'endDate', headerName: 'End Date', width: 110,
+      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+    },
     { field: 'storeName', headerName: 'Store', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
     { field: 'status', headerName: 'Status', width: 110,
@@ -287,6 +297,7 @@ export default function Invoices(props){
             name="startDate"
             type="date"
             size="small"
+            style={{marginRight: '4px'}}
             value = {startDate}
             onChange={(e) => setStartDate(e.target.value)}
             InputLabelProps={{
@@ -300,13 +311,14 @@ export default function Invoices(props){
             name="endtDate"
             type="date"
             size="small"
+            style={{marginRight: '4px'}}
             value = {endDate}
             onChange={(e) => setEndDate(e.target.value)}
             InputLabelProps={{
               shrink: true,
             }}
           />
-          <Button color="primary" variant="contained" size="small" onClick={handleSubmit}>Generate Invoices</Button>
+          <Button color="primary" variant="contained" onClick={handleSubmit}>Generate Invoices</Button>
           <Dialog
             open={notesOpen}
             maxWidth='lg'

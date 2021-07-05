@@ -44,6 +44,9 @@ const useStyles = makeStyles({
   },
   tablecell: {
     padding: "6px"
+  },
+  searchInput: {
+    marginRight: '4px'
   }
 
 
@@ -374,7 +377,7 @@ function Printing(props){
               </Dialog>
             </div>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' className={classes.searchInput} onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
                 <Button color="primary" variant="contained" onClick={e => updateSearchFilteredOrders(searchString)}>Search</Button>
               </div>            
           </div>

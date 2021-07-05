@@ -220,7 +220,7 @@ function ProductDetails(props){
             </div>
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Products</Button></form>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredProducts(e.target.value)}></TextField>
+                <TextField variant="outlined" size="small" margin="none" type="text" style={{marginRight: '4px'}} value={searchString} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredProducts(e.target.value)}></TextField>
                 <Button color="primary" variant="contained" onClick={e => updateSearchFilteredProducts(searchString)}>Search</Button>
             </div>
           </div>}
