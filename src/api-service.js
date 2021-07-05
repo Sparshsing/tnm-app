@@ -148,8 +148,8 @@ export default class API{
     })
   }
 
-  static getOrderList(token){
-    return fetch(APIROOT + '/api/orders/', {
+  static getOrderList(token, urlparams){
+    return fetch(APIROOT + '/api/orders/?' + urlparams, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

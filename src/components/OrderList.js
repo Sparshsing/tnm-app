@@ -101,15 +101,14 @@ const columns = [
 
 function OrderList(props){
   const classes = useStyles();
-  
-  // { id: 1, style: 'dummy1', size: 'dummy ' },
-  // { id: 2, style: 'dummy2', size: 'dummy ' }
+
   const [orders, setOrders] = useState([]);
-  const [searchFilteredOrders, setSearchFilteredOrders] = useState([]);
   const [searchString, setSearchString] = useState('');
   const [token] = useCookies(['mr-token']);
   const [mode, setMode] = useState('none');
   const [open, setOpen] = useState(false);
+  const [totalcount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [myEditedRows, setMyEditedRows] = useState([]);
 
@@ -308,17 +307,28 @@ function OrderList(props){
       fetchlist()
     }
       
-  }, [mode, token]
+  }, [mode, token, page]
   );
 
-  useEffect(() => {
-    updateSearchFilteredOrders(searchString);      
-  }, [orders]
-  );
+  // useEffect(() => {
+  //   updateSearchFilteredOrders(searchString);      
+  // }, [orders]
+  // );
 
-  function fetchlist(){
+  function fetchlist(fromSearchBar=false){
+    if(fromSearchBar && page!=0){
+      setPage(0);
+      return;
+    }
     console.log('fetching details');
-    API.getOrderList(token['mr-token'])
+    let urlparams;
+    if(searchString){
+      urlparams = new URLSearchParams({page: page+1, search: searchString});
+    }        
+    else
+      urlparams = new URLSearchParams({page: page+1});
+
+    API.getOrderList(token['mr-token'], urlparams)
     .then(resp => {
       if(resp.status==200) return resp.json();
       if(resp.status==401) AuthenticationService.handleUnauthorized();
@@ -326,58 +336,46 @@ function OrderList(props){
     })
     .then(data => {
       //console.log(data); 
-      data.forEach((item, i) => item.id = item.orderId);
-      // data.sort(function(a,b){
-      //   if(!a['shipDate']){
-      //     console.log(a.orderId)
-      //     return -1;
-      //   }
-      //   if(!b['shipDate']) return -1;
-      //   return a.toString() > b.toString() ? -1 : 1;
-      // })
-      const sortBy = [
-        {prop:'shipDate', direction: -1},
-        {prop:'storeName', direction: 1}, 
-        {prop:'recipientName', direction: 1},
-      ];
-
-      data.sort(function(a,b){
-        let i = 0, result = 0;
-        if(!a['shipDate'] && !b['shipDate'])
-          i++;
-        else if(!a['shipDate'])
-          return -1;
-        else if(!b['shipDate'])
-          return 1;
-        while(i < sortBy.length && result === 0) {
-          result = sortBy[i].direction*(a[ sortBy[i].prop ].toString() < b[ sortBy[i].prop ].toString() ? -1 : (a[ sortBy[i].prop ].toString() > b[ sortBy[i].prop ].toString() ? 1 : 0));
-          i++;
-        }
-        return result;
-      })
-      return setOrders(data);
+      
+      
+      if(data['results']){
+        if(totalcount != data['count'])
+          setPage(0);
+        console.log('setting count', data['count'])
+        setTotalCount(data['count']);
+        data['results'].forEach((item, i) => item.id = item.orderId);
+        setOrders(data['results']);    
+      }
+      else{
+        console.error('error getting data')
+        console.error(data['detail'])
+        console.log('setting count', data['count'])
+        setPage(0);
+        setTotalCount(0);
+        setOrders([]);
+      }
     })
     .catch(e => {console.log("api error"); console.error(e)});
   }
 
-  const updateSearchFilteredOrders = (theSearchString) =>{
-    let rows = [...orders];
-    if(theSearchString!='')
-        rows = rows.filter(r => {
-          const str = theSearchString.toLowerCase()
-          return r.orderStatus.toLowerCase().search(str)>=0 ||
-          r.style.toLowerCase().search(str)>=0 ||
-          r.orderNo.toLowerCase().search(str)>=0 ||
-          r.storeName.toLowerCase().search(str)>=0 ||
-          r.recipientName.toLowerCase().search(str)>=0 ||
-          r.design.toLowerCase().search(str)>=0 ||
-          r.size.toLowerCase().search(str)>=0 ||
-          r.color.toLowerCase().search(str)>=0;
-        })
-    setMySelectedRows([]);
-    setMyEditedRows([]);
-    setSearchFilteredOrders(rows);
-  }
+  // const updateSearchFilteredOrders = (theSearchString) =>{
+  //   let rows = [...orders];
+  //   if(theSearchString!='')
+  //       rows = rows.filter(r => {
+  //         const str = theSearchString.toLowerCase()
+  //         return r.orderStatus.toLowerCase().search(str)>=0 ||
+  //         r.style.toLowerCase().search(str)>=0 ||
+  //         r.orderNo.toLowerCase().search(str)>=0 ||
+  //         r.storeName.toLowerCase().search(str)>=0 ||
+  //         r.recipientName.toLowerCase().search(str)>=0 ||
+  //         r.design.toLowerCase().search(str)>=0 ||
+  //         r.size.toLowerCase().search(str)>=0 ||
+  //         r.color.toLowerCase().search(str)>=0;
+  //       })
+  //   setMySelectedRows([]);
+  //   setMyEditedRows([]);
+  //   setSearchFilteredOrders(rows);
+  // }
 
   if(!token['mr-token'])
     return (<Redirect to='/signin'></Redirect>);
@@ -409,13 +407,13 @@ function OrderList(props){
             <form ><input type="file" name="myfile" id="myfile" onChange={fileChangeHandler} hidden></input><label htmlFor="myfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Orders</Button></form>
             <form ><input type="file" name="myShippingfile" id="myShippingfile" onChange={shippingFileChangeHandler} hidden></input><label htmlFor="myShippingfile" className="file-input-label">Choose File</label><Button type="submit" disabled={!isShippingFilePicked} onClick={handleUpload} color='primary' variant='contained'>Import Shipping Info</Button></form>
             <div>
-                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} className={classes.searchInput} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && updateSearchFilteredOrders(e.target.value)}></TextField>
-                <Button color="primary" variant="contained" onClick={e => updateSearchFilteredOrders(searchString)}>Search</Button>
+                <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} className={classes.searchInput} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchlist(true)}></TextField>
+                <Button color="primary" variant="contained" onClick={e => fetchlist(true)}>Search</Button>
             </div>
             </div>}
-          <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 100px)", minWidth:'600px'}} className={classes.root}>        
+          <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 110px)", minWidth:'600px'}} className={classes.root}>        
             <DataGrid
-              rows={searchFilteredOrders} columns={columns}
+              rows={orders} columns={columns}
               checkboxSelection 
               components={{ Toolbar: GridToolbar,}}
               density='compact'
@@ -424,6 +422,15 @@ function OrderList(props){
               onRowSelected={handleRowSelected}
               onEditCellChangeCommitted={handleEditCellChangeCommitted}
               disableColumnMenu={true}
+              pagination
+              page={page}
+              pageSize = {50}
+              rowsPerPageOptions={[]}
+              rowCount = {totalcount}
+              paginationMode="server"
+              onPageChange={(params) => {
+                setPage(params.page);
+              }}
               getRowClassName={(params) =>{
                 if(params.row.productAvailability=="Short" || params.row.productAvailability=="Out Of Stock")
                 return 'hot'
