@@ -210,8 +210,8 @@ export default class API{
     })
   }
 
-  static getInvoiceList(token){
-    return fetch(APIROOT + '/api/invoices/', {
+  static getInvoiceList(token, urlparams){
+    return fetch(APIROOT + '/api/invoices/?' + urlparams, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

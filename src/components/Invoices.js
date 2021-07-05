@@ -54,6 +54,9 @@ const useStyles = makeStyles({
   },
   inputbtn: {
     display: 'none',
+  },
+  searchInput: {
+    marginRight: '4px'
   }
 
 });
@@ -66,6 +69,9 @@ export default function Invoices(props){
   const [invoices, setInvoices] = useState([]);
   const [token] = useCookies(['mr-token']);
   const [message, setMessage] = useState('');
+  const [searchString, setSearchString] = useState('');
+  const [totalcount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
   const [notesOpen, setNotesOpen] = useState(false);
   const [notesText, setNotesText] = useState('');
   const [notesRowId, setNotesRowId] = useState(null);
@@ -227,14 +233,34 @@ export default function Invoices(props){
   useEffect(() => {
     props.setTitle('Invoices');
     fetchList();
-  }, []);
+  }, [token, page]);
 
-  const fetchList = async () => {
-    
+  const fetchList = async (fromSearchBar = false) => {
+    if(fromSearchBar && page!=0){
+      setPage(0);
+      return;
+    }
+
+    console.log('fetching details', page);
+    let urlparams;
+    if(searchString){
+      urlparams = new URLSearchParams({page: page+1, search: searchString});
+    }        
+    else
+      urlparams = new URLSearchParams({page: page+1});
+
     try{
-      const resp = await API.getInvoiceList(token['mr-token'])
-      if(resp.status==200)
-        setInvoices(await resp.json());
+      const resp = await API.getInvoiceList(token['mr-token'], urlparams)
+      if(resp.status==200){
+        const data = await resp.json()
+        if(data['results']){
+          if(totalcount != data['count'])
+            setPage(0);
+          console.log('setting count', data['count'])
+          setTotalCount(data['count']);
+          setInvoices(data['results']);    
+        }        
+      }
       else if(resp.status==401) AuthenticationService.handleUnauthorized();
       else throw 'Something went wrong';  
     }
@@ -289,13 +315,19 @@ export default function Invoices(props){
     <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', flexDirection: 'column'}}>
       {message!='' && <div style={{color:"red"}}>{message}</div>}
       {usertype==1 && 
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'baseline', flexWrap: 'wrap', flexDirection: 'row'}}>
-          <TextField
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', flexDirection: 'row', marginBottom: '8px'}}>
+          <div>
+            <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} className={classes.searchInput} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchList(true)}></TextField>
+            <Button color="primary" variant="contained" onClick={e => fetchList(true)}>Search</Button>
+          </div>
+          <div>  
+        <TextField
             variant="outlined"
             margin="normal"
             label="Start Date"
             name="startDate"
             type="date"
+            margin="none"
             size="small"
             style={{marginRight: '4px'}}
             value = {startDate}
@@ -310,6 +342,7 @@ export default function Invoices(props){
             label="End Date"
             name="endtDate"
             type="date"
+            margin="none"
             size="small"
             style={{marginRight: '4px'}}
             value = {endDate}
@@ -319,6 +352,7 @@ export default function Invoices(props){
             }}
           />
           <Button color="primary" variant="contained" onClick={handleSubmit}>Generate Invoices</Button>
+          </div>
           <Dialog
             open={notesOpen}
             maxWidth='lg'
@@ -337,10 +371,22 @@ export default function Invoices(props){
           </Dialog>
         </div>
       }
-      <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}} className={classes.root}>
-        <DataGrid rows={invoices} columns={columns} components={{
-          Toolbar: GridToolbar,
-        }} disableColumnMenu/>
+      <div style={{ width: '100%', minWidth:'600px', height:'calc(100vh - 110px)'}} className={classes.root}>
+        <DataGrid rows={invoices} columns={columns}
+          components={{
+            Toolbar: GridToolbar,
+          }}
+          pagination
+          page={page}
+          pageSize = {50}
+          rowsPerPageOptions={[]}
+          rowCount = {totalcount}
+          paginationMode="server"
+          onPageChange={(params) => {
+            setPage(params.page);
+          }} 
+          disableColumnMenu
+        />
       </div>
     </div>
   );
