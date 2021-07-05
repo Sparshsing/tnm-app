@@ -77,6 +77,7 @@ export default function Invoices(props){
   const [notesRowId, setNotesRowId] = useState(null);
   const [startDate, setStartDate] = useState(getDeafultStartDate());
   const [endDate, setEndDate] = useState(getDeafultEndDate());
+  const [loading, setLoading] = useState(false);
   const usertype = props.usertype;
 
   const columns = [
@@ -250,6 +251,7 @@ export default function Invoices(props){
       urlparams = new URLSearchParams({page: page+1});
 
     try{
+      setLoading(true);
       const resp = await API.getInvoiceList(token['mr-token'], urlparams)
       if(resp.status==200){
         const data = await resp.json()
@@ -258,6 +260,7 @@ export default function Invoices(props){
             setPage(0);
           console.log('setting count', data['count'])
           setTotalCount(data['count']);
+          setLoading(false);
           setInvoices(data['results']);    
         }        
       }
@@ -268,6 +271,7 @@ export default function Invoices(props){
       console.log("api error");
       console.error(e);
       setMessage('Something went wrong. Please refresh.');
+      setLoading(false);
     }
   }
 
@@ -376,6 +380,7 @@ export default function Invoices(props){
           components={{
             Toolbar: GridToolbar,
           }}
+          loading={loading}
           pagination
           page={page}
           pageSize = {50}

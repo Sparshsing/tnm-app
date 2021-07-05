@@ -33,6 +33,7 @@ function PurchaseList(props){
   const [recordDetails, setRecordDetails] = useState({});
   const [totalcount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
@@ -246,6 +247,7 @@ function PurchaseList(props){
     else
       urlparams = new URLSearchParams({page: page+1});
     
+    setLoading(true);
     API.getPurchasesList(token['mr-token'], urlparams)
     .then(resp => {
       if(resp.status==200) return resp.json();
@@ -273,10 +275,9 @@ function PurchaseList(props){
         setTotalCount(0);
         setPurchases([]);
       }
-      
-      
+      setLoading(false);      
     })
-    .catch(e => {console.log("api error"); console.error(e); setMessage(String(e))});    
+    .catch(e => {console.log("api error"); console.error(e); setMessage(String(e)); setLoading(false);});    
   }
 
   if(!token['mr-token'])
@@ -313,6 +314,7 @@ function PurchaseList(props){
             <DataGrid rows={purchases} columns={columns} checkboxSelection onSelectionModelChange={handleSelection} disableSelectionOnClick={true} disableColumnMenu
             autoHeight
             components={{ Toolbar: GridToolbar}}
+            loading={loading}
             pagination
             page={page}
             pageSize = {50}

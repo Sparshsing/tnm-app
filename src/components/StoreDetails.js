@@ -34,6 +34,8 @@ function StoreDetails(props){
   const [mode, setMode] = useState('none');
   const [selectedStore, setSelectedStore] = useState('');
   const [mySelectedRows, setMySelectedRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+
 
   const updatebtnClicked = (e) => {
     console.log("update clicked");
@@ -51,7 +53,7 @@ function StoreDetails(props){
 
   useEffect(() => {
     props.setTitle('Stores');
-
+    setLoading(true);
     API.getStoreList(token['mr-token'])
     .then(resp => {
       if(resp.status==200) return resp.json();
@@ -62,11 +64,11 @@ function StoreDetails(props){
       console.log(data);
       // client permission to filter only his store, is handled in api
       data.forEach((item, i) => item.id = i+1);
-      
-      return setStores(data);
+      setStores(data);
+      setLoading(false);
     })
-    .catch(e => {console.log("api error"); console.error(e)});
-  }, [mode]
+    .catch(e => {console.log("api error"); console.error(e); setLoading(false);});
+  }, [mode, token]
   );
 
   const usertype = props.usertype;
@@ -83,7 +85,7 @@ function StoreDetails(props){
         <div style={{  width: '100%', minWidth:'600px', height: "calc(100vh - 100px"}}>
           <DataGrid rows={stores} columns={columns} components={{
             Toolbar: GridToolbar,
-          }} checkboxSelection onSelectionModelChange={handleSelection} disableColumnMenu/>
+          }} checkboxSelection onSelectionModelChange={handleSelection} disableColumnMenu loading={loading}/>
         </div>
       </div>
       :

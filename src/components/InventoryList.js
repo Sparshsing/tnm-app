@@ -44,6 +44,7 @@ function InventoryList(props){
   const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [token] = useCookies(['mr-token']);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ function InventoryList(props){
   );
 
   const fetchlist = () => {
+    setLoading(true);
     API.getInventoryList(token['mr-token'])
     .then(resp => {
       if(resp.status==200) return resp.json();
@@ -64,9 +66,10 @@ function InventoryList(props){
       console.log(data); 
       // data.forEach((item, i) => item.id = item.sfmId);
       
-      return setproductInventory(data);
+      setproductInventory(data);
+      setLoading(false);
     })
-    .catch(e => {console.log("api error"); setMessage('Something went wrong');console.error(e)});
+    .catch(e => {console.log("api error"); setMessage('Something went wrong');console.error(e); setLoading(false);});
   }
 
   useEffect(() => {
@@ -153,7 +156,7 @@ function InventoryList(props){
       <div style={{  width: '100%', minWidth:'600px', height:'calc(100vh - 100px)'}}>        
         <DataGrid rows={searchFilteredInventory} columns={columns} components={{
           Toolbar: GridToolbar,
-        }} disableColumnMenu />
+        }} disableColumnMenu loading={loading}/>
       </div>
     </div>      
   );

@@ -117,6 +117,7 @@ function OrderList(props){
   const [selectedShippingFile, setSelectedShippingFile] = useState(null);
   const [isShippingFilePicked, setIsShippingFilePicked] = useState(false);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const usertype = props.usertype;
 
@@ -327,7 +328,7 @@ function OrderList(props){
     }        
     else
       urlparams = new URLSearchParams({page: page+1});
-
+    setLoading(true);
     API.getOrderList(token['mr-token'], urlparams)
     .then(resp => {
       if(resp.status==200) return resp.json();
@@ -352,10 +353,11 @@ function OrderList(props){
         console.log('setting count', data['count'])
         setPage(0);
         setTotalCount(0);
-        setOrders([]);
+        setOrders([]);        
       }
+      setLoading(false);
     })
-    .catch(e => {console.log("api error"); console.error(e)});
+    .catch(e => {console.log("api error"); console.error(e); setLoading(false);});
   }
 
   // const updateSearchFilteredOrders = (theSearchString) =>{
@@ -414,6 +416,7 @@ function OrderList(props){
           <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 110px)", minWidth:'600px'}} className={classes.root}>        
             <DataGrid
               rows={orders} columns={columns}
+              loading={loading}
               checkboxSelection 
               components={{ Toolbar: GridToolbar,}}
               density='compact'

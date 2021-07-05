@@ -35,6 +35,7 @@ function ProductDetails(props){
   const [mode, setMode] = useState('none');
   const [mySelectedRows, setMySelectedRows] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState(null);
 	const [isFilePicked, setIsFilePicked] = useState(false);
@@ -106,6 +107,7 @@ function ProductDetails(props){
 	};
 
   function fetchlist(){
+    setLoading(true);
     API.getProductList(token['mr-token'])
     .then(resp => {
       if(resp.status==200) return resp.json();
@@ -115,9 +117,10 @@ function ProductDetails(props){
     .then(data => {
       console.log(data); 
       // data.forEach((item, i) => item.id = item.sfmId);
+      setLoading(false);
       setProducts(data);
     })    
-    .catch(e => {console.log("api error"); console.error(e)});
+    .catch(e => {console.log("api error"); console.error(e); setLoading(false);});
   }
   
   useEffect(() => {
@@ -227,7 +230,7 @@ function ProductDetails(props){
           <div style={{  width: '100%', minWidth:'600px', height: 'calc(100vh - 140px'}}>
             <DataGrid rows={searchFilteredProducts} columns={usertype==1 ? columns : restrictedColumns} checkboxSelection components={{
               Toolbar: GridToolbar,
-            }} onSelectionModelChange={handleSelection} disableColumnMenu={true} disableSelectionOnClick/>
+            }} onSelectionModelChange={handleSelection} disableColumnMenu={true} disableSelectionOnClick loading={loading}/>
           </div>
         </div>
         :
