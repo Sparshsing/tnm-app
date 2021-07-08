@@ -91,7 +91,7 @@ export default function SignIn() {
     })
     .catch(error => {
       console.error(error);
-      setErrormsg('Server Error');
+      setErrormsg(String(error));
       setLoading(false);
     });
   }

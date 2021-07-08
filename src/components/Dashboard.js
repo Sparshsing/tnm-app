@@ -18,14 +18,13 @@ const getDeafultStartDate = () => {
 function Dashboard(props){
 
   const [token] = useCookies(['mr-token']);
-  const [userInfo] = useCookies(['mr-user']);
   const usertype = props.usertype;
 
   const [errormsg, setErrormsg] = useState('');
   const [loading, setLoading] = useState(true);
   const [availableStores, setAvailableStores] = useState([]);
   const [inventory, setInventory] = useState([]);
-  const [selectedStore, setSelectedStore] = useState('');
+  const [selectedStore, setSelectedStore] = useState('All');
   
   const [startDate, setStartDate] = useState(getDeafultStartDate());
   const [endDate, setEndDate] = useState('');
@@ -41,18 +40,10 @@ function Dashboard(props){
           if(stores.length==0){
             throw 'No stores available';
           }
-          if(usertype==0){
-            const userid = userInfo['mr-user'].split('-')[0];
-            stores = stores.filter(s => s.user==userid);
-          }
           else
             stores.unshift({storeName:'All', storeCode:'All'});
           setAvailableStores(stores);
-          let defaultStore = stores[0].storeCode;
-          if(usertype==1)
-            defaultStore = 'All';
-          setSelectedStore(defaultStore);
-          displaysummary(defaultStore, startDate, endDate);
+          displaysummary(selectedStore, startDate, endDate);
         }
         else if(resp.status==401) AuthenticationService.handleUnauthorized();
         else throw 'Something went wrong';
@@ -122,55 +113,55 @@ function Dashboard(props){
         <div>
           {errormsg && <h3 style={{color:"red"}}>{errormsg}</h3>}
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-around', alignItems: "center"}}>
-          <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          select
-          style={{minWidth: "250px"}}
-          label="Store"
-          name="store"
-          value={selectedStore}
-          onChange={storeChanged}
-          >
-            {availableStores.map((option) => (
-              <MenuItem key={option.storeCode} value={option.storeCode}>
-                {option.storeName}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
+            <TextField
             variant="outlined"
             margin="normal"
-            label="Start Date"
-            name="startDate"
-            type="date"
-            value = {startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            label="End Date"
-            name="endtDate"
-            type="date"
-            value = {endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-          >
-          Submit
-          </Button>
+            required
+            select
+            style={{minWidth: "250px"}}
+            label="Store"
+            name="store"
+            value={selectedStore}
+            onChange={storeChanged}
+            >
+              {availableStores.map((option) => (
+                <MenuItem key={option.storeCode} value={option.storeCode}>
+                  {option.storeName}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              label="Start Date"
+              name="startDate"
+              type="date"
+              value = {startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              label="End Date"
+              name="endtDate"
+              type="date"
+              value = {endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+            >
+            Submit
+            </Button>
           </div>
           <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
             <Typography variant="h4">
@@ -203,7 +194,7 @@ function Dashboard(props){
                 {inventory.length>0 && [...new Set(inventory.map(i => i.style))].length}
               </Typography>
               <Typography>
-              <strong>Store Count &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{recievedData.storecount}
+              <strong>Store Count &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: </strong>{availableStores.length}
               </Typography>
             </Paper>
             <Paper style={{padding:"10px", margin: "5px", marginTop: "15px"}}>
@@ -211,12 +202,14 @@ function Dashboard(props){
                 <strong>Inventory Needs</strong>
               </Typography>
               <table style={{padding: "20px"}}>
+              <tbody>
               {inventory.length>0 && inventory.filter(inv => inv.needToPurchase>0).map( (i) => (
                   <tr key={i.sfmId}>
                     <td><strong>{i.style} - {i.size} - {i.color} {}</strong></td>
                     <td><strong>: </strong>{i.needToPurchase}</td>
                   </tr>
               ))}
+              </tbody>
               </table>
             </Paper>
           </div>

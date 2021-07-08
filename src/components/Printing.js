@@ -35,19 +35,21 @@ const useStyles = makeStyles({
   redbtn: {
     color: "white",
     background: "red",
-    float: "right"
   },
   greenbtn: {
     color: "white",
     background: "green",
-    float: "right"
   },
   tablecell: {
     padding: "6px"
   },
   searchInput: {
     marginRight: '4px'
-  }
+  },
+  tablecellCentered: {
+    padding: "6px",
+    textAlign: "center"
+  },
 
 
 });
@@ -415,9 +417,9 @@ function Printing(props){
               </TableHead>
               <TableBody>
                 { searchFilteredOrders.map((row, i, arr) => {
-                  let showSpan = false;
+                  let newGroup = false;
                   if(i==nextGroup){
-                    showSpan = true;
+                    newGroup = true;
                     for(let j=i+1;j<arr.length; j++){
                       if(row.orderNo!=arr[j].orderNo || row.storeName!=arr[j].storeName 
                         || row.recipientName!=arr[j].recipientName){
@@ -428,23 +430,23 @@ function Printing(props){
                   }
                   return (
                     <TableRow key={row.orderId}>
-                    <TableCell className={classes.tablecell} style={{borderColor: 'white', borderColor: 'white'}}>
+                    <TableCell className={classes.tablecell} style= {nextGroup!=i+1 ? {borderBottomColor: 'white'}: {}}>
                       <Checkbox
                         inputProps={{ 'data-oid' : row.orderId }}
                         onChange={handleCheckboxClick}
                       />
                     </TableCell>
-                    <TableCell style={{ whiteSpace : 'nowrap', borderColor: 'white'}} className={classes.tablecell}>{row.displayStatus}</TableCell>
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.storeName}</TableCell>}
-                    {showSpan && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
+                    <TableCell style={ nextGroup!=i+1 ? { whiteSpace : 'nowrap', borderBottomColor: 'white'}: { whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.displayStatus}</TableCell>
+                    {newGroup && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}>{row.storeName}</TableCell>}
+                    {newGroup && <TableCell style={{ whiteSpace : 'nowrap'}} rowSpan={nextGroup-i} className={classes.tablecell}><div >{row.recipientName}</div><div>{row.orderNo}</div><div>{row.orderCount}</div></TableCell>}
                     <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.style}</TableCell>
                     <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.size}</TableCell>
                     <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.color}</TableCell>
                     <TableCell style={{ whiteSpace : 'nowrap'}} className={classes.tablecell}>{row.design}</TableCell>
                     <TableCell style={{  maxWidth: '50px'}} className={classes.tablecell}>{row.giftMessages && <EmailIcon />}</TableCell>
-                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} className={row.processing=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.processing}</Button></TableCell>
-                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} className={row.printed=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.printed}</Button></TableCell>
-                    <TableCell className={classes.tablecell}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
+                    <TableCell className={classes.tablecellCentered}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"processing"} className={row.processing=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.processing}</Button></TableCell>
+                    <TableCell className={classes.tablecellCentered}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"printed"} className={row.printed=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.printed}</Button></TableCell>
+                    <TableCell className={classes.tablecellCentered}><Button onClick={handleSpecialButtonsClick} data-oid={row.orderId} data-btype={"shipped"} className={row.shipped=='Y' ? classes.greenbtn : classes.redbtn} variant="contained">{row.shipped}</Button></TableCell>
                     <TableCell className={classes.tablecell}>{row.productAvailability}</TableCell>
                     <TableCell className={classes.tablecell} style={{ maxWidth : '150px', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
                       {row.sfmNotes ? <Button onClick={handleNotesClick} data-oid={row.orderId}>{row.sfmNotes.substring(0,13) + '...'}</Button>
