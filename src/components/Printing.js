@@ -32,6 +32,12 @@ const useStyles = makeStyles({
     fontSize: "1rem",
     padding: "6px"
   },
+  headcellCentered: {
+    fontWeight: "bold",
+    fontSize: "1rem",
+    padding: "6px",
+    textAlign: "center"
+  },
   redbtn: {
     color: "white",
     background: "red",
@@ -408,9 +414,9 @@ function Printing(props){
                   <TableCell className={classes.headcell} >Color</TableCell>
                   <TableCell className={classes.headcell} >Design</TableCell>
                   <TableCell className={classes.headcell} >Msg</TableCell>
-                  <TableCell className={classes.headcell} >Processed</TableCell>
-                  <TableCell className={classes.headcell} >Printed</TableCell>
-                  <TableCell className={classes.headcell} >Shipped</TableCell>
+                  <TableCell className={classes.headcellCentered} >Processed</TableCell>
+                  <TableCell className={classes.headcellCentered} >Printed</TableCell>
+                  <TableCell className={classes.headcellCentered} >Shipped</TableCell>
                   <TableCell className={classes.headcell} >Product Availability</TableCell>
                   <TableCell className={classes.headcell} >Notes</TableCell>
                 </TableRow>

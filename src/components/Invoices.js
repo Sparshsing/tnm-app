@@ -96,7 +96,7 @@ export default function Invoices(props){
     //         </Button>);
     //     },
     // },
-    { field: 'receipt', headerName: 'Receipt', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
+    { field: 'attachment', headerName: 'View Invoice', width: 110,
         renderCell: (params) => {
             return(
             <Link
@@ -109,19 +109,8 @@ export default function Invoices(props){
             </Link>);
         },
     },
-    { field: 'uploadbtn', headerName: 'Upload', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
-        renderCell: (params) => {
-          return(
-            <div>
-            <input type="file" name={"myfile"+params.id} id={"myfile"+params.id} onChange={handleReceiptUpload} className={classes.inputbtn} data-pid={params.id}/>
-            <label htmlFor={"myfile"+params.id}>
-              <IconButton color="primary" aria-label="upload file" component="span" >
-                <CloudUploadOutlinedIcon/>
-              </IconButton>
-            </label>
-            </div>);
-        },
-    },
+    
+    
     { field: 'startDate', headerName: 'Start Date', width: 110,
         valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
     },
@@ -145,9 +134,25 @@ export default function Invoices(props){
       },
     },
     { field: 'total', headerName: 'Total', width: 110 },
-    { field: 'attachment', headerName: 'View PDF', width: 110,
+    { field: 'notes', headerName: 'Notes', width: 200,
+      renderCell: (params) => (params.value ? <Button onClick={handleNotesClick} data-oid={params.id}>{params.value.substring(0,14) + '...'}</Button>: <IconButton color='primary' variant='contained' onClick={handleNotesClick} data-oid={params.id}><AddCircleIcon /></IconButton>)
+    },  
+    { field: 'uploadbtn', headerName: 'Upload Attachment', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
         renderCell: (params) => {
-            return(
+          return(
+            <div>
+            <input type="file" name={"myfile"+params.id} id={"myfile"+params.id} onChange={handleReceiptUpload} className={classes.inputbtn} data-pid={params.id}/>
+            <label htmlFor={"myfile"+params.id}>
+              <IconButton color="primary" aria-label="upload file" component="span" >
+                <CloudUploadOutlinedIcon/>
+              </IconButton>
+            </label>
+            </div>);
+        },
+    },
+    { field: 'receipt', headerName: 'View Attachment', width: 70, cellClassName: 'compactcell', headerClassName: 'compactcell',
+        renderCell: (params) => {
+            return( params.value ?
             <Link
               size="small"
               href={params.value}
@@ -155,12 +160,10 @@ export default function Invoices(props){
               rel="noopener noreferrer"
             >
               Open
-            </Link>);
+            </Link>: <div></div>);
         },
     },
-    { field: 'notes', headerName: 'Notes', width: 200,
-      renderCell: (params) => (<Button onClick={handleNotesClick} data-oid={params.id}>{params.value.substring(0,14) + '...'}</Button>)
-    },    
+      
   ];
 
   const handleStatusChange = (e) => {
@@ -171,16 +174,16 @@ export default function Invoices(props){
     API.updateInvoice(token['mr-token'], pid, newRow)
       .then(resp => {
         if(resp.status==200) return resp.json();
-        if(resp.status==400) throw JSON.stringify(resp.json());
+        if(resp.status==400) throw JSON.stringify('Invalid data');
         else throw 'Unknown reason. Please refresh';
       })
       .then(data => {
         console.log(data);
-        alert("Status Changed Successfully");
+        //alert("Status Changed Successfully");
         setMessage("Status Changed Successfully");
         fetchList();
       })
-      .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
+      .catch(err => {console.log('api error');console.error(err); alert('Something went wrong, ' + String(err)); setMessage('Something went wrong, ' + String(err))});
 
     console.log(e.target.value);
   }
@@ -287,8 +290,6 @@ export default function Invoices(props){
 
   const handleNotesSave = (e) => {
 
-    if(notesText=='')
-      return;
     const notes = notesText;
     const pid = notesRowId;
     const rowdata = invoices.find(i => i.id == pid);
@@ -304,7 +305,7 @@ export default function Invoices(props){
         if(badData)
           throw JSON.stringify(data);
         console.log(data);
-        alert("Notes Updated Successfully");
+        //alert("Notes Updated Successfully");
         setMessage("Notes Updated Successfully");
         fetchList();
       })
@@ -365,7 +366,7 @@ export default function Invoices(props){
           >
             <DialogTitle>Notes</DialogTitle>
             <DialogContent>
-            <TextField multiline value={notesText} text='Notes' variant='outlined' rows={4} fullWidth={true} helperText='Notes cannot be empty'
+            <TextField multiline value={notesText} text='Notes' variant='outlined' rows={4} fullWidth={true}
               onChange={(e) => setNotesText(e.target.value)}></TextField>
             </DialogContent>
             <DialogActions>

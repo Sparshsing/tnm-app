@@ -48,10 +48,11 @@ function ProductDetails(props){
     { field: 'size', headerName: 'Size', width: 150},
     { field: 'color', headerName: 'Color', width: 150},
     { field: 'sku', headerName: 'SKU', width: 150 },
+    { field: 'amountInStock', headerName: 'Amount In Stock', width: 150, type: 'number'}
   ];
 
   if(usertype==0) 
-    restrictedColumns.push({ field: 'price', headerName: 'Price', width: 150});
+    restrictedColumns.splice(4, 0, { field: 'price', headerName: 'Price', width: 150});
 
   const fileChangeHandler = (event) => {
     if(event.target.files.length==1){
