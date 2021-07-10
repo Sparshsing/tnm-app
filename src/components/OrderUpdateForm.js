@@ -32,7 +32,7 @@ export default function OrderUpdateForm(props){
   const styleref = useRef(null);
   const sizeref = useRef(null);
   const colorref = useRef(null);
-  const statuses = ['Unfulfilled', 'Processed', 'Printed', 'Shipped', 'Cancelled'];
+  const statuses = ['Unfulfilled', 'Processed', 'Printed', 'Shipped', 'Cancelled', 'On Hold'];
 
 
   let badData = false;
@@ -596,6 +596,47 @@ export default function OrderUpdateForm(props){
           <TextField
             variant="outlined"
             margin="normal"
+            fullWidth
+            id="saleDate"
+            label="Sale Date"
+            name="saleDate"
+            type="date"
+            helperText = {errormsg['saleDate'] ? errormsg['saleDate'][0]:''}
+            error = {errormsg['saleDate'] ? true: false}
+            defaultValue = {data['saleDate']}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="orderNo"
+            label="Order No"
+            name="orderNo"
+            inputProps={{maxLength:20}}
+            helperText = {errormsg['orderNo'] ? errormsg['orderNo'][0]:''}
+            error = {errormsg['orderNo'] ? true: false}
+            defaultValue = {data['orderNo']}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="recipientName"
+            label="Recipient Name"
+            name="recipientName"
+            inputProps={{maxLength:50}}
+            helperText = {errormsg['recipientName'] ? errormsg['recipientName'][0]:''}
+            error = {errormsg['recipientName'] ? true: false}
+            defaultValue = {data['recipientName']}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
             required
             fullWidth
             select
@@ -676,8 +717,6 @@ export default function OrderUpdateForm(props){
             Submit
           </Button>
         </form>
-        
-        
       }
     </div>); 
 }

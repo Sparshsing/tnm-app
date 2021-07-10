@@ -118,7 +118,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '5px',
   },
   container: {
-    paddingTop: theme.spacing(2),
+    paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(0),
     paddingLeft: '0px',
     paddingRight: '0px',

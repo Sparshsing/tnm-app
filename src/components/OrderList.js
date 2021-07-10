@@ -281,17 +281,33 @@ function OrderList(props){
   const handleClose = (e) => {setOpen(false)}
   const handleDeleteConfirm = (e) => {
     console.log('u confirmed delete');
-      mySelectedRows.forEach( rowId => {
-        API.deleteOrder(token['mr-token'], rowId)
-        .then( resp => {
-          if(resp.status==200 || resp.status==204)
+    let errors = [];
+    const deletRows = async () => {
+      for(let rowId of mySelectedRows){
+        try{
+          const resp = await API.deleteOrder(token['mr-token'], rowId);
+          if(resp.status==200 || resp.status==204){
             console.log(`deleted order with id ${rowId}`);
-          else
+          }          
+          else{
             console.log(`Failed to delete order with id ${rowId}`);
-        })
-        .catch(e => console.error(`could not delete order id ${rowId}`, e))
-      });
-      setOpen(false);
+            throw `Failed to delete order with id ${rowId}`;
+          }
+        }
+        catch(e){
+          console.error(`could not delete order id ${rowId}`, e);
+          errors.push(`could not delete order id ${rowId}`);
+        }
+      }
+
+      if(errors.length>0)
+        setMessage('Some rows were not deleted\n' + errors.toString() + ' Please refresh');
+      else
+        setMessage('Deleted successfully. Please refresh');
+    }
+    setOpen(false);
+    deletRows();
+    
   }
 
   const handleSelection = (items) => {
@@ -387,7 +403,12 @@ function OrderList(props){
       {message=='' ? '' : <div style={{color:"red"}}>{message}</div>}
       { mode=='none' ?
         <div>
-          {usertype==0 && <IconButton style={{ marginBottom:'10px'}} color='primary' variant='contained' disabled={mySelectedRows.length==1 && myEditedRows[0].processing=='N'? false:true} onClick={handleUpdateClick}><EditIcon /></IconButton>}
+          {usertype==0 && 
+            <div>
+            <IconButton color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
+            <IconButton color='primary' variant='contained' disabled={mySelectedRows.length==1 && (myEditedRows[0].shipped=='N' || myEditedRows[0].printed=='N' || myEditedRows[0].processing=='N') ? false:true} onClick={handleUpdateClick}><EditIcon /></IconButton>
+            </div>
+          }
           {usertype!=0 && <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', flexDirection: 'row'}}>
             <IconButton style={{ width: '60px'}} color='primary' variant='contained' onClick={handleAddClick}><AddCircleIcon /></IconButton>
             <IconButton color='primary' variant='contained' disabled={mySelectedRows.length==1 ? false:true} onClick={handleUpdateClick}><EditIcon /></IconButton>
@@ -412,7 +433,8 @@ function OrderList(props){
                 <TextField variant="outlined" size="small" margin="none" type="text" value={searchString} className={classes.searchInput} text='Search' onChange={(e) => setSearchString(e.target.value)} onKeyPress={e => e.key=="Enter" && fetchlist(true)}></TextField>
                 <Button color="primary" variant="contained" onClick={e => fetchlist(true)}>Search</Button>
             </div>
-            </div>}
+            </div>
+          }
           <div style={{ width: '100%', padding: "5px",  height: "calc(100vh - 110px)", minWidth:'600px'}} className={classes.root}>        
             <DataGrid
               rows={orders} columns={columns}
@@ -444,7 +466,7 @@ function OrderList(props){
         </div>
         :
         (mode=='add' ? 
-          <OrderForm mode={mode} setMode={setMode}></OrderForm>
+          <OrderForm mode={mode} setMode={setMode} usertype={usertype}></OrderForm>
           :
           <OrderUpdateForm id={mySelectedRows[0]} mode={mode} setMode={setMode} usertype={usertype}></OrderUpdateForm>
         )

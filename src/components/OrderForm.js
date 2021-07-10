@@ -32,6 +32,7 @@ export default function OrderForm(props){
   const colorref = useRef(null);
   const statuses = ['Unfulfilled', 'Processed', 'Printed', 'Shipped'];
   let badData = false;
+  const usertype = props.usertype;
   console.log("opened form");
 
   useEffect(() => {
@@ -107,6 +108,9 @@ export default function OrderForm(props){
     }
     if(dataObject['saleDate'] == "")
       dataObject['saleDate'] = null;
+    if(usertype==0){
+      dataObject = {...dataObject, processing:"N", printed:"N", shipped:"N", sfmNotes:"", buyerName:"", buyerEmail:"", buyerComments:"", giftMessages:"", sku:"", priorityShip:"" }
+    }
     // if(dataObject['shipDate'] == "")
     //   dataObject['shipDate'] = null;
     // else
@@ -119,7 +123,6 @@ export default function OrderForm(props){
 
     console.log("sending data");
     console.log(dataObject);
-
     if(props.mode=='update')
       API.updateOrder(token['mr-token'], props.id, dataObject)
       .then(resp => {
@@ -330,6 +333,8 @@ export default function OrderForm(props){
         helperText = {errormsg['design'] ? errormsg['design'][0]:''}
         error = {errormsg['design'] ? true: false}
       />
+      {usertype!=0 &&
+      <div>
       <TextField
         variant="outlined"
         margin="normal"        
@@ -506,7 +511,8 @@ export default function OrderForm(props){
         helperText = {errormsg['productAvailability'] ? errormsg['productAvailability'][0]:''}
         error = {errormsg['productAvailability'] ? true: false}
       />*/}
-      
+      </div>
+      }
       <Button
         type="submit"
         fullWidth
