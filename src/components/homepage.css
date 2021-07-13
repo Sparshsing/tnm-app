@@ -1,43 +1,49 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700');
-
 .hpcontainer {
   padding: 1vw;
   position: absolute;
   top: 50%;
   left: 50%;
+  font-family: monospace;
+  font-size: 60px;
   margin-right: -50%;
   transform: translate(-50%, -50%);
 }
 
-.hpbackground-color p {
-  color: rgb(0, 0, 0);
-  font-family: 'montserrat';
-  font-size: 3vw;
-  font-weight: bold;
-  letter-spacing: 1vw;
-  max-width: 700px;
-  text-align: center;
-  background: rgba(255, 253, 160, 1);
-  background: -webkit-linear-gradient( left, #003cff 0%, #0ba318 25%, #ee6399 50%, #0011ff 100%) repeat;
-  -webkit-background-clip: text;
-  -ms-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -ms-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
-  text-fill-color: transparent;
-  -webkit-animation-name: masked-animation;
-  -webkit-animation-duration: 50s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-timing-function: linear;
+.hpbackground-color{
+  -webkit-animation: color-change 3s infinite;
+  -moz-animation: color-change 3s infinite;
+  -o-animation: color-change 3s infinite;
+  -ms-animation: color-change 3s infinite;
+  animation: color-change 3s infinite;
 }
 
-@-webkit-keyframes masked-animation {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: -8000px -3000px;
-  }
+@-webkit-keyframes color-change {
+  0% { color: rgb(17, 0, 255); }
+  30% { color: rgb(218, 78, 36); }
+  70% { color: rgb(219, 37, 219); }
+  100% { color: rgb(29, 124, 231); }
+}
+@-moz-keyframes color-change {
+  0% { color: rgb(17, 0, 255); }
+  30% { color: rgb(218, 78, 36); }
+  70% { color: rgb(219, 37, 219); }
+  100% { color: rgb(29, 124, 231); }
+}
+@-ms-keyframes color-change {
+  0% { color: rgb(17, 0, 255); }
+  30% { color: rgb(218, 78, 36); }
+  70% { color: rgb(219, 37, 219); }
+  100% { color: rgb(29, 124, 231); }
+}
+@-o-keyframes color-change {
+  0% { color: rgb(17, 0, 255); }
+  30% { color: rgb(218, 78, 36); }
+  70% { color: rgb(219, 37, 219); }
+  100% { color: rgb(29, 124, 231); }
+}
+@keyframes color-change {
+  0% { color: rgb(17, 0, 255); }
+  30% { color: rgb(218, 78, 36); }
+  70% { color: rgb(219, 37, 219); }
+  100% { color: rgb(29, 124, 231); }
 }
