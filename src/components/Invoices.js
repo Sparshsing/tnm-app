@@ -178,7 +178,7 @@ export default function Invoices(props){
         else throw 'Unknown reason. Please refresh';
       })
       .then(data => {
-        console.log(data);
+        // console.log(data);
         //alert("Status Changed Successfully");
         setMessage("Status Changed Successfully");
         fetchList();
@@ -205,7 +205,7 @@ export default function Invoices(props){
         else throw 'Unknown reason. Please refresh';
       })
       .then(data => {
-        console.log(data);
+        // console.log(data);
         alert("File Uploaded Successfully");
         setMessage('File Uploaded Successfully');
         fetchList();
@@ -304,7 +304,7 @@ export default function Invoices(props){
       .then(data => {
         if(badData)
           throw JSON.stringify(data);
-        console.log(data);
+        // console.log(data);
         //alert("Notes Updated Successfully");
         setMessage("Notes Updated Successfully");
         fetchList();

@@ -64,7 +64,7 @@ export default function OrderForm(props){
     API.getStoreList(token['mr-token'])
     .then(resp => resp.json())
     .then(data => {
-      console.log(data); 
+      // console.log(data); 
       
       return setAvailableStores(data);
     })

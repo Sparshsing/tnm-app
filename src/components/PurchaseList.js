@@ -124,7 +124,7 @@ function PurchaseList(props){
     let rowdata = purchases.find(p => p.id == pid);
     const status = rowdata.status=='In Transit' ? 'Received': 'In Transit'
     const newRow = {...rowdata, status}
-    console.log(newRow);
+    // console.log(newRow);
     API.updatePurchase(token['mr-token'], pid, newRow)
       .then(resp => {
         if(resp.status==200) return resp.json();
@@ -138,7 +138,7 @@ function PurchaseList(props){
           return row;
         });
         setMessage('updated purchase');
-        console.log(updatedRows.map(x => x.id));
+        // console.log(updatedRows.map(x => x.id));
         setPurchases(updatedRows);
       })
       .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong, ' + String(err))});
@@ -255,7 +255,7 @@ function PurchaseList(props){
       throw 'Something went wrong';    
     })
     .then(data => {
-      console.log(data);
+      // console.log(data);
       // not needed as purchases object already contains field called id
       // data.forEach((item, i) => item.id = i+1);
       setMySelectedRows([]);

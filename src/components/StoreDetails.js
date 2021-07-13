@@ -61,7 +61,7 @@ function StoreDetails(props){
       throw 'Something went wrong';    
     })
     .then(data => {
-      console.log(data);
+      // console.log(data);
       // client permission to filter only his store, is handled in api
       data.forEach((item, i) => item.id = i+1);
       setStores(data);

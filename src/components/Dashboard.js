@@ -73,7 +73,7 @@ function Dashboard(props){
   );
 
   const storeChanged = (e) => {
-    console.log(e.target.value);
+    // console.log(e.target.value);
     setSelectedStore(e.target.value);
   }
 
@@ -85,7 +85,7 @@ function Dashboard(props){
   }
 
   const displaysummary = (store, startDate, endDate) =>{
-    console.log(store);
+    // console.log(store);
     if(store==''){
       setErrormsg('Please choose a store');
       return;

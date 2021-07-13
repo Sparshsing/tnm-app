@@ -29,7 +29,7 @@ export default function AccountDetails(props){
         const resp = await API.getAccountDetails(token['mr-token'], userId)
         if(resp.status==200){
           const data = await resp.json();
-          console.log('got data', data)
+          // console.log('got data', data)
           setUsername(data['username']);
           setEmail(data['email']);
           setLastName(data['last_name']);

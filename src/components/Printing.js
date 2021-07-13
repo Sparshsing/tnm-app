@@ -108,8 +108,8 @@ function Printing(props){
 
   const handleCheckboxClick = (e) =>{
     const oid = parseInt(e.target.dataset.oid)
-    console.log(oid);
-    console.log(e.target.checked);
+    // console.log(oid);
+    // console.log(e.target.checked);
     let checkedRows = [];
     if(e.target.checked) 
       checkedRows = [...mySelectedRows, oid]
@@ -136,7 +136,7 @@ function Printing(props){
     const btype = String(e.currentTarget.dataset.btype);
     let rowdata = orders.find(o => o.orderId == oid);
     let newRow ={};
-    console.log(btype);
+    // console.log(btype);
     if(btype=="processing"){
       const processing = rowdata.processing=='Y' ? 'N' : 'Y'
       console.log(processing);
@@ -165,7 +165,7 @@ function Printing(props){
           return row;
         });
         setMessage('updated order');
-        console.log(updatedRows.map(x => x.orderId));
+        // console.log(updatedRows.map(x => x.orderId));
         setOrders(updatedRows)
       })
       .catch(err => {console.log('api error');console.error(err); setMessage('Something went wrong')})
@@ -267,7 +267,7 @@ function Printing(props){
   // }
 
   useEffect(() => {
-    console.log('cookies');
+
     props.setTitle('Printing');
     if(mode=='none')
       fetchlist()
@@ -311,7 +311,7 @@ function Printing(props){
         }
         return result;
       })
-      console.log(rows.map(r => r.orderId));
+      // console.log(rows.map(r => r.orderId));
       setOrders(rows);
       setLoading(false);
     })

@@ -116,7 +116,7 @@ function ProductDetails(props){
       throw 'Something went wrong';    
     })
     .then(data => {
-      console.log(data); 
+      // console.log(data); 
       // data.forEach((item, i) => item.id = item.sfmId);
       setLoading(false);
       setProducts(data);

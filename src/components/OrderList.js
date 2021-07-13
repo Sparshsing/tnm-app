@@ -150,7 +150,7 @@ function OrderList(props){
 	};
 
   const handleRowSelected = (s) => {
-    console.log(s);
+    // console.log(s);
     let rows = [...s.api.current.getSelectedRows().values()];
     console.log('selected rows ere : ', rows);
     setMyEditedRows(rows);
@@ -209,7 +209,7 @@ function OrderList(props){
           return row;
         });
         setMyEditedRows(updatedRows);
-        console.log('cell commit after ', updatedRows);
+        // console.log('cell commit after ', updatedRows);
     },
     [myEditedRows],
   );
@@ -280,7 +280,7 @@ function OrderList(props){
   const handleDeleteClick = (e) => {setOpen(true)}
   const handleClose = (e) => {setOpen(false)}
   const handleDeleteConfirm = (e) => {
-    console.log('u confirmed delete');
+    console.log('confirmed delete');
     let errors = [];
     const deletRows = async () => {
       for(let rowId of mySelectedRows){

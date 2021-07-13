@@ -31,8 +31,8 @@ export default function PurchaseForm(props){
   const [availableProducts, setAvailableProducts] = useState([]);
   let badData = false;
   console.log("opened form");
-  console.log(availableStyles);
-  console.log(availableProducts);
+  // console.log(availableStyles);
+  // console.log(availableProducts);
 
   useEffect(() => {
     API.getProductList(token['mr-token'])
@@ -73,7 +73,7 @@ export default function PurchaseForm(props){
   }
 
   const saveData = (dataObject) => {
-    console.log(dataObject);
+    // console.log(dataObject);
     if(props.mode=='update')
       API.updatePurchase(token['mr-token'], props.id, dataObject)
       .then(resp => {
