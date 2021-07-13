@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,700');
+
+.hpcontainer {
+  padding: 1vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
+
+.hpbackground-color p {
+  color: rgb(0, 0, 0);
+  font-family: 'montserrat';
+  font-size: 3vw;
+  font-weight: bold;
+  letter-spacing: 1vw;
+  max-width: 700px;
+  text-align: center;
+  background: rgba(255, 253, 160, 1);
+  background: -webkit-linear-gradient( left, #003cff 0%, #0ba318 25%, #ee6399 50%, #0011ff 100%) repeat;
+  -webkit-background-clip: text;
+  -ms-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -ms-text-fill-color: transparent;
+  -moz-text-fill-color: transparent;
+  text-fill-color: transparent;
+  -webkit-animation-name: masked-animation;
+  -webkit-animation-duration: 50s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+}
+
+@-webkit-keyframes masked-animation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -8000px -3000px;
+  }
+}

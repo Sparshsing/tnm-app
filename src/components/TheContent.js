@@ -9,6 +9,7 @@ import Printing from './Printing';
 import Dashboard from './Dashboard';
 import AccountDetails from './AccountDetails';
 import Invoices from './Invoices';
+import HomePage from './Homepage';
 
 function TheContent(props){
   const setTitle = props.setTitle;
@@ -16,7 +17,7 @@ function TheContent(props){
 
   return (    
         <Switch>
-        <Route exact path='/' render={ props => <div >Welcome To SFM Dropshipping</div>} />
+        <Route exact path='/' render={ props => (<HomePage setTitle={setTitle} />)} />
         {usertype!=2 && <Route exact path='/dashboard' render={(props) => (<Dashboard  setTitle={setTitle} usertype={usertype}/>)} />}
         <Route exact path='/products' render={(props) => (<ProductDetails  setTitle={setTitle} usertype={usertype}/>)} />
         {usertype!=2 && <Route exact path='/stores' render={(props) => (<StoreDetails setTitle={setTitle} usertype={usertype}/>)} />}
