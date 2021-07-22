@@ -72,13 +72,14 @@ export default function AccountDetails(props){
       const resp = await API.changePassword(token['mr-token'], userId, {password, password2, old_password})
       if(resp.status==200){
         setErrormsg('');
-        setMessage('Password Changed Successfully');
+        setMessage('Password Changed Successfully. Please Sign out.');
       }
         
-      if(resp.status==400){
-        setMessage('Invalid Data');
-        setErrormsg(resp.json());
+      else if(resp.status==400){
+        setMessage('Invalid Password');
+        setErrormsg(await resp.json());
       }      
+      else throw 'Server Error';
     }
     catch(e){
       setMessage('Something went wrong');
@@ -214,6 +215,7 @@ export default function AccountDetails(props){
             helperText = {errormsg['password2'] ? errormsg['password2'][0]:''}
             error = {errormsg['password2'] ? true: false}
           />
+          <p>* Password must be atleast 8 characters long and not entirely numeric</p>
           <Button
             variant="contained"
             color="primary"

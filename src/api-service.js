@@ -372,7 +372,7 @@ export default class API{
   }
 
   static changePassword(token, id, data){
-    return fetch(APIROOT + '/api/accounts/change_password' + id + '/', {
+    return fetch(APIROOT + '/api/accounts/change_password/' + id + '/', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
