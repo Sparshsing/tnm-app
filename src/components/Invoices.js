@@ -112,10 +112,10 @@ export default function Invoices(props){
     
     
     { field: 'startDate', headerName: 'Start Date', width: 110,
-        valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+        valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value+'T00:00:00'))}
     },
     { field: 'endDate', headerName: 'End Date', width: 110,
-      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value))}
+      valueFormatter: (params) => { if(params.value) return formatDate(new Date(params.value+'T00:00:00'))}
     },
     { field: 'storeName', headerName: 'Store', width: 150, renderCell: (params) => (<GridCellExpand limit={14} value={params.value ? params.value.toString() : ''} width={300} />) },
     { field: 'invoiceNo', headerName: 'Invoice Number', width: 200 },
@@ -332,7 +332,6 @@ export default function Invoices(props){
             label="Start Date"
             name="startDate"
             type="date"
-            margin="none"
             size="small"
             style={{marginRight: '4px'}}
             value = {startDate}
@@ -347,7 +346,6 @@ export default function Invoices(props){
             label="End Date"
             name="endtDate"
             type="date"
-            margin="none"
             size="small"
             style={{marginRight: '4px'}}
             value = {endDate}
